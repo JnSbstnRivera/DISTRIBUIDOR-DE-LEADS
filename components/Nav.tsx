@@ -24,7 +24,7 @@ export default function Nav() {
           <img
             src="https://i.postimg.cc/6T5J2v2G/windmar-logo.png"
             alt="Windmar Home"
-            className="h-12 w-auto transition-transform duration-300 group-hover:scale-105"
+            className="h-[88px] w-auto transition-transform duration-300 group-hover:scale-105"
           />
           <div className="hidden leading-none sm:block">
             <div className="text-base font-black uppercase tracking-tight text-[var(--color-ink)]">

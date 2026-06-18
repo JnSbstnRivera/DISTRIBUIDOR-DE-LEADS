@@ -29,20 +29,20 @@
   --skeleton: linear-gradient(90deg, #eef1f7 25%, #e2e7f0 37%, #eef1f7 63%);
 }
 
-/* ── Tokens semánticos: oscuro ── */
+/* ── Tokens semánticos: oscuro (azul Windmar) ── */
 .dark {
-  --color-bg: #0e1326;
-  --color-surface: #181f3d;
-  --color-ink: #eef1f8;
-  --color-ink-soft: #c0c8e0;
-  --color-muted: #99a1bd;
-  --color-line: rgba(166, 195, 230, 0.14);
-  --color-subtle: rgba(255, 255, 255, 0.045);
-  --color-track: rgba(255, 255, 255, 0.09);
-  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 30px -18px rgba(0, 0, 0, 0.55);
-  --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.35), 0 20px 44px -20px rgba(0, 0, 0, 0.6);
-  --hero-bg: linear-gradient(135deg, #1c2348 0%, #2a2316 130%);
-  --skeleton: linear-gradient(90deg, #181f3d 25%, #222a4d 37%, #181f3d 63%);
+  --color-bg: #1b2c63;       /* azul Windmar más claro */
+  --color-surface: #243775;  /* card un poco más claro que el fondo */
+  --color-ink: #f1f4fb;
+  --color-ink-soft: #cdd5ec;
+  --color-muted: #a6b0d2;
+  --color-line: rgba(166, 195, 230, 0.18);
+  --color-subtle: rgba(255, 255, 255, 0.06);
+  --color-track: rgba(255, 255, 255, 0.12);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 30px -18px rgba(0, 0, 0, 0.5);
+  --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.3), 0 20px 44px -20px rgba(0, 0, 0, 0.55);
+  --hero-bg: linear-gradient(135deg, #2a3d80 0%, #3a3320 140%);
+  --skeleton: linear-gradient(90deg, #243775 25%, #2e4288 37%, #243775 63%);
 }
 
 html,
@@ -68,8 +68,8 @@ body::before {
 }
 .dark body::before {
   background:
-    radial-gradient(900px 500px at 100% -10%, rgba(248, 155, 36, 0.1), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(29, 66, 155, 0.16), transparent 60%);
+    radial-gradient(900px 500px at 100% -10%, rgba(248, 155, 36, 0.12), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(166, 195, 230, 0.1), transparent 60%);
 }
 
 ::-webkit-scrollbar {
