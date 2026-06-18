@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta Windmar oficial */
+  --color-wh-orange: #f89b24;
+  --color-wh-blue: #1d429b;
+  --color-wh-black: #231f20;
+  --color-wh-light-blue: #a6c3e6;
+  --color-wh-grey: #6d6e71;
+  --color-wh-tesla-grey: #a7a9ac;
+  --color-wh-navy: #21274e;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono-var), ui-monospace, "SF Mono", "Cascadia Mono", monospace;
+}
+
+/* ── Tokens semánticos: claro (default) ── */
+:root {
+  --color-bg: #eef1f7;
+  --color-surface: #ffffff;
+  --color-ink: #21274e;
+  --color-ink-soft: #4a5170;
+  --color-muted: #6d6e71;
+  --color-line: #e3e7f0;
+  --color-subtle: #f6f8fc;
+  --color-track: #e9edf5;
+  --card-shadow: 0 1px 2px rgba(33, 39, 78, 0.04), 0 10px 26px -18px rgba(33, 39, 78, 0.25);
+  --card-shadow-hover: 0 4px 10px rgba(33, 39, 78, 0.06), 0 18px 40px -20px rgba(33, 39, 78, 0.3);
+  --hero-bg: linear-gradient(135deg, #ffffff 0%, #fff6ea 100%);
+  --skeleton: linear-gradient(90deg, #eef1f7 25%, #e2e7f0 37%, #eef1f7 63%);
+}
+
+/* ── Tokens semánticos: oscuro ── */
+.dark {
+  --color-bg: #0e1326;
+  --color-surface: #181f3d;
+  --color-ink: #eef1f8;
+  --color-ink-soft: #c0c8e0;
+  --color-muted: #99a1bd;
+  --color-line: rgba(166, 195, 230, 0.14);
+  --color-subtle: rgba(255, 255, 255, 0.045);
+  --color-track: rgba(255, 255, 255, 0.09);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 30px -18px rgba(0, 0, 0, 0.55);
+  --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.35), 0 20px 44px -20px rgba(0, 0, 0, 0.6);
+  --hero-bg: linear-gradient(135deg, #1c2348 0%, #2a2316 130%);
+  --skeleton: linear-gradient(90deg, #181f3d 25%, #222a4d 37%, #181f3d 63%);
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.011em;
+  transition: background-color 0.3s ease;
+}
+
+/* Lavado de marca sutil en el fondo */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(900px 500px at 100% -10%, rgba(248, 155, 36, 0.06), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(29, 66, 155, 0.06), transparent 60%);
+  pointer-events: none;
+}
+.dark body::before {
+  background:
+    radial-gradient(900px 500px at 100% -10%, rgba(248, 155, 36, 0.1), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(29, 66, 155, 0.16), transparent 60%);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-track);
+  border-radius: 6px;
+}
+
+/* ── Tarjeta ejecutiva ── */
+.exec-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 0.9rem;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.exec-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(248, 155, 36, 0.45);
+  box-shadow: var(--card-shadow-hover);
+}
+.exec-card-hero {
+  background: var(--hero-bg);
+  border: 1px solid rgba(248, 155, 36, 0.4);
+  border-radius: 0.9rem;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease;
+}
+.exec-card-hero:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.exec-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-muted);
+}
+
+.kpi-number {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.accent-orange {
+  color: var(--color-wh-orange);
+}
+
+.shadow-orange {
+  box-shadow: 0 6px 18px -6px rgba(248, 155, 36, 0.5);
+}
+.shadow-soft {
+  box-shadow: var(--card-shadow);
+}
+
+/* ── Toggle de tema: reveal circular (View Transitions API) ── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+  animation: theme-circle-expand 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  clip-path: circle(0 at var(--theme-x, 50%) var(--theme-y, 50%));
+}
+@keyframes theme-circle-expand {
+  from {
+    clip-path: circle(0 at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+  to {
+    clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+}
+
+/* ── Animaciones ── */
+@keyframes in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in-up {
+  animation: in-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: var(--skeleton);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.bar-fill {
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Feedback táctil universal en botones */
+button:not(:disabled) {
+  transition: transform 0.12s ease, filter 0.15s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+@keyframes soft-pop {
+  0% { transform: scale(0.96); }
+  60% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+.soft-pop {
+  animation: soft-pop 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root) {
+    animation: none;
+    clip-path: none;
+  }
+  .animate-in-up, .skeleton, .soft-pop { animation: none; }
+  .exec-card:hover, .exec-card-hero:hover { transform: none; }
+  .bar-fill { transition: none; }
+}

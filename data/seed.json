@@ -1,0 +1,1546 @@
+{
+  "zonas": [
+    {
+      "codigo": "SJ1",
+      "nombre": "Oficina - San Juan 1",
+      "opcional": false
+    },
+    {
+      "codigo": "SJ2",
+      "nombre": "Oficina - San Juan 2 (Caguas)",
+      "opcional": false
+    },
+    {
+      "codigo": "HAT",
+      "nombre": "Oficina - Hatillo",
+      "opcional": false
+    },
+    {
+      "codigo": "PON",
+      "nombre": "Oficina - Ponce",
+      "opcional": false
+    },
+    {
+      "codigo": "MAYA",
+      "nombre": "Oficina - Mayagüez",
+      "opcional": false
+    },
+    {
+      "codigo": "COR",
+      "nombre": "Cordillera",
+      "opcional": true
+    }
+  ],
+  "municipios": [
+    {
+      "municipio": "Adjuntas",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Aguada",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Aguadilla",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Aguas Buenas",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Aibonito",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Añasco",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Arecibo",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Arroyo",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Barceloneta",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Barranquitas",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Bayamón",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Cabo Rojo",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Caguas",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Camuy",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Canóvanas",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Carolina",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Cataño",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Cayey",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Ceiba",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Ciales",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Cidra",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Coamo",
+      "zona": "PON"
+    },
+    {
+      "municipio": "Comerío",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Corozal",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Culebra",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Dorado",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Fajardo",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Florida",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Guánica",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Guayama",
+      "zona": "PON"
+    },
+    {
+      "municipio": "Guayanilla",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Guaynabo",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Gurabo",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Hatillo",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Hormigueros",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Humacao",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Isabela",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Jayuya",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Juana Díaz",
+      "zona": "PON"
+    },
+    {
+      "municipio": "Juncos",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Lajas",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Lares",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Las Marías",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Las Piedras",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Loíza",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Luquillo",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Manatí",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Maricao",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Maunabo",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Mayagüez",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Moca",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Morovis",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Naguabo",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Naranjito",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Orocovis",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Patillas",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Peñuelas",
+      "zona": "PON"
+    },
+    {
+      "municipio": "Ponce",
+      "zona": "PON"
+    },
+    {
+      "municipio": "Quebradillas",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Rincón",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Río Grande",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Sabana Grande",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Salinas",
+      "zona": "PON"
+    },
+    {
+      "municipio": "San Germán",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "San Juan",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "San Lorenzo",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "San Sebastián",
+      "zona": "MAYA"
+    },
+    {
+      "municipio": "Santa Isabel",
+      "zona": "PON"
+    },
+    {
+      "municipio": "Toa Alta",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Toa Baja",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Trujillo Alto",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Utuado",
+      "zona": "COR"
+    },
+    {
+      "municipio": "Vega Alta",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Vega Baja",
+      "zona": "HAT"
+    },
+    {
+      "municipio": "Vieques",
+      "zona": "SJ1"
+    },
+    {
+      "municipio": "Villalba",
+      "zona": "PON"
+    },
+    {
+      "municipio": "Yabucoa",
+      "zona": "SJ2"
+    },
+    {
+      "municipio": "Yauco",
+      "zona": "MAYA"
+    }
+  ],
+  "gerentes": [
+    {
+      "id": 1,
+      "nombre": "Adriana Paola Rodriguez Lopez",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 10,
+          "historico": 57
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 38
+        },
+        "PON": {
+          "ajuste": 19,
+          "historico": 12
+        }
+      }
+    },
+    {
+      "id": 2,
+      "nombre": "Alejandro Ramos",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {}
+    },
+    {
+      "id": 3,
+      "nombre": "Brayan Sanchez Ortiz",
+      "blacklist": true,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 4,
+          "historico": 61
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 37
+        },
+        "HAT": {
+          "ajuste": 27,
+          "historico": 6
+        }
+      }
+    },
+    {
+      "id": 4,
+      "nombre": "Briand Steven Ramos Diaz",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 3,
+          "historico": 64
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 38
+        },
+        "PON": {
+          "ajuste": 27,
+          "historico": 4
+        }
+      }
+    },
+    {
+      "id": 5,
+      "nombre": "Carlos E Ortiz De Hostos",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 16,
+          "historico": 51
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 38
+        },
+        "HAT": {
+          "ajuste": 20,
+          "historico": 13
+        },
+        "PON": {
+          "ajuste": 19,
+          "historico": 12
+        },
+        "COR": {
+          "ajuste": 8,
+          "historico": 9
+        }
+      }
+    },
+    {
+      "id": 6,
+      "nombre": "Carlos Emmanuel Alejandro Mercado",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 4,
+          "historico": 62
+        },
+        "SJ2": {
+          "ajuste": 2,
+          "historico": 35
+        }
+      }
+    },
+    {
+      "id": 7,
+      "nombre": "Cesar Pacheco",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 0,
+          "historico": 67
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 38
+        },
+        "HAT": {
+          "ajuste": 27,
+          "historico": 6
+        }
+      }
+    },
+    {
+      "id": 8,
+      "nombre": "Christian Samir Rivera Santiago",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 0,
+          "historico": 67
+        },
+        "HAT": {
+          "ajuste": 27,
+          "historico": 6
+        },
+        "PON": {
+          "ajuste": 0,
+          "historico": 31
+        },
+        "COR": {
+          "ajuste": 7,
+          "historico": 10
+        }
+      }
+    },
+    {
+      "id": 9,
+      "nombre": "Cinthia Rivera Pagan",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 37,
+          "historico": 30
+        },
+        "HAT": {
+          "ajuste": 20,
+          "historico": 13
+        },
+        "PON": {
+          "ajuste": 20,
+          "historico": 11
+        },
+        "MAYA": {
+          "ajuste": 21,
+          "historico": 17
+        }
+      }
+    },
+    {
+      "id": 10,
+      "nombre": "David E Fonseca Rios",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "HAT": {
+          "ajuste": 0,
+          "historico": 33
+        },
+        "PON": {
+          "ajuste": 0,
+          "historico": 31
+        },
+        "MAYA": {
+          "ajuste": 0,
+          "historico": 36
+        }
+      }
+    },
+    {
+      "id": 11,
+      "nombre": "Edwin Colon",
+      "blacklist": true,
+      "tier2": true,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 0,
+          "historico": 46
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 35
+        }
+      }
+    },
+    {
+      "id": 12,
+      "nombre": "Elliot Rodriguez Gonzalez",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 4,
+          "historico": 61
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 36
+        },
+        "HAT": {
+          "ajuste": 28,
+          "historico": 3
+        }
+      }
+    },
+    {
+      "id": 13,
+      "nombre": "Emmanuel Ortiz De Jesus",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "SJ2": {
+          "ajuste": 22,
+          "historico": 15
+        },
+        "HAT": {
+          "ajuste": 20,
+          "historico": 12
+        }
+      }
+    },
+    {
+      "id": 14,
+      "nombre": "Ernesto Aguayo Mendoza",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 38
+        },
+        "HAT": {
+          "ajuste": 27,
+          "historico": 6
+        },
+        "PON": {
+          "ajuste": 26,
+          "historico": 5
+        },
+        "COR": {
+          "ajuste": 7,
+          "historico": 10
+        }
+      }
+    },
+    {
+      "id": 15,
+      "nombre": "Feranza Colon Bonilla",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 10,
+          "historico": 57
+        },
+        "SJ2": {
+          "ajuste": 4,
+          "historico": 34
+        },
+        "PON": {
+          "ajuste": 3,
+          "historico": 28
+        }
+      }
+    },
+    {
+      "id": 16,
+      "nombre": "Giovanni Roberto Rivera Orengo",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 2,
+          "historico": 64
+        },
+        "SJ2": {
+          "ajuste": 1,
+          "historico": 36
+        },
+        "HAT": {
+          "ajuste": 0,
+          "historico": 32
+        },
+        "COR": {
+          "ajuste": 7,
+          "historico": 9
+        }
+      }
+    },
+    {
+      "id": 17,
+      "nombre": "Gustavo Jose Bernard Rivera",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 7,
+          "historico": 60
+        },
+        "SJ2": {
+          "ajuste": 2,
+          "historico": 36
+        },
+        "HAT": {
+          "ajuste": 27,
+          "historico": 6
+        },
+        "COR": {
+          "ajuste": 14,
+          "historico": 3
+        }
+      }
+    },
+    {
+      "id": 18,
+      "nombre": "Isabel Echevarria Garcia",
+      "blacklist": true,
+      "tier2": true,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 2,
+          "historico": 62
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 36
+        }
+      }
+    },
+    {
+      "id": 19,
+      "nombre": "Israel Pons Guzman",
+      "blacklist": true,
+      "tier2": true,
+      "zonas": {
+        "PON": {
+          "ajuste": 3,
+          "historico": 24
+        }
+      }
+    },
+    {
+      "id": 20,
+      "nombre": "Israel Pons Martinez",
+      "blacklist": true,
+      "tier2": true,
+      "zonas": {
+        "PON": {
+          "ajuste": 3,
+          "historico": 25
+        }
+      }
+    },
+    {
+      "id": 21,
+      "nombre": "Jaime Sepulveda",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ2": {
+          "ajuste": 1,
+          "historico": 37
+        },
+        "HAT": {
+          "ajuste": 3,
+          "historico": 30
+        },
+        "MAYA": {
+          "ajuste": 27,
+          "historico": 10
+        },
+        "COR": {
+          "ajuste": 7,
+          "historico": 10
+        }
+      }
+    },
+    {
+      "id": 22,
+      "nombre": "Joel E Muniz Aybar",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "PON": {
+          "ajuste": 0,
+          "historico": 30
+        },
+        "MAYA": {
+          "ajuste": 0,
+          "historico": 35
+        }
+      }
+    },
+    {
+      "id": 23,
+      "nombre": "Jorge Enrique Serrano Gonzalez",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 3,
+          "historico": 64
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 38
+        },
+        "HAT": {
+          "ajuste": 0,
+          "historico": 33
+        }
+      }
+    },
+    {
+      "id": 24,
+      "nombre": "Jose Luis Nogueras",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "HAT": {
+          "ajuste": 4,
+          "historico": 27
+        },
+        "MAYA": {
+          "ajuste": 2,
+          "historico": 30
+        }
+      }
+    },
+    {
+      "id": 25,
+      "nombre": "Joselyne Soto Gonzalez",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 2,
+          "historico": 65
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 38
+        },
+        "PON": {
+          "ajuste": 22,
+          "historico": 9
+        }
+      }
+    },
+    {
+      "id": 26,
+      "nombre": "Joshua Lopez",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "HAT": {
+          "ajuste": 3,
+          "historico": 28
+        },
+        "PON": {
+          "ajuste": 26,
+          "historico": 3
+        },
+        "MAYA": {
+          "ajuste": 2,
+          "historico": 33
+        }
+      }
+    },
+    {
+      "id": 27,
+      "nombre": "Karina N Bobe",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 1,
+          "historico": 65
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 37
+        },
+        "HAT": {
+          "ajuste": 28,
+          "historico": 4
+        }
+      }
+    },
+    {
+      "id": 28,
+      "nombre": "Kenneth La Quay",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 9,
+          "historico": 58
+        },
+        "SJ2": {
+          "ajuste": 5,
+          "historico": 33
+        },
+        "HAT": {
+          "ajuste": 29,
+          "historico": 4
+        }
+      }
+    },
+    {
+      "id": 29,
+      "nombre": "Luis Torres Velazquez",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "SJ2": {
+          "ajuste": 30,
+          "historico": 5
+        },
+        "PON": {
+          "ajuste": 0,
+          "historico": 29
+        },
+        "MAYA": {
+          "ajuste": 0,
+          "historico": 35
+        },
+        "COR": {
+          "ajuste": 14,
+          "historico": 1
+        }
+      }
+    },
+    {
+      "id": 30,
+      "nombre": "Lynda Darlene Green Cruz",
+      "blacklist": true,
+      "tier2": true,
+      "zonas": {
+        "PON": {
+          "ajuste": 2,
+          "historico": 27
+        },
+        "MAYA": {
+          "ajuste": 2,
+          "historico": 32
+        },
+        "COR": {
+          "ajuste": 5,
+          "historico": 10
+        }
+      }
+    },
+    {
+      "id": 31,
+      "nombre": "Marie Lee Jaime Fernandez",
+      "blacklist": true,
+      "tier2": true,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 0,
+          "historico": 62
+        },
+        "PON": {
+          "ajuste": 0,
+          "historico": 29
+        }
+      }
+    },
+    {
+      "id": 32,
+      "nombre": "Marleen Ramos Marrero",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "HAT": {
+          "ajuste": 5,
+          "historico": 27
+        },
+        "MAYA": {
+          "ajuste": 0,
+          "historico": 36
+        },
+        "COR": {
+          "ajuste": 7,
+          "historico": 10
+        }
+      }
+    },
+    {
+      "id": 33,
+      "nombre": "Merari Velazquez Aldarondo",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "HAT": {
+          "ajuste": 3,
+          "historico": 30
+        },
+        "PON": {
+          "ajuste": 26,
+          "historico": 5
+        },
+        "MAYA": {
+          "ajuste": 2,
+          "historico": 35
+        },
+        "COR": {
+          "ajuste": 5,
+          "historico": 12
+        }
+      }
+    },
+    {
+      "id": 34,
+      "nombre": "Miguel Antonio Mercado Bruno",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {}
+    },
+    {
+      "id": 35,
+      "nombre": "Natalia Mercado",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {}
+    },
+    {
+      "id": 36,
+      "nombre": "Nathalia Cristina Cordova Moran",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 1,
+          "historico": 66
+        },
+        "HAT": {
+          "ajuste": 0,
+          "historico": 32
+        },
+        "PON": {
+          "ajuste": 25,
+          "historico": 6
+        },
+        "COR": {
+          "ajuste": 6,
+          "historico": 11
+        }
+      }
+    },
+    {
+      "id": 37,
+      "nombre": "Norbert Cruz Cabrera",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "HAT": {
+          "ajuste": 0,
+          "historico": 30
+        },
+        "MAYA": {
+          "ajuste": 0,
+          "historico": 33
+        },
+        "COR": {
+          "ajuste": 7,
+          "historico": 9
+        }
+      }
+    },
+    {
+      "id": 38,
+      "nombre": "Odette Perez Morales",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 6,
+          "historico": 60
+        },
+        "SJ2": {
+          "ajuste": 30,
+          "historico": 7
+        },
+        "HAT": {
+          "ajuste": 0,
+          "historico": 32
+        },
+        "COR": {
+          "ajuste": 7,
+          "historico": 10
+        }
+      }
+    },
+    {
+      "id": 39,
+      "nombre": "Rafael Garces Morales",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 8,
+          "historico": 59
+        },
+        "HAT": {
+          "ajuste": 6,
+          "historico": 26
+        }
+      }
+    },
+    {
+      "id": 40,
+      "nombre": "Ramonita Echevarria",
+      "blacklist": true,
+      "tier2": false,
+      "zonas": {
+        "SJ2": {
+          "ajuste": 31,
+          "historico": 6
+        },
+        "HAT": {
+          "ajuste": 27,
+          "historico": 5
+        },
+        "PON": {
+          "ajuste": 26,
+          "historico": 4
+        }
+      }
+    },
+    {
+      "id": 41,
+      "nombre": "Raul Deya",
+      "blacklist": false,
+      "tier2": true,
+      "zonas": {
+        "HAT": {
+          "ajuste": 2,
+          "historico": 28
+        },
+        "PON": {
+          "ajuste": 26,
+          "historico": 3
+        },
+        "MAYA": {
+          "ajuste": 0,
+          "historico": 32
+        },
+        "COR": {
+          "ajuste": 5,
+          "historico": 10
+        }
+      }
+    },
+    {
+      "id": 42,
+      "nombre": "Ricardo Gomez Martinez",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 1,
+          "historico": 66
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 37
+        },
+        "HAT": {
+          "ajuste": 17,
+          "historico": 15
+        },
+        "COR": {
+          "ajuste": 7,
+          "historico": 9
+        }
+      }
+    },
+    {
+      "id": 43,
+      "nombre": "Roberto Carlos Rivera Orengo",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 2,
+          "historico": 65
+        },
+        "SJ2": {
+          "ajuste": 2,
+          "historico": 35
+        },
+        "COR": {
+          "ajuste": 5,
+          "historico": 12
+        }
+      }
+    },
+    {
+      "id": 44,
+      "nombre": "Roberto Pacheco",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 5,
+          "historico": 62
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 37
+        },
+        "PON": {
+          "ajuste": 25,
+          "historico": 6
+        }
+      }
+    },
+    {
+      "id": 45,
+      "nombre": "Silverio Osorio Bustamante",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {}
+    },
+    {
+      "id": 46,
+      "nombre": "Wilson Morales Ruiz",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 3,
+          "historico": 63
+        },
+        "PON": {
+          "ajuste": 3,
+          "historico": 28
+        },
+        "MAYA": {
+          "ajuste": 27,
+          "historico": 10
+        },
+        "COR": {
+          "ajuste": 14,
+          "historico": 2
+        }
+      }
+    },
+    {
+      "id": 47,
+      "nombre": "Xavier Omar Musa Matos",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 34,
+          "historico": 33
+        },
+        "HAT": {
+          "ajuste": 0,
+          "historico": 32
+        },
+        "COR": {
+          "ajuste": 8,
+          "historico": 8
+        }
+      }
+    },
+    {
+      "id": 48,
+      "nombre": "Yiviana Cruz",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {}
+    },
+    {
+      "id": 49,
+      "nombre": "Zoribeth Burgos",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {
+        "SJ1": {
+          "ajuste": 0,
+          "historico": 66
+        },
+        "SJ2": {
+          "ajuste": 0,
+          "historico": 37
+        },
+        "COR": {
+          "ajuste": 7,
+          "historico": 9
+        }
+      }
+    },
+    {
+      "id": 50,
+      "nombre": "Jose A Rivera Mojica",
+      "blacklist": false,
+      "tier2": false,
+      "zonas": {}
+    }
+  ],
+  "blacklist": {
+    "consultores": [
+      {
+        "nombre": "Israel Pons Guzman",
+        "inicio": "2026-03-01",
+        "fin": "2026-05-15",
+        "detalle": "No Vendio una venta en Marzo",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Edwin Colon",
+        "inicio": "2026-05-01",
+        "fin": "2026-06-15",
+        "detalle": "No Vendio una venta en ABRIL",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Israel Pons Martinez",
+        "inicio": "2026-05-01",
+        "fin": "2026-06-15",
+        "detalle": "No Vendio una venta en ABRIL",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Brayan Sanchez Ortiz",
+        "inicio": "2026-05-01",
+        "fin": "2026-06-15",
+        "detalle": "No Vendio una venta en ABRIL",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Isabel Echevarria Garcia",
+        "inicio": "2026-05-01",
+        "fin": "2026-06-15",
+        "detalle": "No Vendio una venta en ABRIL",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Lynda Darlene Green Cruz",
+        "inicio": "2026-05-01",
+        "fin": "2026-06-15",
+        "detalle": "No Vendio una venta en ABRIL",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Marie Lee Jaime Fernandez",
+        "inicio": "2026-05-01",
+        "fin": "2026-06-15",
+        "detalle": "No Vendio una venta en ABRIL",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Ramonita Echevarria",
+        "inicio": "2026-05-01",
+        "fin": "2026-06-15",
+        "detalle": "No Vendio una venta en ABRIL",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      }
+    ],
+    "vendedores": [
+      {
+        "nombre": "Adriana Paola Rodriguez Lopez",
+        "inicio": "2024-12-19",
+        "fin": "2025-01-19",
+        "detalle": "se asigna a la por inasistencia a las orientaciones ",
+        "previos": "si sin registro "
+      },
+      {
+        "nombre": "alex pares",
+        "inicio": "2025-04-03",
+        "fin": "2025-04-04",
+        "detalle": "consultor no se presento a las orientaciones ",
+        "previos": "si sin registro "
+      },
+      {
+        "nombre": "Brayan Sanchez Ortiz",
+        "inicio": "2025-01-10",
+        "fin": "2025-02-10",
+        "detalle": "se asigna a la BL por inasistencia a las orientaciones ",
+        "previos": "si sin registro "
+      },
+      {
+        "nombre": "Jaime Sepulveda",
+        "inicio": "2024-08-27",
+        "fin": "2024-10-22",
+        "detalle": "consultor no se presento a la cita que se le agendo el dia 26/08/2024",
+        "previos": "si sin registro "
+      },
+      {
+        "nombre": "Karina N Bobe",
+        "inicio": "2025-01-20",
+        "fin": "2025-02-19",
+        "detalle": "No se aparecio a una cita y le quedo mal al cliente. Reasigno a las 8 AM. Estaba dormida cuando llamo al cliente. ",
+        "previos": "si sin registro "
+      },
+      {
+        "nombre": "Kenneth La Quay",
+        "inicio": "2024-12-16",
+        "fin": "2025-01-17",
+        "detalle": "Cumplio con el plazo en la BL, se realizar re incorpora al distribuidor ",
+        "previos": "si sin registro "
+      },
+      {
+        "nombre": "Lynda Darlene Green Cruz",
+        "inicio": "2025-05-22",
+        "fin": null,
+        "detalle": "No contesta lo mensajes",
+        "previos": ""
+      },
+      {
+        "nombre": "Marie Lee Jaime Fernandez",
+        "inicio": "2024-12-23",
+        "fin": "2025-01-23",
+        "detalle": "Se valida y es eeroneo el ingreso en la BL ",
+        "previos": "si sin registro "
+      },
+      {
+        "nombre": "Marleen Ramos Marrero",
+        "inicio": "2025-05-14",
+        "fin": "2025-06-14",
+        "detalle": "se coloca en la Black provisionalmente en blacklist en lo que Jesus y Alverio investigan todo",
+        "previos": "sin registro "
+      },
+      {
+        "nombre": "Alex Pares",
+        "inicio": "2025-10-05",
+        "fin": "2026-01-03",
+        "detalle": "Uso un numero personal de telefono en media tour porque queria.",
+        "previos": "2025-04-03 00:00:00"
+      },
+      {
+        "nombre": "David E Fonseca Rios",
+        "inicio": "2025-10-28",
+        "fin": "1900-01-30",
+        "detalle": "Pausado de leads hasta que nos responda y reporte que podemos hacer con las citas de IG que tenemos. ",
+        "previos": ""
+      },
+      {
+        "nombre": "Adriana Paola Rodriguez Lopez",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Alex Pares",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Cesar Pacheco",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "David E Fonseca Rios",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Edwin Colon",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Feranza Colon Bonilla",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Israel Pons Guzman",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Israel Pons Martinez",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Jose Luis Nogueras",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Joselyne Soto Gonzalez",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Joshua Lopez",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Karina N Bobe",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Kenneth La Quay",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Marie Lee Jaime Fernandez",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Norbert Cruz Cabrera",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Rafael Garces Morales",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      },
+      {
+        "nombre": "Wilson Morales Ruiz",
+        "inicio": "2026-02-01",
+        "fin": "2026-04-01",
+        "detalle": "No Vendio una venta en Febrero",
+        "previos": "No cuenta con incidentes previos cuando te vas en 0"
+      }
+    ]
+  },
+  "meta": {
+    "total_gerentes": 50,
+    "total_municipios": 78
+  }
+}
