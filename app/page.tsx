@@ -14,6 +14,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { Reveal } from "@/components/Reveal";
 import { ZonaBadge, ZONA_COLOR } from "@/components/ui";
 import {
   ChartBox,
@@ -134,22 +135,26 @@ export default function Dashboard() {
 
       {/* Charts */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <Reveal className="lg:col-span-2">
           <ChartBox title="Carga histórica de leads por zona" hint="cómo se repartió hasta hoy">
             <CargaPorZonaChart porZona={porZona} />
           </ChartBox>
-        </div>
-        <ChartBox title="Black List" hint="activa vs vencida">
-          <BlacklistDonut activa={charts.blacklist.activa} vencida={charts.blacklist.vencida} />
-        </ChartBox>
-        <div className="lg:col-span-2">
+        </Reveal>
+        <Reveal delay={0.06}>
+          <ChartBox title="Black List" hint="activa vs vencida">
+            <BlacklistDonut activa={charts.blacklist.activa} vencida={charts.blacklist.vencida} />
+          </ChartBox>
+        </Reveal>
+        <Reveal className="lg:col-span-2" delay={0.06}>
           <ChartBox title="Asignaciones de la sesión" hint="línea de tiempo">
             <AsignacionesChart data={charts.asignacionesPorDia} />
           </ChartBox>
-        </div>
-        <ChartBox title="Gerentes elegibles por zona">
-          <GerentesPorZonaChart porZona={porZona} />
-        </ChartBox>
+        </Reveal>
+        <Reveal delay={0.12}>
+          <ChartBox title="Gerentes elegibles por zona">
+            <GerentesPorZonaChart porZona={porZona} />
+          </ChartBox>
+        </Reveal>
       </div>
 
       {/* Próximo turno por zona */}
@@ -165,11 +170,9 @@ export default function Dashboard() {
             const next = elegibles[0];
             const maxCarga = z.cargaMax || 1;
             return (
-              <motion.div
+              <Reveal
                 key={z.codigo}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                delay={idx * 0.05}
                 className="exec-card p-4"
               >
                 <div className="flex items-center justify-between">
@@ -224,7 +227,7 @@ export default function Dashboard() {
                   <span>{z.gerentesActivos} elegibles</span>
                   <span>{z.asignadasSesion} asignadas</span>
                 </div>
-              </motion.div>
+              </Reveal>
             );
           })}
         </div>

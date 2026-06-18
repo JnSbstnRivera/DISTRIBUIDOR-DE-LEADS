@@ -29,20 +29,20 @@
   --skeleton: linear-gradient(90deg, #eef1f7 25%, #e2e7f0 37%, #eef1f7 63%);
 }
 
-/* ── Tokens semánticos: oscuro (azul Windmar) ── */
+/* ── Tokens semánticos: oscuro (azul Windmar más claro) ── */
 .dark {
-  --color-bg: #1b2c63;       /* azul Windmar más claro */
-  --color-surface: #243775;  /* card un poco más claro que el fondo */
-  --color-ink: #f1f4fb;
-  --color-ink-soft: #cdd5ec;
-  --color-muted: #a6b0d2;
-  --color-line: rgba(166, 195, 230, 0.18);
-  --color-subtle: rgba(255, 255, 255, 0.06);
-  --color-track: rgba(255, 255, 255, 0.12);
-  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 30px -18px rgba(0, 0, 0, 0.5);
-  --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.3), 0 20px 44px -20px rgba(0, 0, 0, 0.55);
-  --hero-bg: linear-gradient(135deg, #2a3d80 0%, #3a3320 140%);
-  --skeleton: linear-gradient(90deg, #243775 25%, #2e4288 37%, #243775 63%);
+  --color-bg: #21459a;       /* azul Windmar, claro y con marca */
+  --color-surface: #2b54b0;  /* card más claro que el fondo */
+  --color-ink: #ffffff;
+  --color-ink-soft: #dde5f8;
+  --color-muted: #b7c2e6;
+  --color-line: rgba(255, 255, 255, 0.20);
+  --color-subtle: rgba(255, 255, 255, 0.08);
+  --color-track: rgba(255, 255, 255, 0.16);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 14px 34px -18px rgba(8, 18, 50, 0.55);
+  --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.22), 0 22px 46px -20px rgba(8, 18, 50, 0.6);
+  --hero-bg: linear-gradient(135deg, #2f5cc0 0%, #4a4326 150%);
+  --skeleton: linear-gradient(90deg, #2b54b0 25%, #3863c4 37%, #2b54b0 63%);
 }
 
 html,
@@ -55,22 +55,7 @@ body {
   transition: background-color 0.3s ease;
 }
 
-/* Lavado de marca sutil en el fondo */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(900px 500px at 100% -10%, rgba(248, 155, 36, 0.06), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(29, 66, 155, 0.06), transparent 60%);
-  pointer-events: none;
-}
-.dark body::before {
-  background:
-    radial-gradient(900px 500px at 100% -10%, rgba(248, 155, 36, 0.12), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(166, 195, 230, 0.1), transparent 60%);
-}
+/* Fondo animado (aurora): implementado en components/AnimatedBackground.tsx con Framer Motion */
 
 ::-webkit-scrollbar {
   width: 10px;
