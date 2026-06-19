@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
 /* ── Paleta Windmar ── */
 const C = {
@@ -59,11 +59,13 @@ export function SpriteImg({
   facing = "down",
   frame = 0,
   w = 42,
+  walking = false,
 }: {
   sheet: string;
   facing?: Facing;
   frame?: number;
   w?: number;
+  walking?: boolean;
 }) {
   const meta = SHEET_META[sheet] || { cols: 4, rows: 4 };
   const h = w * 1.5; // celda 64×96 = 2:3
@@ -71,8 +73,10 @@ export function SpriteImg({
   const col = frame % meta.cols;
   const flip = !meta.strip && facing === "right";
   return (
-    <div className="relative flex flex-col items-center">
-      <div
+    <div className="relative flex flex-col items-center" style={{ transform: flip ? "scaleX(-1)" : undefined }}>
+      <motion.div
+        animate={walking ? { y: [0, -2, 0] } : { y: 0 }}
+        transition={walking ? { duration: 0.45, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
         style={{
           width: w,
           height: h,
@@ -80,7 +84,6 @@ export function SpriteImg({
           backgroundSize: `${w * meta.cols}px ${h * meta.rows}px`,
           backgroundPosition: `-${col * w}px -${row * h}px`,
           imageRendering: "pixelated",
-          transform: flip ? "scaleX(-1)" : undefined,
         }}
       />
       <div style={{ width: w * 0.5, height: 4, marginTop: -2, background: "rgba(0,0,0,.28)", borderRadius: 99, filter: "blur(1px)" }} />
@@ -173,7 +176,7 @@ export default function PixelOffice({ agents }: { agents: OfficeAgent[] }) {
           <div className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black/55 px-1 text-[8px] font-bold text-white">
             {a.nombre}
           </div>
-          <SpriteImg sheet={a.sheet} facing={a.facing} frame={a.frame} w={42} />
+          <SpriteImg sheet={a.sheet} facing={a.facing} frame={0} w={42} walking={a.state === "walking"} />
         </div>
       ))}
     </div>

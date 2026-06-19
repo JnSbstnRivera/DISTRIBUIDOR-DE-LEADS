@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Send, Terminal, Bot, Pencil, Check } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
-import PixelOffice, { SpriteImg, isStrip, type OfficeAgent } from "@/components/PixelOffice";
+import PixelOffice, { SpriteImg, type OfficeAgent } from "@/components/PixelOffice";
 
 // modelos de caminar (para elegir por agente)
 const SHEETS = ["agent1", "agent2", "agent3", "agent4"];
@@ -38,7 +38,6 @@ const DEFAULTS: OfficeAgent[] = [
   mk("n8n", "N8N Notifier", "agent4", { x: 44, y: 68 }, WORK),
   mk("gerente", "Gerente", "agent1", { x: 80, y: 72 }, MGR),
   mk("calidad", "Calidad", "agent2", { x: 82, y: 28 }, MEET),
-  mk("courier", "Trae leads", "leadH", { x: 50, y: 50 }, { x0: 10, y0: 46, x1: 54, y1: 54 }),
 ];
 
 export default function PixelAgents() {
@@ -66,39 +65,37 @@ export default function PixelAgents() {
     } catch {}
   }, []);
 
-  // Simulación: caminar → sentarse a trabajar → idle. Los "courier" (strip de
-  // leads) nunca se sientan: caminan en bucle entregando.
+  // Simulación calmada: el agente se desliza suave a un punto, se queda un rato
+  // (trabajando/idle), y vuelve a moverse. SIN cambio de frames (evita el
+  // "salto" feo); el movimiento natural lo da el deslizamiento + un leve bob.
   useEffect(() => {
     const iv = setInterval(() => {
       setAgents((prev) =>
         prev.map((a) => {
-          let { x, y, tx, ty, state, facing, frame, wait, goingDesk } = a;
-          const strip = isStrip(a.sheet);
+          let { x, y, tx, ty, state, facing, wait, goingDesk } = a;
           if (state === "walking") {
             const dx = tx - x, dy = ty - y;
             const d = Math.hypot(dx, dy);
-            if (d < 1.6) {
-              if (strip) { state = "idle"; wait = 0; } // sigue deambulando enseguida
-              else if (goingDesk) { state = "working"; facing = "up"; wait = Math.round(rnd(45, 110)); x = a.desk.x; y = a.desk.y; }
-              else { state = "idle"; facing = "down"; wait = Math.round(rnd(15, 40)); }
+            if (d < 1.2) {
+              if (goingDesk) { state = "working"; facing = "up"; x = a.desk.x; y = a.desk.y; wait = Math.round(rnd(60, 140)); }
+              else { state = "idle"; facing = "down"; wait = Math.round(rnd(25, 60)); }
             } else {
-              const sp = strip ? 1.1 : 1.6;
+              const sp = 1.1;
               x += (dx / d) * sp; y += (dy / d) * sp;
               facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
-              frame = (frame + 1) % 8;
             }
           } else {
             wait--;
             if (wait <= 0) {
-              if (!strip && Math.random() < 0.55) { tx = a.desk.x; ty = a.desk.y; goingDesk = true; }
+              if (Math.random() < 0.6) { tx = a.desk.x; ty = a.desk.y; goingDesk = true; }
               else { tx = rnd(a.zone.x0, a.zone.x1); ty = rnd(a.zone.y0, a.zone.y1); goingDesk = false; }
               state = "walking";
             }
           }
-          return { ...a, x, y, tx, ty, state, facing, frame, wait, goingDesk };
+          return { ...a, x, y, tx, ty, state, facing, wait, goingDesk };
         })
       );
-    }, 130);
+    }, 160);
     return () => clearInterval(iv);
   }, []);
 
