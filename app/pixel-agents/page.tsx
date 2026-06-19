@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Send, Terminal, Bot, Pencil, Check } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
 import PixelOffice, { AgentSprite, type OfficeAgent } from "@/components/PixelOffice";
@@ -19,7 +19,7 @@ function mk(
   return {
     id, nombre, genero, hair, desk, zone,
     x: desk.x, y: desk.y, tx: desk.x, ty: desk.y,
-    state: "working", facing: "up", frame: 0, wait: 40, goingDesk: true,
+    state: "idle", facing: "down", frame: 0, wait: 0, goingDesk: false,
   };
 }
 
@@ -36,19 +36,14 @@ const DEFAULTS: OfficeAgent[] = [
   mk("calidad", "Calidad", "m", "#7a5230", { x: 82, y: 28 }, MEET),
 ];
 
-function rnd(a: number, b: number) {
-  return a + (b - a) * Math.random();
-}
-
 export default function PixelAgents() {
   const [agents, setAgents] = useState<OfficeAgent[]>(DEFAULTS);
   const [edit, setEdit] = useState(false);
   const [target, setTarget] = useState("distribuidor");
   const [orden, setOrden] = useState("");
   const [log, setLog] = useState<{ t: string; msg: string }[]>([
-    { t: "sistema", msg: "Oficina Windmar activa. Los agentes caminan y trabajan; personalízalos con Editar." },
+    { t: "sistema", msg: "Oficina Windmar lista. Agentes quietos hasta definir la secuencia de leads." },
   ]);
-  const tick = useRef(0);
 
   // cargar personalización
   useEffect(() => {
@@ -66,39 +61,8 @@ export default function PixelAgents() {
     } catch {}
   }, []);
 
-  // bucle de simulación (movimiento + estados)
-  useEffect(() => {
-    const iv = setInterval(() => {
-      tick.current++;
-      setAgents((prev) =>
-        prev.map((a) => {
-          let { x, y, tx, ty, state, facing, frame, wait, goingDesk } = a;
-          if (state === "walking") {
-            const dx = tx - x, dy = ty - y;
-            const d = Math.hypot(dx, dy);
-            if (d < 1.6) {
-              if (goingDesk) { state = "working"; facing = "up"; wait = Math.round(rnd(45, 110)); x = a.desk.x; y = a.desk.y; }
-              else { state = "idle"; facing = "down"; wait = Math.round(rnd(15, 40)); }
-            } else {
-              const sp = 1.6;
-              x += (dx / d) * sp; y += (dy / d) * sp;
-              facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
-              frame = (frame + 1) % 2;
-            }
-          } else {
-            wait--;
-            if (wait <= 0) {
-              if (Math.random() < 0.55) { tx = a.desk.x; ty = a.desk.y; goingDesk = true; }
-              else { tx = rnd(a.zone.x0, a.zone.x1); ty = rnd(a.zone.y0, a.zone.y1); goingDesk = false; }
-              state = "walking";
-            }
-          }
-          return { ...a, x, y, tx, ty, state, facing, frame, wait, goingDesk };
-        })
-      );
-    }, 130);
-    return () => clearInterval(iv);
-  }, []);
+  // Movimiento PAUSADO: los agentes quedan quietos en su lugar hasta definir
+  // la secuencia (p. ej. el agente que trae los leads).
 
   function update(id: string, patch: Partial<OfficeAgent>) {
     setAgents((prev) => {
