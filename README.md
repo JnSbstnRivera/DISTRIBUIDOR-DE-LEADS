@@ -1,12 +1,14 @@
 # Distribuidor de Leads · Windmar Home
 
-Motor de **distribución equitativa de leads por zona** para el Departamento de Telemercadeo / Calidad de Windmar Home PR. Reemplaza la herramienta en Excel que mantenía Miguel a mano, automatizando la rotación, la igualación de carga, el manejo de Black List y el tablero de control.
+Plataforma que **reemplaza el Excel de distribución de leads** del Departamento de Telemercadeo / Calidad de Windmar Home PR y, a futuro, la **vista manual de Zoho**. Automatiza la rotación equitativa, las citas del mismo día, el cumplimiento, los canales y la decisión de asignación de citas coordinadas.
 
-> **Estado:** v1 — motor + panel web (claro/oscuro). Corriendo en local. Próximas fases: carga de leads por CSV/Excel, roles multiusuario, integración Teams/Zoho/Kixie y migración a Supabase.
+> **Estado:** v1 funcional en localhost (Fase 0). Próximo: conectar Zoho real (solo-lectura) + N8N para aprobación de Miguel.
+>
+> 📄 **Para continuar el proyecto en otro chat, lee [`HANDOFF.md`](./HANDOFF.md).**
 
 ---
 
-## ⚡ Arrancar en local
+## ⚡ Arrancar
 
 ```powershell
 cd "C:\Claude Code\DISTRIBUIDOR DE LEADS MIGUEL\app-distribuidor"
@@ -14,116 +16,62 @@ npm install
 npm run dev
 ```
 
-Abre **http://localhost:3010**
+Abre **http://localhost:3010** → login **`ADMIN` / `1234*`**
 
 ---
 
-## 🧠 Cómo funciona el motor
+## 🧭 Secciones (réplica del Excel + más)
 
-La regla central (descifrada del Excel original) es una **rotación equitativa ponderada por carga**:
-
-```
-carga efectiva = histórico + ajuste + asignaciones de la sesión
-```
-
-- El **próximo lead** va al gerente con **menor carga efectiva** en esa zona.
-- **Ajuste**: handicap que iguala a quien entró tarde al mismo conteo que los veteranos (equidad).
-- **Tier 2**: recibe la **mitad** de los leads (pesa ×2 en el ranking) → se le evalúa a 60 días para igualarlo a Tier 1.
-- **Black List**: el gerente queda excluido de la rotación mientras la exclusión esté vigente.
-- **Cordillera**: zona opcional (solo participan los que hicieron opt-in).
-
-### Zonas (oficinas)
-`SJ1` San Juan 1 · `SJ2` San Juan 2 (Caguas) · `HAT` Hatillo · `PON` Ponce · `MAYA` Mayagüez · `COR` Cordillera (opcional)
-
-78 municipios de PR mapeados a su zona → al ingresar el municipio, el sistema resuelve la zona automáticamente.
+| Sección | Ruta | Qué hace |
+|---|---|---|
+| **Dashboard** | `/` | KPIs animados, gráficos (carga por zona, blacklist, asignaciones, gerentes) y "próximo turno por zona". |
+| **Citas (Zoho)** | `/citas` | Citas coordinadas con el **motor de decisión** (deal→consultor→gerente→distribuidor). *(mock hasta tener Zoho)* |
+| **Asignar Lead** | `/asignar` | Municipio→zona, podio top-3, ranking en vivo, asignación auto/manual. |
+| **Distribución Hoy** | `/hoy` | Citas del mismo día (rotación diaria) + marcar **Contestó / No Contestó** (regla 20 min). |
+| **Canales** | `/canales` | Rotación de Media Tour, Booth Hatillo e Instagram por zona. |
+| **Cumplimiento** | `/cumplimiento` | Contestado vs No Contestado por zona/gerente, % y rango de fechas. |
+| **Mapa de Zonas** | `/mapa` | Mapa interactivo de PR (78 municipios) con etiquetas de zona + lista buscable. |
+| **Gerentes** | `/gerentes` | Opt-in por zona, ajuste de carga, Tier 2, blacklist. |
+| **Black List** | `/blacklist` | Listas con estado activa/vencida automático. |
+| **Historial** | `/historial` | Bitácora de asignaciones de la sesión. |
+| **Pixel Agents** | `/pixel-agents` | Oficina top-down con agentes (caminan/trabajan); agregar/quitar/editar. |
 
 ---
 
-## 📋 Reglas de negocio (documento de Miguel)
+## 🧠 Motor de asignación
 
-- **Cita mismo día**: oferta por Teams, primero en responder; tope 1 lead/gerente/zona/semana.
-- **Cita futura**: asignación con el distribuidor (rotación por zona). _(esto es la app)_
-- **Lead recurrente** (ya tiene deal): va al consultor/gerente existente, no se reparte.
-- **Confirmación**: 20 min o se reasigna y el gerente pierde el turno.
-- **Black List**: 1ª falta 30 días · 2ª falta 3 meses · 3ª permanente. No vender en el mes → Black List.
-- **Top 50% de cierre**: da prioridad en la distribución (mecanismo Tier).
+**Rotación equitativa:** `carga efectiva = histórico + ajuste + asignaciones`; el próximo lead va al gerente opted-in con **menor carga**. Tier 2 = mitad de leads. Cordillera opcional. Excluye Black List. (`lib/engine.ts`)
 
----
-
-## 🖥️ Pantallas
-
-| Ruta | Descripción |
-|------|-------------|
-| `/` | **Dashboard**: KPIs animados, gráficos (carga por zona, Black List, asignaciones, gerentes elegibles) y "próximo turno por zona". |
-| `/asignar` | **Asignar Lead**: municipio→zona, podio del top-3, ranking en vivo con barras de carga, asignación auto o manual. |
-| `/gerentes` | **Gerentes**: opt-in por zona, ajuste de carga, Tier 2 y Black List. |
-| `/blacklist` | **Black List**: vendedores y consultores con estado activa/vencida automático por fecha. |
-| `/historial` | **Historial**: bitácora de asignaciones de la sesión. |
+**Decisión de citas coordinadas (Zoho):** cascada **Deal → consultor del deal · consultor activo · consultor inactivo → gerente líder · sin consultor/gerente inactivo → Distribuidor** (HOY vs futura por fecha). (`lib/decision.ts`)
 
 ---
 
 ## 🎨 Diseño
 
-Tema **ejecutivo claro/oscuro** alineado con las dashboards hermanas (TM, VASS, Ventas):
-
-- Paleta oficial Windmar: naranja `#F89B24`, azul `#1D429B`, navy `#21274E`.
-- Toggle de tema con **reveal circular** (View Transitions API) — mismo efecto que la suite.
-- Tipografía **Inter** (texto) + **JetBrains Mono** (números/datos).
-- Animaciones con Framer Motion: entradas escalonadas, transición de página, barras animadas, podio, feedback táctil en botones.
-- Tokens semánticos en CSS (`--color-bg/surface/ink/line/...`) para claro y oscuro.
+- Paleta Windmar oficial (naranja `#F89B24`, azul `#1D429B`, navy `#21274E`).
+- **Claro/oscuro** con toggle de reveal circular (View Transitions); modo oscuro azul Windmar.
+- Tipografía **Inter** + **JetBrains Mono**; sidebar agrupado; fondo aurora animado; scroll-reveal.
+- **Pixel Agents**: sprites animation-ready del repo MIT (caminata natural), tileset real, oficina con logos Windmar.
 
 ---
 
 ## 🛠️ Stack
 
-- **Next.js 16** (App Router) + **React 19** + **TypeScript**
-- **Tailwind CSS v4**
-- **Recharts** (gráficos) · **Framer Motion** (animación) · **Lucide** (iconos) · **next-themes** (tema)
-- Persistencia local en archivo JSON (`data/data.json`, se regenera desde `data/seed.json`).
+Next.js 16 · React 19 · TypeScript · Tailwind v4 · Recharts · Framer Motion · Lucide · next-themes. Persistencia file-backed (`data/data.json` ← `data/seed.json`), lista para migrar a Supabase.
 
----
+## 📁 Estructura y scripts
 
-## 📁 Estructura
-
-```
-app-distribuidor/
-├─ app/
-│  ├─ page.tsx              # Dashboard
-│  ├─ asignar/page.tsx      # Asignar Lead
-│  ├─ gerentes/page.tsx     # Gerentes
-│  ├─ blacklist/page.tsx    # Black List
-│  ├─ historial/page.tsx    # Historial
-│  ├─ template.tsx          # Transición de página
-│  ├─ layout.tsx            # Layout + fuentes + ThemeProvider
-│  ├─ globals.css           # Sistema de diseño (tokens, tema, animaciones)
-│  └─ api/
-│     ├─ state/route.ts     # Estado + ranking + agregados de gráficos
-│     ├─ asignar/route.ts   # Asignar lead (auto/manual)
-│     ├─ gerente/route.ts   # Editar gerente (tier/ajuste/opt-in/BL)
-│     └─ reset/route.ts     # Reiniciar demo
-├─ lib/
-│  ├─ engine.ts             # Motor de asignación (rotación equitativa)
-│  ├─ store.ts              # Almacén file-backed
-│  └─ types.ts              # Tipos
-├─ components/              # Nav, ThemeToggle, charts, ui, AnimatedCounter
-└─ data/
-   ├─ seed.json             # Datos base extraídos del Excel
-   └─ data.json             # Estado de runtime (ignorado por git)
-```
+Ver detalle completo en [`HANDOFF.md`](./HANDOFF.md). Scripts de assets en `scripts/` (`build_map.py`, `process_sprites.py`, `recolor_chars.py`).
 
 ---
 
 ## 🗺️ Roadmap
 
-- [ ] Carga de leads por CSV/Excel (lote) — base de ~6,300 "de agua"
-- [ ] Black List automática: registrar incidente → calcula penalización y fecha fin
-- [ ] Roles y login multiusuario (Calidad asigna · gerentes ven lo suyo · Miguel admin)
-- [ ] Cita mismo día (Teams) + temporizador de confirmación 20 min
-- [ ] Detección de lead recurrente (Zoho)
-- [ ] Exportar Historial a Excel/PDF + auditoría
-- [ ] % de cierre automático (Zoho) para Tier 2 a 60 días
-- [ ] Migración a Supabase (schema `distribuidor`) e integración n8n/Teams/Kixie
+1. Conectar **Zoho real** (solo-lectura, vía Andrés) → reemplazar mock en `/api/zoho/leads`.
+2. **N8N** + aprobación de Miguel (Teams/correo).
+3. Escritura a Zoho + jubilar Excel y vista manual.
+4. Pixel Agents: seating natural (z-sort) + **editor de layout** (mover oficinas/muebles).
+5. PP Hatillo · Histórico.
+6. Migrar a Supabase + deploy.
 
----
-
-_Windmar Home PR · Departamento de Telemercadeo / Calidad_
+_Windmar Home PR · Telemercadeo / Calidad._
