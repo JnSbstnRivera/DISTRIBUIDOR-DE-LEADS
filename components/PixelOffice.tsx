@@ -40,23 +40,36 @@ export type OfficeAgent = {
   goingDesk: boolean;
 };
 
-/* ── Sprite del agente desde la hoja PNG real (4 dir × 4 frames) ── */
+/* ── Sprite del agente desde la hoja PNG real ── */
 const ROW: Record<Facing, number> = { down: 0, up: 3, left: 2, right: 2 };
+
+// metadatos de cada hoja: cols/rows y si es un strip (1 fila de frames)
+export const SHEET_META: Record<string, { cols: number; rows: number; strip?: boolean }> = {
+  agent1: { cols: 4, rows: 4 },
+  agent2: { cols: 4, rows: 4 },
+  agent3: { cols: 4, rows: 4 },
+  agent4: { cols: 4, rows: 4 },
+  leadH: { cols: 6, rows: 1, strip: true },
+  leadM: { cols: 6, rows: 1, strip: true },
+};
+export const isStrip = (sheet: string) => !!SHEET_META[sheet]?.strip;
 
 export function SpriteImg({
   sheet,
   facing = "down",
   frame = 0,
-  w = 40,
+  w = 42,
 }: {
   sheet: string;
   facing?: Facing;
   frame?: number;
   w?: number;
 }) {
+  const meta = SHEET_META[sheet] || { cols: 4, rows: 4 };
   const h = w * 1.5; // celda 64×96 = 2:3
-  const row = ROW[facing] ?? 0;
-  const flip = facing === "right";
+  const row = meta.strip ? 0 : ROW[facing] ?? 0;
+  const col = frame % meta.cols;
+  const flip = !meta.strip && facing === "right";
   return (
     <div className="relative flex flex-col items-center">
       <div
@@ -64,8 +77,8 @@ export function SpriteImg({
           width: w,
           height: h,
           backgroundImage: `url(/agents/clean/${sheet}.png)`,
-          backgroundSize: `${w * 4}px ${h * 4}px`,
-          backgroundPosition: `-${frame * w}px -${row * h}px`,
+          backgroundSize: `${w * meta.cols}px ${h * meta.rows}px`,
+          backgroundPosition: `-${col * w}px -${row * h}px`,
           imageRendering: "pixelated",
           transform: flip ? "scaleX(-1)" : undefined,
         }}

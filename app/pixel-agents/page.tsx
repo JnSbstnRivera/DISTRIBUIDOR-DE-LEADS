@@ -3,10 +3,14 @@
 import { useEffect, useState } from "react";
 import { Send, Terminal, Bot, Pencil, Check } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
-import PixelOffice, { SpriteImg, type OfficeAgent } from "@/components/PixelOffice";
+import PixelOffice, { SpriteImg, isStrip, type OfficeAgent } from "@/components/PixelOffice";
 
-// hojas de sprites disponibles (en /public/agents/clean)
-const SHEETS = ["agent1", "agent2", "agent3", "agent4", "leadH", "leadM"];
+// modelos de caminar (para elegir por agente)
+const SHEETS = ["agent1", "agent2", "agent3", "agent4"];
+
+function rnd(a: number, b: number) {
+  return a + (b - a) * Math.random();
+}
 
 // zona = caja donde el agente deambula (en %), desk = punto donde se sienta
 function mk(
@@ -32,8 +36,9 @@ const DEFAULTS: OfficeAgent[] = [
   mk("asignador", "Asignación", "agent2", { x: 44, y: 30 }, WORK),
   mk("zoho", "Zoho Sync", "agent3", { x: 16, y: 68 }, WORK),
   mk("n8n", "N8N Notifier", "agent4", { x: 44, y: 68 }, WORK),
-  mk("gerente", "Gerente", "leadH", { x: 80, y: 72 }, MGR),
-  mk("calidad", "Calidad", "leadM", { x: 82, y: 28 }, MEET),
+  mk("gerente", "Gerente", "agent1", { x: 80, y: 72 }, MGR),
+  mk("calidad", "Calidad", "agent2", { x: 82, y: 28 }, MEET),
+  mk("courier", "Trae leads", "leadH", { x: 50, y: 50 }, { x0: 10, y0: 46, x1: 54, y1: 54 }),
 ];
 
 export default function PixelAgents() {
@@ -61,8 +66,41 @@ export default function PixelAgents() {
     } catch {}
   }, []);
 
-  // Movimiento PAUSADO: los agentes quedan quietos en su lugar hasta definir
-  // la secuencia (p. ej. el agente que trae los leads).
+  // Simulación: caminar → sentarse a trabajar → idle. Los "courier" (strip de
+  // leads) nunca se sientan: caminan en bucle entregando.
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setAgents((prev) =>
+        prev.map((a) => {
+          let { x, y, tx, ty, state, facing, frame, wait, goingDesk } = a;
+          const strip = isStrip(a.sheet);
+          if (state === "walking") {
+            const dx = tx - x, dy = ty - y;
+            const d = Math.hypot(dx, dy);
+            if (d < 1.6) {
+              if (strip) { state = "idle"; wait = 0; } // sigue deambulando enseguida
+              else if (goingDesk) { state = "working"; facing = "up"; wait = Math.round(rnd(45, 110)); x = a.desk.x; y = a.desk.y; }
+              else { state = "idle"; facing = "down"; wait = Math.round(rnd(15, 40)); }
+            } else {
+              const sp = strip ? 1.1 : 1.6;
+              x += (dx / d) * sp; y += (dy / d) * sp;
+              facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
+              frame = (frame + 1) % 8;
+            }
+          } else {
+            wait--;
+            if (wait <= 0) {
+              if (!strip && Math.random() < 0.55) { tx = a.desk.x; ty = a.desk.y; goingDesk = true; }
+              else { tx = rnd(a.zone.x0, a.zone.x1); ty = rnd(a.zone.y0, a.zone.y1); goingDesk = false; }
+              state = "walking";
+            }
+          }
+          return { ...a, x, y, tx, ty, state, facing, frame, wait, goingDesk };
+        })
+      );
+    }, 130);
+    return () => clearInterval(iv);
+  }, []);
 
   function update(id: string, patch: Partial<OfficeAgent>) {
     setAgents((prev) => {
