@@ -1542,5 +1542,542 @@
   "meta": {
     "total_gerentes": 50,
     "total_municipios": 78
+  },
+  "hoy": [
+    {
+      "id": "seed-1",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Adriana Paola Rodriguez Lopez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-2",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Brayan Sanchez Ortiz",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-3",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Brayan Sanchez Ortiz",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-4",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Briand Steven Ramos Diaz",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-5",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Briand Steven Ramos Diaz",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-6",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Carlos Emmanuel Alejandro Mercado",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-7",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Cesar Pacheco",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-8",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Cesar Pacheco",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-9",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "David E Fonseca Rios",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-10",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Ernesto Aguayo Mendoza",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-11",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Feranza Colon Bonilla",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-12",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Karina N Bobe",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-13",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Karina N Bobe",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-14",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Marie Lee Jaime Fernandez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-15",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Marie Lee Jaime Fernandez",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-16",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Nathalia Cristina Cordova Moran",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-17",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Nathalia Cristina Cordova Moran",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-18",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Odette Perez Morales",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-19",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Odette Perez Morales",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-20",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Rafael Garces Morales",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-21",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Rafael Garces Morales",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-22",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Ramonita Echevarria",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-23",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Ramonita Echevarria",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-24",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Ricardo Gomez Martinez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-25",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Ricardo Gomez Martinez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-26",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ1",
+      "gerente": "Zoribeth Burgos",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-27",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ2",
+      "gerente": "Adriana Paola Rodriguez Lopez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-28",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ2",
+      "gerente": "Cesar Pacheco",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-29",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ2",
+      "gerente": "Feranza Colon Bonilla",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-30",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ2",
+      "gerente": "Jaime Sepulveda",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-31",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ2",
+      "gerente": "Jorge Enrique Serrano Gonzalez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-32",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ2",
+      "gerente": "Joselyne Soto Gonzalez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-33",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ2",
+      "gerente": "Karina N Bobe",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-34",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ2",
+      "gerente": "Kenneth La Quay",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-35",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ2",
+      "gerente": "Ricardo Gomez Martinez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-36",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "SJ2",
+      "gerente": "Zoribeth Burgos",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-37",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "HAT",
+      "gerente": "Jorge Enrique Serrano Gonzalez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-38",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "HAT",
+      "gerente": "Joshua Lopez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-39",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "HAT",
+      "gerente": "Marleen Ramos Marrero",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-40",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "HAT",
+      "gerente": "Merari Velazquez Aldarondo",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-41",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "HAT",
+      "gerente": "Nathalia Cristina Cordova Moran",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-42",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "PON",
+      "gerente": "Christian Samir Rivera Santiago",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-43",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "PON",
+      "gerente": "Nathalia Cristina Cordova Moran",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-44",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "PON",
+      "gerente": "Nathalia Cristina Cordova Moran",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-45",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "David E Fonseca Rios",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-46",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Jaime Sepulveda",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-47",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Jose Luis Nogueras",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-48",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Jose Luis Nogueras",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-49",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Joel E Muniz Aybar",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-50",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Joel E Muniz Aybar",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-51",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Joshua Lopez",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-52",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Joshua Lopez",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-53",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Marleen Ramos Marrero",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-54",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Marleen Ramos Marrero",
+      "leadRef": null,
+      "estado": "no_contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-55",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Merari Velazquez Aldarondo",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-56",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Merari Velazquez Aldarondo",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-57",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Norbert Cruz Cabrera",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-58",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "MAYA",
+      "gerente": "Raul Deya",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    },
+    {
+      "id": "seed-59",
+      "fecha": "2026-05-18T12:00:00",
+      "zona": "COR",
+      "gerente": "Zoribeth Burgos",
+      "leadRef": null,
+      "estado": "contestado",
+      "origen": "seed"
+    }
+  ],
+  "cumplimientoRango": {
+    "inicio": "2026-05-18",
+    "fin": "2026-06-17"
   }
 }

@@ -3,12 +3,23 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Send, Map, Users, Ban, History } from "lucide-react";
+import {
+  LayoutDashboard,
+  Send,
+  CalendarClock,
+  Map,
+  BadgeCheck,
+  Users,
+  Ban,
+  History,
+} from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
 const LINKS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/asignar", label: "Asignar Lead", icon: Send },
+  { href: "/asignar", label: "Asignar", icon: Send },
+  { href: "/hoy", label: "Hoy", icon: CalendarClock },
+  { href: "/cumplimiento", label: "Cumplimiento", icon: BadgeCheck },
   { href: "/mapa", label: "Mapa", icon: Map },
   { href: "/gerentes", label: "Gerentes", icon: Users },
   { href: "/blacklist", label: "Black List", icon: Ban },

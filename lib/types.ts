@@ -44,12 +44,28 @@ export interface Asignacion {
   origen: "auto" | "manual";
 }
 
+export type EstadoHoy = "pendiente" | "contestado" | "no_contestado";
+
+// Cita para el mismo día (rotación HOY) + estado de confirmación (cumplimiento)
+export interface HoyAsignacion {
+  id: string;
+  fecha: string; // ISO
+  zona: ZonaCodigo;
+  municipio: string | null;
+  gerente: string;
+  leadRef: string | null;
+  estado: EstadoHoy;
+  origen: "auto" | "manual" | "seed";
+}
+
 export interface DB {
   zonas: Zona[];
   municipios: Municipio[];
   gerentes: Gerente[];
   blacklist: { consultores: BlacklistEntry[]; vendedores: BlacklistEntry[] };
   asignaciones: Asignacion[];
+  hoy: HoyAsignacion[];
+  cumplimientoRango?: { inicio: string; fin: string };
 }
 
 // Resultado del motor: ranking de candidatos para una zona

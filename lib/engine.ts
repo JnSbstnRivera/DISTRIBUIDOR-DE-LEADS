@@ -82,3 +82,49 @@ export function zonaDeMunicipio(db: DB, municipio: string): ZonaCodigo | null {
   );
   return m ? m.zona : null;
 }
+
+// ── Rotación HOY (citas para el mismo día) ──
+// Cuenta SOLO las citas same-day de hoy (estado != no_contestado); se reinicia cada día.
+// Excluye Black List. No aplica Tier 2 (igual que el Excel para Offers-Hoy).
+
+export function fechaHoy(d = new Date()): string {
+  return d.toISOString().slice(0, 10);
+}
+
+export function offersHoy(db: DB, nombre: string, zona: ZonaCodigo, dia = fechaHoy()): number {
+  return db.hoy.filter(
+    (a) =>
+      a.zona === zona &&
+      a.gerente === nombre &&
+      a.fecha.slice(0, 10) === dia &&
+      a.estado !== "no_contestado"
+  ).length;
+}
+
+export function rankZonaHoy(db: DB, zona: ZonaCodigo, hoy = new Date()): Candidato[] {
+  const dia = fechaHoy(hoy);
+  const candidatos: Candidato[] = db.gerentes
+    .filter((g) => g.zonas[zona])
+    .map((g) => {
+      const carga = offersHoy(db, g.nombre, zona, dia);
+      let elegible = true;
+      let motivo: string | undefined;
+      if (g.blacklist || blacklistActiva(db, g.nombre, hoy)) {
+        elegible = false;
+        motivo = "Black List";
+      }
+      return { gerente: g, cargaEfectiva: carga, score: carga, rank: 0, elegible, motivo };
+    });
+  const elegibles = candidatos
+    .filter((c) => c.elegible)
+    .sort((a, b) =>
+      a.score !== b.score ? a.score - b.score : a.gerente.nombre.localeCompare(b.gerente.nombre)
+    );
+  elegibles.forEach((c, i) => (c.rank = i + 1));
+  return [...elegibles, ...candidatos.filter((c) => !c.elegible)];
+}
+
+export function proximoGerenteHoy(db: DB, zona: ZonaCodigo, hoy = new Date()): Candidato | null {
+  const r = rankZonaHoy(db, zona, hoy).filter((c) => c.elegible);
+  return r.length ? r[0] : null;
+}
