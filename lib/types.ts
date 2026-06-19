@@ -58,6 +58,23 @@ export interface HoyAsignacion {
   origen: "auto" | "manual" | "seed";
 }
 
+// Canal secundario (Media, Booth, Instagram por zona) — su propia rotación
+export interface Canal {
+  codigo: string;
+  nombre: string;
+  color: string;
+  gerentes: { nombre: string; historico: number }[];
+}
+
+export interface CanalAsignacion {
+  id: string;
+  fecha: string;
+  canal: string;
+  gerente: string;
+  leadRef: string | null;
+  origen: "auto" | "manual";
+}
+
 export interface DB {
   zonas: Zona[];
   municipios: Municipio[];
@@ -65,6 +82,8 @@ export interface DB {
   blacklist: { consultores: BlacklistEntry[]; vendedores: BlacklistEntry[] };
   asignaciones: Asignacion[];
   hoy: HoyAsignacion[];
+  canales: Canal[];
+  canalAsignaciones: CanalAsignacion[];
   cumplimientoRango?: { inicio: string; fin: string };
 }
 

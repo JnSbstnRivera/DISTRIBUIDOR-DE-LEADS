@@ -11,7 +11,13 @@ const SEED_FILE = path.join(DATA_DIR, "seed.json");
 
 function init(): DB {
   const seed = JSON.parse(fs.readFileSync(SEED_FILE, "utf-8"));
-  const db: DB = { ...seed, asignaciones: [], hoy: seed.hoy ?? [] };
+  const db: DB = {
+    ...seed,
+    asignaciones: [],
+    hoy: seed.hoy ?? [],
+    canales: seed.canales ?? [],
+    canalAsignaciones: [],
+  };
   fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf-8");
   return db;
 }

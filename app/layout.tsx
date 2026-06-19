@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import Nav from "@/components/Nav";
+import Sidebar from "@/components/Sidebar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AnimatedBackground from "@/components/AnimatedBackground";
 
@@ -27,8 +27,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider>
           <AnimatedBackground />
-          <Nav />
-          <main className="mx-auto max-w-7xl px-4 pb-20 pt-6">{children}</main>
+          <Sidebar />
+          <div className="lg:pl-64">
+            <main className="mx-auto max-w-7xl px-4 pb-20 pt-6">{children}</main>
+          </div>
         </ThemeProvider>
       </body>
     </html>

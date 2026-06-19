@@ -2079,5 +2079,229 @@
   "cumplimientoRango": {
     "inicio": "2026-05-18",
     "fin": "2026-06-17"
-  }
+  },
+  "canales": [
+    {
+      "codigo": "MED",
+      "nombre": "Media Tour",
+      "color": "#14b8a6",
+      "gerentes": [
+        {
+          "nombre": "Alejandro Ramos",
+          "historico": 8
+        },
+        {
+          "nombre": "Brayan Sanchez Ortiz",
+          "historico": 0
+        },
+        {
+          "nombre": "Briand Steven Ramos Diaz",
+          "historico": 10
+        },
+        {
+          "nombre": "Carlos Emmanuel Alejandro Mercado",
+          "historico": 8
+        },
+        {
+          "nombre": "Christian Samir Rivera Santiago",
+          "historico": 8
+        },
+        {
+          "nombre": "Giovanni Roberto Rivera Orengo",
+          "historico": 7
+        },
+        {
+          "nombre": "Jorge Enrique Serrano Gonzalez",
+          "historico": 3
+        },
+        {
+          "nombre": "Miguel Antonio Mercado Bruno",
+          "historico": 7
+        },
+        {
+          "nombre": "Roberto Carlos Rivera Orengo",
+          "historico": 7
+        },
+        {
+          "nombre": "Silverio Osorio Bustamante",
+          "historico": 8
+        },
+        {
+          "nombre": "Wilson Morales Ruiz",
+          "historico": 8
+        },
+        {
+          "nombre": "Xavier Omar Musa Matos",
+          "historico": 7
+        },
+        {
+          "nombre": "Zoribeth Burgos",
+          "historico": 7
+        }
+      ]
+    },
+    {
+      "codigo": "BOOTH",
+      "nombre": "Booth Hatillo",
+      "color": "#f59e0b",
+      "gerentes": [
+        {
+          "nombre": "Jaime Sepulveda",
+          "historico": 21
+        },
+        {
+          "nombre": "Joselyne Soto Gonzalez",
+          "historico": 21
+        },
+        {
+          "nombre": "Marleen Ramos Marrero",
+          "historico": 21
+        },
+        {
+          "nombre": "Merari Velazquez Aldarondo",
+          "historico": 21
+        },
+        {
+          "nombre": "Natalia Mercado",
+          "historico": 21
+        },
+        {
+          "nombre": "Norbert Cruz Cabrera",
+          "historico": 21
+        },
+        {
+          "nombre": "Yiviana Cruz",
+          "historico": 20
+        },
+        {
+          "nombre": "Jose A Rivera Mojica",
+          "historico": 21
+        }
+      ]
+    },
+    {
+      "codigo": "IG_SJ2",
+      "nombre": "Instagram - San Juan 2",
+      "color": "#ec4899",
+      "gerentes": [
+        {
+          "nombre": "Adriana Paola Rodriguez Lopez",
+          "historico": 4
+        },
+        {
+          "nombre": "Carlos E Ortiz De Hostos",
+          "historico": 4
+        },
+        {
+          "nombre": "Christian Samir Rivera Santiago",
+          "historico": 4
+        },
+        {
+          "nombre": "David E Fonseca Rios",
+          "historico": 4
+        },
+        {
+          "nombre": "Ernesto Aguayo Mendoza",
+          "historico": 4
+        },
+        {
+          "nombre": "Jorge Enrique Serrano Gonzalez",
+          "historico": 4
+        },
+        {
+          "nombre": "Marie Lee Jaime Fernandez",
+          "historico": 0
+        },
+        {
+          "nombre": "Odette Perez Morales",
+          "historico": 4
+        },
+        {
+          "nombre": "Roberto Carlos Rivera Orengo",
+          "historico": 3
+        },
+        {
+          "nombre": "Silverio Osorio Bustamante",
+          "historico": 4
+        },
+        {
+          "nombre": "Xavier Omar Musa Matos",
+          "historico": 3
+        },
+        {
+          "nombre": "Zoribeth Burgos",
+          "historico": 3
+        }
+      ]
+    },
+    {
+      "codigo": "IG_PON",
+      "nombre": "Instagram - Ponce",
+      "color": "#8b5cf6",
+      "gerentes": [
+        {
+          "nombre": "Adriana Paola Rodriguez Lopez",
+          "historico": 4
+        },
+        {
+          "nombre": "Carlos E Ortiz De Hostos",
+          "historico": 4
+        },
+        {
+          "nombre": "Cinthia Rivera Pagan",
+          "historico": 4
+        },
+        {
+          "nombre": "David E Fonseca Rios",
+          "historico": 2
+        },
+        {
+          "nombre": "Raul Deya",
+          "historico": 3
+        }
+      ]
+    },
+    {
+      "codigo": "IG_MAYA",
+      "nombre": "Instagram - Mayaguez",
+      "color": "#06b6d4",
+      "gerentes": [
+        {
+          "nombre": "Cinthia Rivera Pagan",
+          "historico": 17
+        },
+        {
+          "nombre": "David E Fonseca Rios",
+          "historico": 11
+        },
+        {
+          "nombre": "Joel E Muniz Aybar",
+          "historico": 13
+        },
+        {
+          "nombre": "Raul Deya",
+          "historico": 15
+        }
+      ]
+    },
+    {
+      "codigo": "IG_COR",
+      "nombre": "Instagram - Cordillera",
+      "color": "#ef4444",
+      "gerentes": [
+        {
+          "nombre": "Carlos E Ortiz De Hostos",
+          "historico": 4
+        },
+        {
+          "nombre": "David E Fonseca Rios",
+          "historico": 3
+        },
+        {
+          "nombre": "Raul Deya",
+          "historico": 3
+        }
+      ]
+    }
+  ]
 }

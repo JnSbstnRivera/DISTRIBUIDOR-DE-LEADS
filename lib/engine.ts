@@ -128,3 +128,42 @@ export function proximoGerenteHoy(db: DB, zona: ZonaCodigo, hoy = new Date()): C
   const r = rankZonaHoy(db, zona, hoy).filter((c) => c.elegible);
   return r.length ? r[0] : null;
 }
+
+// ── Rotación por CANAL (Media, Booth, Instagram) ──
+// carga = historico (Excel) + asignaciones de sesión del canal; excluye Black List.
+export function rankCanal(db: DB, codigo: string, hoy = new Date()): Candidato[] {
+  const canal = db.canales.find((c) => c.codigo === codigo);
+  if (!canal) return [];
+  const candidatos: Candidato[] = canal.gerentes.map((cg) => {
+    const g = db.gerentes.find((x) => x.nombre === cg.nombre) || {
+      id: -1,
+      nombre: cg.nombre,
+      blacklist: false,
+      tier2: false,
+      zonas: {},
+    };
+    const nuevas = db.canalAsignaciones.filter(
+      (a) => a.canal === codigo && a.gerente === cg.nombre
+    ).length;
+    const carga = cg.historico + nuevas;
+    let elegible = true;
+    let motivo: string | undefined;
+    if (g.blacklist || blacklistActiva(db, cg.nombre, hoy)) {
+      elegible = false;
+      motivo = "Black List";
+    }
+    return { gerente: g, cargaEfectiva: carga, score: carga, rank: 0, elegible, motivo };
+  });
+  const elegibles = candidatos
+    .filter((c) => c.elegible)
+    .sort((a, b) =>
+      a.score !== b.score ? a.score - b.score : a.gerente.nombre.localeCompare(b.gerente.nombre)
+    );
+  elegibles.forEach((c, i) => (c.rank = i + 1));
+  return [...elegibles, ...candidatos.filter((c) => !c.elegible)];
+}
+
+export function proximoGerenteCanal(db: DB, codigo: string, hoy = new Date()): Candidato | null {
+  const r = rankCanal(db, codigo, hoy).filter((c) => c.elegible);
+  return r.length ? r[0] : null;
+}
