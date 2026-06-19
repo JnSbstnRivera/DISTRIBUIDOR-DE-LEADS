@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Send,
   CalendarClock,
+  CalendarCheck,
   Radio,
   BadgeCheck,
   Map,
@@ -25,6 +26,7 @@ const GROUPS = [
     label: "Operación",
     items: [
       { href: "/", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/citas", label: "Citas (Zoho)", icon: CalendarCheck },
       { href: "/asignar", label: "Asignar Lead", icon: Send },
       { href: "/hoy", label: "Distribución Hoy", icon: CalendarClock },
       { href: "/canales", label: "Canales", icon: Radio },
