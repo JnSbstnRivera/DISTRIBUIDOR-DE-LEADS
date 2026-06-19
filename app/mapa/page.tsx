@@ -31,11 +31,11 @@ export default function Mapa() {
     () =>
       [...MUNIS]
         .filter((m) => !q || norm(m.name).includes(q))
+        .filter((m) => !selZona || m.zona === selZona || !!selMuni)
         .sort((a, b) => a.name.localeCompare(b.name, "es")),
-    [q]
+    [q, selZona, selMuni]
   );
 
-  // estado visual de cada municipio
   function stateOf(m: Muni): "active" | "dim" | "normal" {
     if (selMuni) return m.zona === selZona ? "active" : "dim";
     if (selZona) return m.zona === selZona ? "active" : "dim";
@@ -47,6 +47,10 @@ export default function Mapa() {
     setSelMuni(m.name);
     setSelZona(m.zona);
   }
+  function toggleZona(z: string) {
+    setSelMuni(null);
+    setSelZona(selZona === z ? null : z);
+  }
   function clear() {
     setSelMuni(null);
     setSelZona(null);
@@ -54,6 +58,7 @@ export default function Mapa() {
   }
 
   const active = selMuni ? MUNIS.find((m) => m.name === selMuni) : null;
+  const countByZona = (z: string) => MUNIS.filter((m) => m.zona === z).length;
 
   return (
     <div>
@@ -61,49 +66,129 @@ export default function Mapa() {
         Mapa de Zonas · Puerto Rico
       </SectionTitle>
 
-      <div className="grid gap-6 lg:grid-cols-5">
-        {/* MAPA */}
-        <div className="exec-card p-4 lg:col-span-3">
-          {/* Leyenda */}
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            {ZONAS.map((z) => (
-              <button
-                key={z}
-                onClick={() => {
-                  setSelZona(selZona === z && !selMuni ? null : z);
-                  setSelMuni(null);
-                }}
-                className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold transition"
-                style={{
-                  background: `${ZONA_COLOR[z]}${selZona === z ? "30" : "15"}`,
-                  color: ZONA_COLOR[z],
-                  border: `1px solid ${ZONA_COLOR[z]}${selZona === z ? "" : "40"}`,
-                }}
-              >
-                <span className="h-2.5 w-2.5 rounded-full" style={{ background: ZONA_COLOR[z] }} />
-                {ZONA_NOMBRE[z]}
-              </button>
-            ))}
-            {(selMuni || selZona) && (
-              <button
-                onClick={clear}
-                className="ml-auto flex items-center gap-1 rounded-full border border-[var(--color-line)] px-2.5 py-1 text-[11px] font-semibold text-[var(--color-muted)] hover:text-[var(--color-ink)]"
-              >
-                <X className="h-3 w-3" /> Limpiar
+      <div className="grid gap-6 lg:grid-cols-12">
+        {/* ── LISTA (izquierda, estilo Excel) ── */}
+        <div className="exec-card flex flex-col p-4 lg:col-span-4" style={{ maxHeight: "80vh" }}>
+          <h2 className="exec-label mb-2">Pueblos y zonas</h2>
+
+          {/* Buscador */}
+          <div className="relative mb-3">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted)]" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Escribe un pueblo… (ej. Cidra)"
+              className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] py-2 pl-9 pr-3 text-[var(--color-ink)] outline-none transition focus:border-wh-orange focus:ring-2 focus:ring-wh-orange/20"
+            />
+          </div>
+
+          {/* Filtro por zona (como la lista de Zonas del Excel) */}
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {ZONAS.map((z) => {
+              const on = selZona === z && !selMuni;
+              return (
+                <button
+                  key={z}
+                  onClick={() => toggleZona(z)}
+                  className="flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-bold transition"
+                  style={{
+                    background: `${ZONA_COLOR[z]}${on ? "30" : "14"}`,
+                    color: ZONA_COLOR[z],
+                    border: `1px solid ${ZONA_COLOR[z]}${on ? "" : "33"}`,
+                  }}
+                  title={`${countByZona(z)} pueblos`}
+                >
+                  <span className="h-2 w-2 rounded-full" style={{ background: ZONA_COLOR[z] }} />
+                  {ZONA_NOMBRE[z]}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mb-1.5 flex items-center justify-between text-[11px] text-[var(--color-muted)]">
+            <span>{listed.length} de {MUNIS.length} pueblos</span>
+            {(selMuni || selZona || query) && (
+              <button onClick={clear} className="flex items-center gap-1 font-semibold hover:text-[var(--color-ink)]">
+                <X className="h-3 w-3" /> limpiar
               </button>
             )}
           </div>
 
-          <div ref={wrapRef} className="relative">
+          {/* Tabla pueblo | zona */}
+          <div className="-mr-1 flex-1 space-y-0.5 overflow-y-auto pr-1">
+            {listed.map((m) => {
+              const isSel = selMuni === m.name;
+              return (
+                <button
+                  key={m.name}
+                  onClick={() => pick(m)}
+                  onMouseEnter={() => setHovered(m)}
+                  onMouseLeave={() => setHovered(null)}
+                  className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-sm transition ${
+                    isSel ? "" : "hover:bg-[var(--color-subtle)]"
+                  }`}
+                  style={
+                    isSel
+                      ? { background: `${ZONA_COLOR[m.zona]}1a`, boxShadow: `inset 0 0 0 1px ${ZONA_COLOR[m.zona]}` }
+                      : {}
+                  }
+                >
+                  <span className="flex items-center gap-2 text-[var(--color-ink)]">
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: ZONA_COLOR[m.zona] }} />
+                    {m.name}
+                  </span>
+                  <span className="text-[11px] text-[var(--color-muted)]">{ZONA_NOMBRE[m.zona]}</span>
+                </button>
+              );
+            })}
+            {listed.length === 0 && (
+              <div className="px-2 py-6 text-center text-sm text-[var(--color-muted)]">
+                Sin resultados para “{query}”.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── MAPA (derecha, grande) ── */}
+        <div className="exec-card flex flex-col p-4 lg:col-span-8">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="exec-label">Mapa interactivo</h2>
+            {active ? (
+              <div className="flex items-center gap-2 text-sm">
+                <MapPin className="h-4 w-4 text-wh-orange" />
+                <b className="text-[var(--color-ink)]">{active.name}</b>
+                <span className="text-[var(--color-muted)]">→</span>
+                <ZonaBadge z={active.zona} />
+              </div>
+            ) : hovered ? (
+              <div className="flex items-center gap-2 text-sm">
+                <b className="text-[var(--color-ink)]">{hovered.name}</b>
+                <span className="text-[var(--color-muted)]">→</span>
+                <ZonaBadge z={hovered.zona} />
+              </div>
+            ) : (
+              <span className="text-xs text-[var(--color-muted)]">Pasa el mouse o elige un pueblo</span>
+            )}
+          </div>
+
+          <div
+            ref={wrapRef}
+            className="relative flex flex-1 items-center justify-center rounded-xl p-2"
+            style={{
+              minHeight: "62vh",
+              background:
+                "radial-gradient(120% 120% at 50% 0%, rgba(166,195,230,0.10), transparent 70%)",
+            }}
+            onMouseMove={(e) => {
+              const r = wrapRef.current?.getBoundingClientRect();
+              if (r) setTip({ x: e.clientX - r.left, y: e.clientY - r.top });
+            }}
+            onMouseLeave={() => setHovered(null)}
+          >
             <svg
               viewBox={prMap.viewBox}
               className="w-full"
-              style={{ filter: "drop-shadow(0 8px 18px rgba(8,18,50,0.18))" }}
-              onMouseMove={(e) => {
-                const r = wrapRef.current?.getBoundingClientRect();
-                if (r) setTip({ x: e.clientX - r.left, y: e.clientY - r.top });
-              }}
-              onMouseLeave={() => setHovered(null)}
+              style={{ maxHeight: "60vh", filter: "drop-shadow(0 10px 22px rgba(8,18,50,0.22))" }}
             >
               {MUNIS.map((m) => {
                 const st = stateOf(m);
@@ -127,13 +212,12 @@ export default function Mapa() {
               })}
             </svg>
 
-            {/* Tooltip */}
             {hovered && (
               <div
                 className="pointer-events-none absolute z-10 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-2.5 py-1.5 text-xs shadow-soft"
                 style={{
-                  left: Math.min(tip.x + 12, (wrapRef.current?.clientWidth ?? 999) - 150),
-                  top: tip.y + 12,
+                  left: Math.min(tip.x + 14, (wrapRef.current?.clientWidth ?? 999) - 160),
+                  top: tip.y + 14,
                 }}
               >
                 <div className="font-bold text-[var(--color-ink)]">{hovered.name}</div>
@@ -145,62 +229,19 @@ export default function Mapa() {
             )}
           </div>
 
-          {active && (
-            <div className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--color-subtle)] px-3 py-2 text-sm">
-              <MapPin className="h-4 w-4 text-wh-orange" />
-              <b className="text-[var(--color-ink)]">{active.name}</b>
-              <span className="text-[var(--color-muted)]">pertenece a</span>
-              <ZonaBadge z={active.zona} />
-            </div>
-          )}
-        </div>
-
-        {/* LISTA BUSCABLE */}
-        <div className="exec-card flex flex-col p-4 lg:col-span-2" style={{ maxHeight: "78vh" }}>
-          <div className="relative mb-3">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted)]" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Escribe un pueblo… (ej. Cidra)"
-              className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] py-2 pl-9 pr-3 text-[var(--color-ink)] outline-none transition focus:border-wh-orange focus:ring-2 focus:ring-wh-orange/20"
-            />
-          </div>
-          <div className="mb-2 flex items-center justify-between text-[11px] text-[var(--color-muted)]">
-            <span>{listed.length} de {MUNIS.length} pueblos</span>
-            <span>clic = ilumina pueblo + zona</span>
-          </div>
-          <div className="-mr-1 flex-1 space-y-0.5 overflow-y-auto pr-1">
-            {listed.map((m) => {
-              const isSel = selMuni === m.name;
-              return (
-                <button
-                  key={m.name}
-                  onClick={() => pick(m)}
-                  onMouseEnter={() => setHovered(m)}
-                  onMouseLeave={() => setHovered(null)}
-                  className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-sm transition ${
-                    isSel ? "ring-1" : "hover:bg-[var(--color-subtle)]"
-                  }`}
-                  style={
-                    isSel
-                      ? { background: `${ZONA_COLOR[m.zona]}1a`, boxShadow: `inset 0 0 0 1px ${ZONA_COLOR[m.zona]}` }
-                      : {}
-                  }
-                >
-                  <span className="flex items-center gap-2 text-[var(--color-ink)]">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: ZONA_COLOR[m.zona] }} />
-                    {m.name}
-                  </span>
-                  <span className="text-[11px] text-[var(--color-muted)]">{ZONA_NOMBRE[m.zona]}</span>
-                </button>
-              );
-            })}
-            {listed.length === 0 && (
-              <div className="px-2 py-6 text-center text-sm text-[var(--color-muted)]">
-                Sin resultados para “{query}”.
-              </div>
-            )}
+          {/* Leyenda inferior */}
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
+            {ZONAS.map((z) => (
+              <button
+                key={z}
+                onClick={() => toggleZona(z)}
+                className="flex items-center gap-1.5 text-[11px] font-semibold transition hover:opacity-100"
+                style={{ color: ZONA_COLOR[z], opacity: !selZona || selZona === z ? 1 : 0.45 }}
+              >
+                <span className="h-2.5 w-2.5 rounded-full" style={{ background: ZONA_COLOR[z] }} />
+                {ZONA_NOMBRE[z]} <span className="text-[var(--color-muted)]">({countByZona(z)})</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
