@@ -1,142 +1,158 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Send, Terminal, Bot } from "lucide-react";
+import { Send, Terminal, Bot, Pencil, Check } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
 
-type State = "working" | "thinking" | "sleeping";
-
-const AGENTES = [
-  { id: "distribuidor", nombre: "Distribuidor", color: "#f89b24", state: "working" as State, say: "Rotando turnos…", rol: "Motor de rotación equitativa" },
-  { id: "zoho", nombre: "Zoho Sync", color: "#5b8def", state: "sleeping" as State, say: "Esperando acceso…", rol: "Lee citas coordinadas" },
-  { id: "asignador", nombre: "Asignación", color: "#0f9d58", state: "thinking" as State, say: "Definiendo reglas…", rol: "Decide según Miguel/Cata" },
-  { id: "n8n", nombre: "N8N Notifier", color: "#a855f7", state: "sleeping" as State, say: "Por conectar…", rol: "Avisa y pide aprobación" },
-];
-
-const STATE_LABEL: Record<State, { t: string; c: string }> = {
-  working: { t: "Trabajando", c: "#0f9d58" },
-  thinking: { t: "En diseño", c: "#e07d00" },
-  sleeping: { t: "Inactivo", c: "#8b93ad" },
+type Agent = {
+  id: string;
+  nombre: string;
+  hair: string;
+  shirt: string;
+  rol: string;
+  path: { x: number; y: number }[]; // recorrido en % de la sala
+  dur: number;
 };
 
-/* ── Personaje pixel-art (robot astronauta) ── */
-function PixelBot({ color, state }: { color: string; state: State }) {
-  const bob =
-    state === "working"
-      ? { y: [0, -4, 0] as number[], transition: { duration: 0.5, repeat: Infinity, ease: "easeInOut" as const } }
-      : state === "thinking"
-      ? { y: [0, -3, 0] as number[], transition: { duration: 1.8, repeat: Infinity, ease: "easeInOut" as const } }
-      : { y: 0 };
+const DEFAULTS: Agent[] = [
+  {
+    id: "distribuidor",
+    nombre: "Distribuidor",
+    hair: "#2a2f45",
+    shirt: "#f89b24",
+    rol: "Rotación equitativa",
+    path: [
+      { x: 30, y: 55 }, { x: 18, y: 40 }, { x: 38, y: 40 }, { x: 30, y: 70 }, { x: 30, y: 55 },
+    ],
+    dur: 16,
+  },
+  {
+    id: "asignador",
+    nombre: "Asignación",
+    hair: "#5a3a1a",
+    shirt: "#0f9d58",
+    rol: "Decide según Miguel/Cata",
+    path: [
+      { x: 20, y: 72 }, { x: 42, y: 72 }, { x: 42, y: 88 }, { x: 20, y: 88 }, { x: 20, y: 72 },
+    ],
+    dur: 20,
+  },
+  {
+    id: "zoho",
+    nombre: "Zoho Sync",
+    hair: "#1a1a1a",
+    shirt: "#5b8def",
+    rol: "Lee citas coordinadas",
+    path: [
+      { x: 70, y: 22 }, { x: 82, y: 22 }, { x: 78, y: 35 }, { x: 68, y: 30 }, { x: 70, y: 22 },
+    ],
+    dur: 18,
+  },
+  {
+    id: "n8n",
+    nombre: "N8N Notifier",
+    hair: "#3a2a4a",
+    shirt: "#a855f7",
+    rol: "Avisa y pide aprobación",
+    path: [
+      { x: 74, y: 70 }, { x: 86, y: 70 }, { x: 86, y: 84 }, { x: 74, y: 84 }, { x: 74, y: 70 },
+    ],
+    dur: 22,
+  },
+];
 
-  const px = { imageRendering: "pixelated" as const };
+const SWATCHES = ["#f89b24", "#1d429b", "#0f9d58", "#a855f7", "#06b6d4", "#dc2626", "#5b8def", "#e07d00"];
+const HAIRS = ["#2a2f45", "#5a3a1a", "#1a1a1a", "#7a5230", "#9b6a3a", "#3a2a4a"];
 
+/* Personaje 3/4 (sprite RPG) */
+function Sprite({ hair, shirt }: { hair: string; shirt: string }) {
   return (
-    <div className="relative flex flex-col items-center" style={{ width: 64 }}>
-      {/* burbuja de estado */}
-      {state === "sleeping" ? (
-        <motion.div
-          animate={{ y: [0, -6, 0], opacity: [0.3, 1, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute -top-3 right-1 text-xs font-black"
-          style={{ color: "#8b93ad" }}
-        >
-          z
-        </motion.div>
-      ) : (
-        <motion.div
-          animate={{ scale: [1, 1.06, 1] }}
-          transition={{ duration: 1.2, repeat: Infinity }}
-          className="absolute -top-2.5 flex gap-0.5 rounded bg-black/40 px-1 py-0.5"
-        >
-          {[0, 1, 2].map((i) => (
-            <motion.span
-              key={i}
-              className="block h-1 w-1 rounded-full"
-              style={{ background: color }}
-              animate={{ opacity: [0.2, 1, 0.2] }}
-              transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.2 }}
-            />
-          ))}
-        </motion.div>
-      )}
+    <div className="relative" style={{ width: 18, imageRendering: "pixelated" }}>
+      <div className="mx-auto h-[5px] w-[12px] rounded-t-[3px]" style={{ background: hair }} />
+      <div className="mx-auto h-[5px] w-[12px] bg-[#f0c9a0]" />
+      <div className="mx-auto -mt-[1px] h-[8px] w-[15px] rounded-[2px]" style={{ background: shirt }} />
+      <div className="mx-auto -mt-[1px] flex w-[12px] justify-between">
+        <motion.span className="block h-[5px] w-[4px] rounded-b-[1px] bg-[#2a2f45]" animate={{ y: [0, 1.2, 0] }} transition={{ duration: 0.34, repeat: Infinity }} />
+        <motion.span className="block h-[5px] w-[4px] rounded-b-[1px] bg-[#2a2f45]" animate={{ y: [0, 1.2, 0] }} transition={{ duration: 0.34, repeat: Infinity, delay: 0.17 }} />
+      </div>
+      <div className="mx-auto mt-[1px] h-[3px] w-[14px] rounded-full bg-black/30 blur-[1px]" />
+    </div>
+  );
+}
 
-      <motion.div animate={bob} className="flex flex-col items-center">
-        {/* antena */}
-        <div className="h-1.5 w-1" style={{ background: color }} />
-        <span className="-mt-2.5 mb-0.5 block h-1.5 w-1.5 rounded-full" style={{ background: color, boxShadow: `0 0 6px ${color}` }} />
-        {/* casco */}
-        <div className="relative h-6 w-7 rounded-md bg-[#d7deec]" style={px}>
-          {/* visor */}
-          <div className="absolute left-1 top-1.5 h-3 w-5 rounded-sm bg-[#10162b]">
-            <motion.span
-              className="absolute left-1 top-1 block h-1 w-1 rounded-full"
-              style={{ background: color }}
-              animate={state !== "sleeping" ? { opacity: [1, 0.2, 1] } : { opacity: 0.4 }}
-              transition={{ duration: 1.6, repeat: Infinity }}
-            />
-            <motion.span
-              className="absolute right-1 top-1 block h-1 w-1 rounded-full"
-              style={{ background: color }}
-              animate={state !== "sleeping" ? { opacity: [1, 0.2, 1] } : { opacity: 0.4 }}
-              transition={{ duration: 1.6, repeat: Infinity, delay: 0.1 }}
-            />
-          </div>
-        </div>
-        {/* cuerpo */}
-        <div className="-mt-0.5 h-4 w-6 rounded-sm" style={{ background: color, ...px }}>
-          <div className="mx-auto mt-1 h-1.5 w-2 rounded-[1px] bg-white/40" />
-        </div>
-        {/* brazos / manos tecleando */}
-        <div className="-mt-3 flex w-9 justify-between">
-          <motion.span
-            className="block h-2 w-1.5 rounded-sm"
-            style={{ background: color }}
-            animate={state === "working" ? { y: [0, 2, 0] } : {}}
-            transition={{ duration: 0.28, repeat: Infinity }}
-          />
-          <motion.span
-            className="block h-2 w-1.5 rounded-sm"
-            style={{ background: color }}
-            animate={state === "working" ? { y: [0, 2, 0] } : {}}
-            transition={{ duration: 0.28, repeat: Infinity, delay: 0.14 }}
-          />
-        </div>
-      </motion.div>
-
-      {/* escritorio con monitor */}
-      <div className="relative mt-0.5 flex h-7 w-16 items-start justify-center rounded-t-sm bg-[#2a3354]">
-        <div className="mt-1 h-4 w-9 rounded-sm border border-white/15 bg-[#0c1226]">
-          <motion.div
-            className="mt-0.5 ml-1 h-0.5 rounded"
-            style={{ background: color }}
-            animate={state === "working" ? { width: [4, 22, 4] } : { width: 6 }}
-            transition={{ duration: 1.1, repeat: Infinity }}
-          />
-          {state === "working" && (
-            <motion.div
-              className="ml-1 mt-0.5 h-0.5 rounded bg-white/40"
-              animate={{ width: [10, 18, 10] }}
-              transition={{ duration: 1.4, repeat: Infinity }}
-            />
-          )}
+/* Bloques de mobiliario */
+function Desk({ x, y }: { x: number; y: number }) {
+  return (
+    <div className="absolute" style={{ left: `${x}%`, top: `${y}%` }}>
+      <div className="h-5 w-9 rounded-[3px] border border-black/30 bg-[#7a4a22]">
+        <div className="ml-1 mt-0.5 h-3 w-3 rounded-[2px] border border-black/40 bg-[#0c1226]">
+          <div className="ml-0.5 mt-1 h-0.5 w-2 rounded bg-[#5b8def]/80" />
         </div>
       </div>
     </div>
   );
 }
+function Shelf({ x, y }: { x: number; y: number }) {
+  return (
+    <div className="absolute flex gap-0.5 rounded-[2px] bg-[#5a3a1a] p-0.5" style={{ left: `${x}%`, top: `${y}%` }}>
+      {["#dc2626", "#0f9d58", "#5b8def", "#f59e0b"].map((c, i) => (
+        <span key={i} className="block h-4 w-1 rounded-[1px]" style={{ background: c }} />
+      ))}
+    </div>
+  );
+}
+function Plant({ x, y }: { x: number; y: number }) {
+  return (
+    <div className="absolute" style={{ left: `${x}%`, top: `${y}%` }}>
+      <div className="mx-auto h-3 w-3 rounded-full bg-[#2f7d4f]" />
+      <div className="mx-auto h-1.5 w-2 rounded-b-[2px] bg-[#b9763a]" />
+    </div>
+  );
+}
 
 export default function PixelAgents() {
-  const [target, setTarget] = useState("asignador");
+  const [agents, setAgents] = useState<Agent[]>(DEFAULTS);
+  const [edit, setEdit] = useState(false);
+  const [target, setTarget] = useState("distribuidor");
   const [orden, setOrden] = useState("");
   const [log, setLog] = useState<{ t: string; msg: string }[]>([
-    { t: "sistema", msg: "Oficina de agentes lista. Plataforma en Fase 1 (sin Zoho)." },
+    { t: "sistema", msg: "Oficina de agentes activa. Personalízalos con el botón Editar." },
   ]);
+
+  // persistencia local de nombre/colores
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("pixelAgents");
+      if (raw) {
+        const saved = JSON.parse(raw) as Partial<Agent>[];
+        setAgents((prev) =>
+          prev.map((a) => {
+            const s = saved.find((x) => x.id === a.id);
+            return s ? { ...a, nombre: s.nombre ?? a.nombre, hair: s.hair ?? a.hair, shirt: s.shirt ?? a.shirt } : a;
+          })
+        );
+      }
+    } catch {}
+  }, []);
+
+  function update(id: string, patch: Partial<Agent>) {
+    setAgents((prev) => {
+      const next = prev.map((a) => (a.id === id ? { ...a, ...patch } : a));
+      try {
+        localStorage.setItem(
+          "pixelAgents",
+          JSON.stringify(next.map((a) => ({ id: a.id, nombre: a.nombre, hair: a.hair, shirt: a.shirt })))
+        );
+      } catch {}
+      return next;
+    });
+  }
 
   function enviar(e: React.FormEvent) {
     e.preventDefault();
     if (!orden.trim()) return;
-    const ag = AGENTES.find((a) => a.id === target);
+    const ag = agents.find((a) => a.id === target);
     setLog((l) => [
       { t: "tú", msg: `→ ${ag?.nombre}: ${orden.trim()}` },
       { t: "agente", msg: `${ag?.nombre} recibió la orden (se ejecutará al conectar Zoho/N8N).` },
@@ -149,104 +165,131 @@ export default function PixelAgents() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Bot className="h-5 w-5 text-wh-orange" />
-        <SectionTitle sub="Míralos trabajar y dáles órdenes en un solo lugar. Conexión Zoho + N8N en camino.">
+        <SectionTitle sub="Oficina top-down: mira a tus agentes caminar y trabajar. Personalízalos a tu gusto (como la extensión de VS Code).">
           Pixel Agents
         </SectionTitle>
       </div>
 
-      {/* ── La oficina ── */}
+      {/* OFICINA */}
       <div className="exec-card overflow-hidden p-0">
         <div className="flex items-center justify-between border-b border-[var(--color-line)] px-4 py-2.5">
           <span className="exec-label">Oficina de agentes · Windmar</span>
-          <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#34d399]">
-            <motion.span className="block h-2 w-2 rounded-full bg-[#34d399]" animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.4, repeat: Infinity }} />
-            1 activo
-          </span>
+          <button
+            onClick={() => setEdit((e) => !e)}
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
+              edit ? "bg-wh-orange text-white" : "border border-[var(--color-line)] text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+            }`}
+          >
+            {edit ? <Check className="h-3 w-3" /> : <Pencil className="h-3 w-3" />}
+            {edit ? "Listo" : "Editar"}
+          </button>
         </div>
 
-        {/* sala */}
+        {/* sala top-down */}
         <div
-          className="relative px-6 py-10"
+          className="relative w-full"
           style={{
-            background:
-              "linear-gradient(180deg,#141b35 0%,#0e1426 100%)",
-            backgroundImage:
-              "linear-gradient(180deg,#141b35,#0e1426), repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(255,255,255,.03) 32px), repeating-linear-gradient(90deg,transparent,transparent 31px,rgba(255,255,255,.03) 32px)",
+            height: 380,
+            background: "#0e1426",
           }}
         >
-          <div className="mx-auto grid max-w-2xl grid-cols-2 gap-x-8 gap-y-12 sm:grid-cols-4 sm:gap-y-0">
-            {AGENTES.map((a, i) => {
-              const st = STATE_LABEL[a.state];
-              return (
-                <motion.div
-                  key={a.id}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08 }}
-                  className="flex flex-col items-center"
-                >
-                  <PixelBot color={a.color} state={a.state} />
-                  <div className="mt-2 text-center">
-                    <div className="text-xs font-black text-white">{a.nombre}</div>
-                    <div
-                      className="mt-1 inline-block rounded-full px-2 py-0.5 text-[9px] font-bold"
-                      style={{ background: `${st.c}22`, color: st.c }}
-                    >
-                      {st.t}
-                    </div>
-                    <div className="mt-1 max-w-[110px] text-[10px] leading-tight text-slate-400">{a.say}</div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+          {/* zona trabajo (madera) */}
+          <div className="absolute" style={{ left: "4%", top: "8%", width: "52%", height: "86%", background: "#8a5a2b", backgroundImage: "repeating-linear-gradient(90deg,rgba(0,0,0,.08) 0 2px,transparent 2px 26px)", borderRadius: 6 }} />
+          {/* cocina (tile) */}
+          <div className="absolute" style={{ left: "60%", top: "8%", width: "36%", height: "34%", background: "#d8d4cc", backgroundImage: "repeating-linear-gradient(0deg,rgba(0,0,0,.06) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(0,0,0,.06) 0 1px,transparent 1px 22px)", borderRadius: 6 }} />
+          {/* sala reunión (azul) */}
+          <div className="absolute" style={{ left: "60%", top: "48%", width: "36%", height: "46%", background: "#2e5a8a", borderRadius: 6 }} />
+
+          {/* mobiliario */}
+          <Shelf x={8} y={9} /> <Shelf x={20} y={9} /> <Shelf x={34} y={9} />
+          <Desk x={12} y={30} /> <Desk x={36} y={30} />
+          <Desk x={12} y={78} /> <Desk x={36} y={78} />
+          <Plant x={6} y={86} /> <Plant x={50} y={20} /> <Plant x={90} y={88} />
+          {/* cocina props */}
+          <div className="absolute h-6 w-4 rounded-[2px] bg-[#c8ccd2]" style={{ left: "62%", top: "11%" }} />
+          <div className="absolute h-3 w-3 rounded-full border-2 border-[#2a2f45] bg-white" style={{ left: "78%", top: "10%" }} />
+          {/* mesa reunión */}
+          <div className="absolute h-8 w-12 rounded-[3px] bg-[#6b4a8a]" style={{ left: "70%", top: "64%" }} />
+          <Shelf x={64} y={52} /> <Shelf x={84} y={52} />
+
+          {/* AGENTES caminando */}
+          {agents.map((a) => (
+            <motion.div
+              key={a.id}
+              className="absolute z-10"
+              style={{ width: 18 }}
+              animate={{ left: a.path.map((p) => `${p.x}%`), top: a.path.map((p) => `${p.y}%`) }}
+              transition={{ duration: a.dur, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black/55 px-1 text-[8px] font-bold text-white">
+                {a.nombre}
+              </div>
+              <Sprite hair={a.hair} shirt={a.shirt} />
+            </motion.div>
+          ))}
         </div>
       </div>
 
-      {/* ── Consola de órdenes ── */}
+      {/* EDITOR */}
+      {edit && (
+        <div className="exec-card p-5">
+          <h2 className="exec-label mb-3 flex items-center gap-1.5">
+            <Pencil className="h-3.5 w-3.5" /> Personalizar agentes
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {agents.map((a) => (
+              <div key={a.id} className="flex items-center gap-3 rounded-lg bg-[var(--color-subtle)] p-3">
+                <Sprite hair={a.hair} shirt={a.shirt} />
+                <div className="flex-1 space-y-2">
+                  <input
+                    value={a.nombre}
+                    onChange={(e) => update(a.id, { nombre: e.target.value })}
+                    className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-sm font-semibold text-[var(--color-ink)] outline-none focus:border-wh-orange"
+                  />
+                  <div className="flex flex-wrap items-center gap-1">
+                    <span className="mr-1 text-[10px] text-[var(--color-muted)]">Camisa</span>
+                    {SWATCHES.map((c) => (
+                      <button key={c} onClick={() => update(a.id, { shirt: c })} className="h-4 w-4 rounded-full ring-1 ring-black/20" style={{ background: c, outline: a.shirt === c ? "2px solid var(--color-ink)" : "none" }} />
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1">
+                    <span className="mr-1 text-[10px] text-[var(--color-muted)]">Pelo</span>
+                    {HAIRS.map((c) => (
+                      <button key={c} onClick={() => update(a.id, { hair: c })} className="h-4 w-4 rounded-full ring-1 ring-black/20" style={{ background: c, outline: a.hair === c ? "2px solid var(--color-ink)" : "none" }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-[11px] text-[var(--color-muted)]">Los cambios se guardan en tu navegador.</p>
+        </div>
+      )}
+
+      {/* CONSOLA */}
       <div className="exec-card p-5">
         <h2 className="exec-label mb-3 flex items-center gap-1.5">
           <Terminal className="h-3.5 w-3.5" /> Dar una orden
         </h2>
         <form onSubmit={enviar} className="flex flex-col gap-2 sm:flex-row">
-          <select
-            value={target}
-            onChange={(e) => setTarget(e.target.value)}
-            className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-wh-orange"
-          >
-            {AGENTES.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.nombre}
-              </option>
+          <select value={target} onChange={(e) => setTarget(e.target.value)} className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-wh-orange">
+            {agents.map((a) => (
+              <option key={a.id} value={a.id}>{a.nombre}</option>
             ))}
           </select>
-          <input
-            value={orden}
-            onChange={(e) => setOrden(e.target.value)}
-            placeholder="Ej. Distribuir las citas coordinadas de hoy y notificar a Miguel"
-            className="flex-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-wh-orange focus:ring-2 focus:ring-wh-orange/20"
-          />
-          <button
-            type="submit"
-            className="flex items-center justify-center gap-2 rounded-lg bg-wh-orange px-4 py-2 text-sm font-bold text-white shadow-orange transition hover:brightness-105"
-          >
+          <input value={orden} onChange={(e) => setOrden(e.target.value)} placeholder="Ej. Distribuir las citas coordinadas de hoy y notificar a Miguel" className="flex-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-wh-orange focus:ring-2 focus:ring-wh-orange/20" />
+          <button type="submit" className="flex items-center justify-center gap-2 rounded-lg bg-wh-orange px-4 py-2 text-sm font-bold text-white shadow-orange transition hover:brightness-105">
             <Send className="h-4 w-4" /> Enviar
           </button>
         </form>
-
-        <div className="mt-4 max-h-56 space-y-1.5 overflow-y-auto rounded-lg bg-[var(--color-subtle)] p-3 font-mono text-xs">
+        <div className="mt-4 max-h-48 space-y-1.5 overflow-y-auto rounded-lg bg-[var(--color-subtle)] p-3 font-mono text-xs">
           {log.map((l, i) => (
             <div key={i} className="flex gap-2">
-              <span className="shrink-0 font-bold" style={{ color: l.t === "tú" ? "#f89b24" : l.t === "agente" ? "#0f9d58" : "#6d6e71" }}>
-                [{l.t}]
-              </span>
+              <span className="shrink-0 font-bold" style={{ color: l.t === "tú" ? "#f89b24" : l.t === "agente" ? "#0f9d58" : "#6d6e71" }}>[{l.t}]</span>
               <span className="text-[var(--color-ink-soft)]">{l.msg}</span>
             </div>
           ))}
         </div>
-        <p className="mt-3 text-[11px] text-[var(--color-muted)]">
-          Vista preliminar. Al conectar Zoho (solo-lectura) y N8N, los agentes ejecutarán y reportarán aquí en vivo.
-        </p>
       </div>
     </div>
   );
