@@ -5,8 +5,8 @@ import { Send, Terminal, Bot, Pencil, Check } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
 import PixelOffice, { SpriteImg, type OfficeAgent } from "@/components/PixelOffice";
 
-// modelos de caminar (para elegir por agente)
-const SHEETS = ["agent1", "agent2", "agent3", "agent4"];
+// modelos animation-ready (repo pixel-agents): caminata natural
+const SHEETS = ["char_0", "char_1", "char_2", "char_3", "char_4", "char_5"];
 
 function rnd(a: number, b: number) {
   return a + (b - a) * Math.random();
@@ -32,12 +32,12 @@ const MGR = { x0: 68, y0: 60, x1: 95, y1: 90 };
 const MEET = { x0: 70, y0: 16, x1: 95, y1: 42 };
 
 const DEFAULTS: OfficeAgent[] = [
-  mk("distribuidor", "Distribuidor", "agent1", { x: 16, y: 30 }, WORK),
-  mk("asignador", "Asignación", "agent2", { x: 44, y: 30 }, WORK),
-  mk("zoho", "Zoho Sync", "agent3", { x: 16, y: 68 }, WORK),
-  mk("n8n", "N8N Notifier", "agent4", { x: 44, y: 68 }, WORK),
-  mk("gerente", "Gerente", "agent1", { x: 80, y: 72 }, MGR),
-  mk("calidad", "Calidad", "agent2", { x: 82, y: 28 }, MEET),
+  mk("distribuidor", "Distribuidor", "char_0", { x: 16, y: 30 }, WORK),
+  mk("asignador", "Asignación", "char_1", { x: 44, y: 30 }, WORK),
+  mk("zoho", "Zoho Sync", "char_2", { x: 16, y: 68 }, WORK),
+  mk("n8n", "N8N Notifier", "char_3", { x: 44, y: 68 }, WORK),
+  mk("gerente", "Gerente", "char_4", { x: 80, y: 72 }, MGR),
+  mk("calidad", "Calidad", "char_5", { x: 82, y: 28 }, MEET),
 ];
 
 export default function PixelAgents() {
@@ -65,14 +65,12 @@ export default function PixelAgents() {
     } catch {}
   }, []);
 
-  // Simulación calmada: el agente se desliza suave a un punto, se queda un rato
-  // (trabajando/idle), y vuelve a moverse. SIN cambio de frames (evita el
-  // "salto" feo); el movimiento natural lo da el deslizamiento + un leve bob.
+  // Simulación: caminar (ciclo de 3 frames natural) → sentarse a trabajar → idle.
   useEffect(() => {
     const iv = setInterval(() => {
       setAgents((prev) =>
         prev.map((a) => {
-          let { x, y, tx, ty, state, facing, wait, goingDesk } = a;
+          let { x, y, tx, ty, state, facing, frame, wait, goingDesk } = a;
           if (state === "walking") {
             const dx = tx - x, dy = ty - y;
             const d = Math.hypot(dx, dy);
@@ -80,9 +78,10 @@ export default function PixelAgents() {
               if (goingDesk) { state = "working"; facing = "up"; x = a.desk.x; y = a.desk.y; wait = Math.round(rnd(60, 140)); }
               else { state = "idle"; facing = "down"; wait = Math.round(rnd(25, 60)); }
             } else {
-              const sp = 1.1;
+              const sp = 1.0;
               x += (dx / d) * sp; y += (dy / d) * sp;
               facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
+              frame = frame + 1; // avanza el ciclo de caminata
             }
           } else {
             wait--;
@@ -92,7 +91,7 @@ export default function PixelAgents() {
               state = "walking";
             }
           }
-          return { ...a, x, y, tx, ty, state, facing, wait, goingDesk };
+          return { ...a, x, y, tx, ty, state, facing, frame, wait, goingDesk };
         })
       );
     }, 160);
@@ -159,7 +158,7 @@ export default function PixelAgents() {
           <div className="grid gap-3 sm:grid-cols-2">
             {agents.map((a) => (
               <div key={a.id} className="flex items-center gap-3 rounded-lg bg-[var(--color-subtle)] p-3">
-                <SpriteImg sheet={a.sheet} facing="down" frame={0} w={34} />
+                <SpriteImg sheet={a.sheet} facing="down" frame={0} scale={0.7} />
                 <div className="flex-1 space-y-2">
                   <input
                     value={a.nombre}
@@ -175,7 +174,7 @@ export default function PixelAgents() {
                         style={{ outline: a.sheet === s ? "2px solid var(--color-wh-orange)" : "1px solid var(--color-line)" }}
                         title={s}
                       >
-                        <SpriteImg sheet={s} facing="down" frame={0} w={22} />
+                        <SpriteImg sheet={s} facing="down" frame={0} scale={0.5} />
                       </button>
                     ))}
                   </div>

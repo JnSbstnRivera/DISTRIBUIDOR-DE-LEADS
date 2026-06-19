@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 /* ── Paleta Windmar ── */
 const C = {
   orange: "#F89B24",
@@ -40,53 +38,77 @@ export type OfficeAgent = {
   goingDesk: boolean;
 };
 
-/* ── Sprite del agente desde la hoja PNG real ── */
-const ROW: Record<Facing, number> = { down: 0, up: 3, left: 2, right: 2 };
-
-// metadatos de cada hoja: cols/rows y si es un strip (1 fila de frames)
-export const SHEET_META: Record<string, { cols: number; rows: number; strip?: boolean }> = {
-  agent1: { cols: 4, rows: 4 },
-  agent2: { cols: 4, rows: 4 },
-  agent3: { cols: 4, rows: 4 },
-  agent4: { cols: 4, rows: 4 },
-  leadH: { cols: 6, rows: 1, strip: true },
-  leadM: { cols: 6, rows: 1, strip: true },
+/* ── Sprite del agente (soporta hojas animation-ready del repo pixel-agents) ── */
+type SheetMeta = {
+  cols: number;
+  rows: number;
+  fw: number; // ancho del frame en px de la hoja
+  fh: number; // alto del frame
+  dispH: number; // alto de despliegue de la celda
+  base: string; // carpeta del PNG
+  dir: { down: number; up: number; left?: number; right?: number };
+  walk: number[];
+  idle: number;
 };
-export const isStrip = (sheet: string) => !!SHEET_META[sheet]?.strip;
+
+// char_0..5: animation-ready (7x3, 16x32, fila0=abajo,1=arriba,2=derecha; izq=espejo)
+const CHAR: Omit<SheetMeta, "base"> = {
+  cols: 7, rows: 3, fw: 16, fh: 32, dispH: 70,
+  dir: { down: 0, up: 1, right: 2 }, walk: [0, 1, 2], idle: 1,
+};
+
+export const SHEET_META: Record<string, SheetMeta> = {
+  char_0: { ...CHAR, base: "/agents/pixel/" },
+  char_1: { ...CHAR, base: "/agents/pixel/" },
+  char_2: { ...CHAR, base: "/agents/pixel/" },
+  char_3: { ...CHAR, base: "/agents/pixel/" },
+  char_4: { ...CHAR, base: "/agents/pixel/" },
+  char_5: { ...CHAR, base: "/agents/pixel/" },
+};
 
 export function SpriteImg({
   sheet,
   facing = "down",
   frame = 0,
-  w = 42,
   walking = false,
+  scale = 1,
 }: {
   sheet: string;
   facing?: Facing;
   frame?: number;
-  w?: number;
   walking?: boolean;
+  scale?: number;
 }) {
-  const meta = SHEET_META[sheet] || { cols: 4, rows: 4 };
-  const h = w * 1.5; // celda 64×96 = 2:3
-  const row = meta.strip ? 0 : ROW[facing] ?? 0;
-  const col = frame % meta.cols;
-  const flip = !meta.strip && facing === "right";
+  const m = SHEET_META[sheet] || SHEET_META.char_0;
+  const dispH = m.dispH * scale;
+  const dispW = (dispH * m.fw) / m.fh;
+
+  let row = m.dir.down;
+  let flip = false;
+  if (facing === "up") row = m.dir.up;
+  else if (facing === "down") row = m.dir.down;
+  else if (facing === "right") {
+    if (m.dir.right != null) row = m.dir.right;
+    else { row = m.dir.left!; flip = true; }
+  } else if (facing === "left") {
+    if (m.dir.left != null) row = m.dir.left;
+    else { row = m.dir.right!; flip = true; }
+  }
+  const col = walking ? m.walk[frame % m.walk.length] : m.idle;
+
   return (
     <div className="relative flex flex-col items-center" style={{ transform: flip ? "scaleX(-1)" : undefined }}>
-      <motion.div
-        animate={walking ? { y: [0, -2, 0] } : { y: 0 }}
-        transition={walking ? { duration: 0.45, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
+      <div
         style={{
-          width: w,
-          height: h,
-          backgroundImage: `url(/agents/clean/${sheet}.png)`,
-          backgroundSize: `${w * meta.cols}px ${h * meta.rows}px`,
-          backgroundPosition: `-${col * w}px -${row * h}px`,
+          width: dispW,
+          height: dispH,
+          backgroundImage: `url(${m.base}${sheet}.png)`,
+          backgroundSize: `${dispW * m.cols}px ${dispH * m.rows}px`,
+          backgroundPosition: `-${col * dispW}px -${row * dispH}px`,
           imageRendering: "pixelated",
         }}
       />
-      <div style={{ width: w * 0.5, height: 4, marginTop: -2, background: "rgba(0,0,0,.28)", borderRadius: 99, filter: "blur(1px)" }} />
+      <div style={{ width: dispW * 0.6, height: 4, marginTop: -3, background: "rgba(0,0,0,.3)", borderRadius: 99, filter: "blur(1px)" }} />
     </div>
   );
 }
@@ -176,7 +198,7 @@ export default function PixelOffice({ agents }: { agents: OfficeAgent[] }) {
           <div className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black/55 px-1 text-[8px] font-bold text-white">
             {a.nombre}
           </div>
-          <SpriteImg sheet={a.sheet} facing={a.facing} frame={0} w={42} walking={a.state === "walking"} />
+          <SpriteImg sheet={a.sheet} facing={a.facing} frame={a.frame} walking={a.state === "walking"} />
         </div>
       ))}
     </div>
