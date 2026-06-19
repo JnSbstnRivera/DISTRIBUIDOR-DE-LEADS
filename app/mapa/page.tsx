@@ -38,6 +38,24 @@ export default function Mapa() {
     [q]
   );
 
+  // Centro (bbox) de cada municipio para ubicar el marcador
+  const centroids = useMemo(() => {
+    const map: Record<string, [number, number]> = {};
+    for (const m of MUNIS) {
+      const nums = (m.d.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (let i = 0; i + 1 < nums.length; i += 2) {
+        const x = nums[i], y = nums[i + 1];
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+      map[m.name] = [(minX + maxX) / 2, (minY + maxY) / 2];
+    }
+    return map;
+  }, []);
+
   const listed = useMemo(
     () =>
       [...MUNIS]
@@ -178,20 +196,8 @@ export default function Mapa() {
                 Puerto <span className="accent-orange">Rico</span>
               </div>
             </div>
-            <div className="text-right">
-              {live ? (
-                <>
-                  <div className="text-2xl font-black leading-tight text-[var(--color-ink)]">{live.name}</div>
-                  <div className="mt-1 flex items-center justify-end gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: ZONA_COLOR[live.zona] }} />
-                    <span className="text-sm font-semibold" style={{ color: ZONA_COLOR[live.zona] }}>
-                      {OFICINA[live.zona]}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <div className="text-sm text-[var(--color-muted)]">Pasa el mouse o elige un pueblo</div>
-              )}
+            <div className="self-center text-right text-sm text-[var(--color-muted)]">
+              Pasa el mouse o elige un pueblo
             </div>
           </div>
 
@@ -208,6 +214,24 @@ export default function Mapa() {
             }}
             onMouseLeave={() => setHovered(null)}
           >
+            {/* Título grande SOBRE el mapa */}
+            {live && (
+              <div
+                key={live.name}
+                className="animate-in-up pointer-events-none absolute left-1/2 top-1 z-10 -translate-x-1/2 text-center"
+              >
+                <div
+                  className="text-4xl font-black tracking-tight md:text-5xl"
+                  style={{ color: ZONA_COLOR[live.zona], textShadow: "0 2px 14px rgba(8,18,50,0.25)" }}
+                >
+                  {live.name}
+                </div>
+                <div className="mt-0.5 text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-muted)]">
+                  {OFICINA[live.zona]}
+                </div>
+              </div>
+            )}
+
             <svg
               viewBox={prMap.viewBox}
               className="w-full"
@@ -233,6 +257,31 @@ export default function Mapa() {
                   />
                 );
               })}
+
+              {/* Marcador animado sobre el municipio activo */}
+              {live && centroids[live.name] && (
+                <g pointerEvents="none">
+                  <circle
+                    cx={centroids[live.name][0]}
+                    cy={centroids[live.name][1]}
+                    r={2}
+                    fill="none"
+                    stroke={ZONA_COLOR[live.zona]}
+                    strokeWidth={0.7}
+                  >
+                    <animate attributeName="r" values="2;7;2" dur="1.7s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.9;0;0.9" dur="1.7s" repeatCount="indefinite" />
+                  </circle>
+                  <circle
+                    cx={centroids[live.name][0]}
+                    cy={centroids[live.name][1]}
+                    r={2}
+                    fill={ZONA_COLOR[live.zona]}
+                    stroke="#fff"
+                    strokeWidth={0.7}
+                  />
+                </g>
+              )}
             </svg>
 
             {hovered && (
