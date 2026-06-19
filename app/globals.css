@@ -20,11 +20,11 @@
   --color-ink: #21274e;
   --color-ink-soft: #4a5170;
   --color-muted: #6d6e71;
-  --color-line: #e3e7f0;
-  --color-subtle: #f6f8fc;
-  --color-track: #e9edf5;
-  --card-shadow: 0 1px 2px rgba(33, 39, 78, 0.04), 0 10px 26px -18px rgba(33, 39, 78, 0.25);
-  --card-shadow-hover: 0 4px 10px rgba(33, 39, 78, 0.06), 0 18px 40px -20px rgba(33, 39, 78, 0.3);
+  --color-line: #d5dcec;
+  --color-subtle: #f4f7fc;
+  --color-track: #e6ebf4;
+  --card-shadow: 0 1px 2px rgba(33, 39, 78, 0.07), 0 4px 10px -3px rgba(33, 39, 78, 0.11), 0 18px 38px -16px rgba(33, 39, 78, 0.22);
+  --card-shadow-hover: 0 6px 14px -4px rgba(33, 39, 78, 0.16), 0 28px 52px -18px rgba(33, 39, 78, 0.32);
   --hero-bg: linear-gradient(135deg, #ffffff 0%, #fff6ea 100%);
   --skeleton: linear-gradient(90deg, #eef1f7 25%, #e2e7f0 37%, #eef1f7 63%);
 }
@@ -190,4 +190,20 @@ button:not(:disabled):active {
   .animate-in-up, .skeleton, .soft-pop { animation: none; }
   .exec-card:hover, .exec-card-hero:hover { transform: none; }
   .bar-fill { transition: none; }
+}
+
+/* Profundidad en campos (inputs/select) — más énfasis en modo claro */
+input,
+select,
+textarea {
+  box-shadow: inset 0 1px 2px rgba(33, 39, 78, 0.06);
+}
+.dark input,
+.dark select,
+.dark textarea {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+/* Un poco más de borde/anillo en las tarjetas para separarlas del fondo */
+.exec-card {
+  border-color: var(--color-line);
 }

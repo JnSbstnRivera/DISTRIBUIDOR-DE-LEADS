@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   LogOut,
+  Bot,
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -46,6 +47,10 @@ const GROUPS = [
   {
     label: "Registro",
     items: [{ href: "/historial", label: "Historial", icon: History }],
+  },
+  {
+    label: "Automatización",
+    items: [{ href: "/pixel-agents", label: "Pixel Agents", icon: Bot }],
   },
 ];
 
@@ -90,9 +95,13 @@ function NavList({ path, onNavigate }: { path: string; onNavigate?: () => void }
 
 function Brand() {
   return (
-    <Link href="/" className="flex items-center gap-2.5 px-4 py-4">
+    <Link href="/" className="flex items-center gap-3 px-4 py-4">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="https://i.postimg.cc/6T5J2v2G/windmar-logo.png" alt="Windmar Home" className="h-9 w-auto" />
+      <img
+        src="https://i.postimg.cc/6T5J2v2G/windmar-logo.png"
+        alt="Windmar Home"
+        className="h-16 w-auto drop-shadow-[0_0_10px_rgba(248,155,36,0.35)]"
+      />
       <div className="leading-none">
         <div className="text-sm font-black uppercase tracking-tight text-[var(--color-ink)]">Distribuidor</div>
         <div className="text-[9px] uppercase tracking-[0.2em] text-wh-grey">Windmar Home</div>
