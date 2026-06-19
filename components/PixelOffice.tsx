@@ -113,42 +113,36 @@ export function SpriteImg({
   );
 }
 
-/* ── Mobiliario (bloques estilizados) ── */
-function Desk({ x, y }: { x: number; y: number }) {
+/* ── Mobiliario real (sprites del repo pixel-agents) ── */
+const OFF = "/agents/pixel/office/";
+const FS = 2.6; // escala de los muebles
+
+function Furn({ name, x, y, w, h, z = 2 }: { name: string; x: number; y: number; w: number; h: number; z?: number }) {
+  // eslint-disable-next-line @next/next/no-img-element
   return (
-    <div className="absolute" style={{ left: `${x}%`, top: `${y}%` }}>
-      <div style={{ width: 56, height: 30, background: "#fff", borderRadius: 4, border: `1px solid ${C.tgrey}`, boxShadow: "0 2px 0 rgba(0,0,0,.12)" }}>
-        <div style={{ width: 16, height: 14, margin: "4px auto 0", background: C.navy, borderRadius: 2, borderBottom: `3px solid ${C.grey}` }}>
-          <div style={{ width: 12, height: 8, margin: "2px auto", background: C.lblue, borderRadius: 1 }} />
-        </div>
-      </div>
-      {/* silla azul */}
-      <div style={{ width: 14, height: 14, margin: "2px auto 0", background: C.blue, borderRadius: 3, border: `1px solid ${C.navy}` }} />
-    </div>
-  );
-}
-function Shelf({ x, y }: { x: number; y: number }) {
-  return (
-    <div className="absolute flex gap-[2px] rounded-sm p-[2px]" style={{ left: `${x}%`, top: `${y}%`, background: "#cfd6e6" }}>
-      {[C.orange, C.blue, C.lblue, C.grey, C.blue].map((c, i) => (
-        <span key={i} style={{ width: 3, height: 16, background: c, borderRadius: 1 }} />
-      ))}
-    </div>
-  );
-}
-function Plant({ x, y }: { x: number; y: number }) {
-  return (
-    <div className="absolute" style={{ left: `${x}%`, top: `${y}%` }}>
-      <div style={{ width: 16, height: 14, background: "#2f7d4f", borderRadius: "50% 50% 40% 40%", margin: "0 auto" }} />
-      <div style={{ width: 11, height: 8, background: "#fff", borderRadius: "0 0 3px 3px", margin: "0 auto", border: `1px solid ${C.tgrey}` }} />
-    </div>
+    <img
+      src={`${OFF}${name}.png`}
+      alt=""
+      className="absolute"
+      style={{ left: `${x}%`, top: `${y}%`, width: w * FS, height: h * FS, imageRendering: "pixelated", zIndex: z }}
+    />
   );
 }
 function LogoFrame({ x, y }: { x: number; y: number }) {
   return (
-    <div className="absolute grid place-items-center" style={{ left: `${x}%`, top: `${y}%`, width: 34, height: 22, background: "#fff", borderRadius: 3, border: `2px solid ${C.navy}` }}>
-      <span style={{ color: C.blue, fontWeight: 900, fontSize: 12, lineHeight: 1 }}>W</span>
+    <div className="absolute z-[2] grid place-items-center" style={{ left: `${x}%`, top: `${y}%`, width: 38, height: 26, background: "#fff", borderRadius: 2, border: `2px solid ${C.navy}` }}>
+      <span style={{ color: C.blue, fontWeight: 900, fontSize: 14, lineHeight: 1 }}>W</span>
     </div>
+  );
+}
+
+// piso texturizado con un tile real repetido
+function Floor({ tile, ...s }: { tile: string } & React.CSSProperties) {
+  return (
+    <div
+      className="absolute"
+      style={{ backgroundImage: `url(${OFF}${tile}.png)`, backgroundSize: "44px 44px", imageRendering: "pixelated", borderRadius: 2, ...s }}
+    />
   );
 }
 
@@ -156,37 +150,43 @@ export default function PixelOffice({ agents }: { agents: OfficeAgent[] }) {
   return (
     <div
       className="relative w-full overflow-hidden rounded-xl"
-      style={{ aspectRatio: "1.9 / 1", background: C.wall, border: `4px solid ${C.navy}` }}
+      style={{ aspectRatio: "1.9 / 1", background: C.wall, border: `5px solid ${C.navy}` }}
     >
-      {/* Pisos / cuartos */}
-      <div className="absolute" style={{ left: "2%", top: "4%", width: "58%", height: "92%", background: C.floorWork, backgroundImage: "repeating-linear-gradient(0deg,rgba(0,0,0,.04) 0 1px,transparent 1px 28px),repeating-linear-gradient(90deg,rgba(0,0,0,.04) 0 1px,transparent 1px 28px)", borderRadius: 4 }} />
-      <div className="absolute" style={{ left: "63%", top: "4%", width: "35%", height: "44%", background: C.floorMgr, borderRadius: 4 }} />
-      <div className="absolute" style={{ left: "63%", top: "52%", width: "35%", height: "44%", background: C.floorMgr, borderRadius: 4 }} />
+      {/* Pisos / cuartos (tiles reales) */}
+      <Floor tile="floor_0" left="2%" top="4%" width="58%" height="92%" />
+      <Floor tile="floor_3" left="63%" top="4%" width="35%" height="44%" />
+      <Floor tile="floor_5" left="63%" top="52%" width="35%" height="44%" />
+      {/* divisores de pared */}
+      <div className="absolute" style={{ left: "60.5%", top: "2%", width: 6, height: "96%", background: C.navy }} />
+      <div className="absolute" style={{ left: "63%", top: "48%", width: "35%", height: 6, background: C.navy }} />
 
-      {/* Workspace props */}
-      <Shelf x={8} y={6} /> <Shelf x={18} y={6} /> <Shelf x={30} y={6} />
-      <Plant x={5} y={6} /> <Plant x={42} y={6} />
-      {/* water cooler / clock / printer */}
-      <div className="absolute" style={{ left: "50%", top: "6%", width: 12, height: 22, background: C.lblue, borderRadius: 3, border: `1px solid ${C.navy}` }} />
-      <div className="absolute rounded-full bg-white" style={{ left: "56%", top: "6%", width: 16, height: 16, border: `2px solid ${C.navy}` }} />
-      <div className="absolute" style={{ left: "44%", top: "7%", width: 18, height: 14, background: C.grey, borderRadius: 2 }} />
-      <LogoFrame x={37} y={6} />
-      {/* desks */}
-      <Desk x={10} y={28} /> <Desk x={38} y={28} />
-      <Desk x={10} y={66} /> <Desk x={38} y={66} />
-      <Plant x={5} y={88} /> <Plant x={52} y={88} />
+      {/* Workspace */}
+      <Furn name="DOUBLE_BOOKSHELF" x={6} y={5} w={32} h={32} />
+      <Furn name="DOUBLE_BOOKSHELF" x={22} y={5} w={32} h={32} />
+      <Furn name="BOOKSHELF" x={38} y={6} w={32} h={16} />
+      <Furn name="COFFEE" x={47} y={6} w={16} h={16} />
+      <Furn name="CLOCK" x={52} y={4} w={16} h={32} />
+      <LogoFrame x={43} y={6} />
+      <Furn name="DESK_FRONT" x={9} y={28} w={48} h={32} />
+      <Furn name="DESK_FRONT" x={36} y={28} w={48} h={32} />
+      <Furn name="DESK_FRONT" x={9} y={64} w={48} h={32} />
+      <Furn name="DESK_FRONT" x={36} y={64} w={48} h={32} />
+      <Furn name="PLANT" x={3} y={84} w={16} h={32} />
+      <Furn name="LARGE_PLANT" x={50} y={80} w={32} h={48} />
 
-      {/* Meeting room (arriba dcha) */}
-      <LogoFrame x={80} y={8} />
-      <Shelf x={88} y={9} />
-      <div className="absolute" style={{ left: "76%", top: "26%", width: 44, height: 18, background: "#fff", borderRadius: 4, border: `1px solid ${C.tgrey}` }} />
-      <Plant x={68} y={10} /> <Plant x={92} y={36} />
+      {/* Meeting room */}
+      <LogoFrame x={80} y={7} />
+      <Furn name="TABLE_FRONT" x={77} y={20} w={48} h={64} z={2} />
+      <Furn name="CUSHIONED_CHAIR_FRONT" x={72} y={26} w={16} h={16} />
+      <Furn name="CUSHIONED_CHAIR_FRONT" x={90} y={26} w={16} h={16} />
+      <Furn name="PLANT" x={66} y={10} w={16} h={32} />
 
-      {/* Manager room (abajo dcha) */}
-      <LogoFrame x={80} y={54} />
-      <div className="absolute" style={{ left: "74%", top: "70%", width: 50, height: 20, background: "#fff", borderRadius: 4, border: `1px solid ${C.tgrey}` }} />
-      <Shelf x={66} y={56} /> <Shelf x={90} y={56} />
-      <Plant x={66} y={88} /> <Plant x={92} y={88} />
+      {/* Manager room */}
+      <Furn name="LARGE_PAINTING" x={79} y={52} w={32} h={32} />
+      <Furn name="DESK_FRONT" x={76} y={70} w={48} h={32} />
+      <Furn name="BOOKSHELF" x={65} y={58} w={32} h={16} />
+      <Furn name="BOOKSHELF" x={88} y={58} w={32} h={16} />
+      <Furn name="LARGE_PLANT" x={65} y={82} w={32} h={48} />
 
       {/* Agentes */}
       {agents.map((a) => (
