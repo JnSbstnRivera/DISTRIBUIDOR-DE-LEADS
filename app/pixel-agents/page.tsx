@@ -2,69 +2,135 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Bot,
-  Send,
-  Database,
-  Workflow,
-  Shuffle,
-  Terminal,
-  CircleDot,
-} from "lucide-react";
+import { Send, Terminal, Bot } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
 
-type Estado = "activo" | "diseño" | "pendiente";
+type State = "working" | "thinking" | "sleeping";
 
 const AGENTES = [
-  {
-    id: "distribuidor",
-    nombre: "Agente Distribuidor",
-    rol: "Motor de rotación equitativa por zona / canal y citas del día",
-    icon: Shuffle,
-    color: "#f89b24",
-    estado: "activo" as Estado,
-    ultimo: "Rotación lista en las 6 zonas + 6 canales",
-  },
-  {
-    id: "zoho",
-    nombre: "Agente Zoho Sync",
-    rol: "Lee las citas coordinadas (Lead Status = Cita coordinada) y sus campos",
-    icon: Database,
-    color: "#1d429b",
-    estado: "pendiente" as Estado,
-    ultimo: "Esperando acceso de solo-lectura (Andrés)",
-  },
-  {
-    id: "asignador",
-    nombre: "Agente de Asignación",
-    rol: "Decide a quién asignar según los criterios de Miguel y Cata",
-    icon: Bot,
-    color: "#0f9d58",
-    estado: "diseño" as Estado,
-    ultimo: "Reglas en definición (deal owner → consultor → gerente → distribuidor)",
-  },
-  {
-    id: "n8n",
-    nombre: "Agente N8N Notificador",
-    rol: "Avisa por Teams/correo la distribución y pide aprobación a Miguel",
-    icon: Workflow,
-    color: "#7c3aed",
-    estado: "pendiente" as Estado,
-    ultimo: "Flujo por construir (notifica → aprueba/rechaza)",
-  },
+  { id: "distribuidor", nombre: "Distribuidor", color: "#f89b24", state: "working" as State, say: "Rotando turnos…", rol: "Motor de rotación equitativa" },
+  { id: "zoho", nombre: "Zoho Sync", color: "#5b8def", state: "sleeping" as State, say: "Esperando acceso…", rol: "Lee citas coordinadas" },
+  { id: "asignador", nombre: "Asignación", color: "#0f9d58", state: "thinking" as State, say: "Definiendo reglas…", rol: "Decide según Miguel/Cata" },
+  { id: "n8n", nombre: "N8N Notifier", color: "#a855f7", state: "sleeping" as State, say: "Por conectar…", rol: "Avisa y pide aprobación" },
 ];
 
-const ESTADO_STYLE: Record<Estado, { label: string; color: string }> = {
-  activo: { label: "Activo", color: "#0f9d58" },
-  diseño: { label: "En diseño", color: "#e07d00" },
-  pendiente: { label: "Pendiente", color: "#6d6e71" },
+const STATE_LABEL: Record<State, { t: string; c: string }> = {
+  working: { t: "Trabajando", c: "#0f9d58" },
+  thinking: { t: "En diseño", c: "#e07d00" },
+  sleeping: { t: "Inactivo", c: "#8b93ad" },
 };
+
+/* ── Personaje pixel-art (robot astronauta) ── */
+function PixelBot({ color, state }: { color: string; state: State }) {
+  const bob =
+    state === "working"
+      ? { y: [0, -4, 0] as number[], transition: { duration: 0.5, repeat: Infinity, ease: "easeInOut" as const } }
+      : state === "thinking"
+      ? { y: [0, -3, 0] as number[], transition: { duration: 1.8, repeat: Infinity, ease: "easeInOut" as const } }
+      : { y: 0 };
+
+  const px = { imageRendering: "pixelated" as const };
+
+  return (
+    <div className="relative flex flex-col items-center" style={{ width: 64 }}>
+      {/* burbuja de estado */}
+      {state === "sleeping" ? (
+        <motion.div
+          animate={{ y: [0, -6, 0], opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute -top-3 right-1 text-xs font-black"
+          style={{ color: "#8b93ad" }}
+        >
+          z
+        </motion.div>
+      ) : (
+        <motion.div
+          animate={{ scale: [1, 1.06, 1] }}
+          transition={{ duration: 1.2, repeat: Infinity }}
+          className="absolute -top-2.5 flex gap-0.5 rounded bg-black/40 px-1 py-0.5"
+        >
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="block h-1 w-1 rounded-full"
+              style={{ background: color }}
+              animate={{ opacity: [0.2, 1, 0.2] }}
+              transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.2 }}
+            />
+          ))}
+        </motion.div>
+      )}
+
+      <motion.div animate={bob} className="flex flex-col items-center">
+        {/* antena */}
+        <div className="h-1.5 w-1" style={{ background: color }} />
+        <span className="-mt-2.5 mb-0.5 block h-1.5 w-1.5 rounded-full" style={{ background: color, boxShadow: `0 0 6px ${color}` }} />
+        {/* casco */}
+        <div className="relative h-6 w-7 rounded-md bg-[#d7deec]" style={px}>
+          {/* visor */}
+          <div className="absolute left-1 top-1.5 h-3 w-5 rounded-sm bg-[#10162b]">
+            <motion.span
+              className="absolute left-1 top-1 block h-1 w-1 rounded-full"
+              style={{ background: color }}
+              animate={state !== "sleeping" ? { opacity: [1, 0.2, 1] } : { opacity: 0.4 }}
+              transition={{ duration: 1.6, repeat: Infinity }}
+            />
+            <motion.span
+              className="absolute right-1 top-1 block h-1 w-1 rounded-full"
+              style={{ background: color }}
+              animate={state !== "sleeping" ? { opacity: [1, 0.2, 1] } : { opacity: 0.4 }}
+              transition={{ duration: 1.6, repeat: Infinity, delay: 0.1 }}
+            />
+          </div>
+        </div>
+        {/* cuerpo */}
+        <div className="-mt-0.5 h-4 w-6 rounded-sm" style={{ background: color, ...px }}>
+          <div className="mx-auto mt-1 h-1.5 w-2 rounded-[1px] bg-white/40" />
+        </div>
+        {/* brazos / manos tecleando */}
+        <div className="-mt-3 flex w-9 justify-between">
+          <motion.span
+            className="block h-2 w-1.5 rounded-sm"
+            style={{ background: color }}
+            animate={state === "working" ? { y: [0, 2, 0] } : {}}
+            transition={{ duration: 0.28, repeat: Infinity }}
+          />
+          <motion.span
+            className="block h-2 w-1.5 rounded-sm"
+            style={{ background: color }}
+            animate={state === "working" ? { y: [0, 2, 0] } : {}}
+            transition={{ duration: 0.28, repeat: Infinity, delay: 0.14 }}
+          />
+        </div>
+      </motion.div>
+
+      {/* escritorio con monitor */}
+      <div className="relative mt-0.5 flex h-7 w-16 items-start justify-center rounded-t-sm bg-[#2a3354]">
+        <div className="mt-1 h-4 w-9 rounded-sm border border-white/15 bg-[#0c1226]">
+          <motion.div
+            className="mt-0.5 ml-1 h-0.5 rounded"
+            style={{ background: color }}
+            animate={state === "working" ? { width: [4, 22, 4] } : { width: 6 }}
+            transition={{ duration: 1.1, repeat: Infinity }}
+          />
+          {state === "working" && (
+            <motion.div
+              className="ml-1 mt-0.5 h-0.5 rounded bg-white/40"
+              animate={{ width: [10, 18, 10] }}
+              transition={{ duration: 1.4, repeat: Infinity }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function PixelAgents() {
   const [target, setTarget] = useState("asignador");
   const [orden, setOrden] = useState("");
   const [log, setLog] = useState<{ t: string; msg: string }[]>([
-    { t: "sistema", msg: "Centro de agentes inicializado. Plataforma en Fase 1 (sin Zoho)." },
+    { t: "sistema", msg: "Oficina de agentes lista. Plataforma en Fase 1 (sin Zoho)." },
   ]);
 
   function enviar(e: React.FormEvent) {
@@ -79,83 +145,65 @@ export default function PixelAgents() {
     setOrden("");
   }
 
-  const activos = AGENTES.filter((a) => a.estado === "activo").length;
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Bot className="h-5 w-5 text-wh-orange" />
-        <SectionTitle sub="Centro de agentes: míralos trabajar y dáles órdenes en un solo lugar. Conexión Zoho + N8N en camino.">
+        <SectionTitle sub="Míralos trabajar y dáles órdenes en un solo lugar. Conexión Zoho + N8N en camino.">
           Pixel Agents
         </SectionTitle>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="exec-card p-4">
-          <div className="exec-label">Agentes</div>
-          <div className="kpi-number mt-1 text-3xl font-black text-[var(--color-ink)]">{AGENTES.length}</div>
+      {/* ── La oficina ── */}
+      <div className="exec-card overflow-hidden p-0">
+        <div className="flex items-center justify-between border-b border-[var(--color-line)] px-4 py-2.5">
+          <span className="exec-label">Oficina de agentes · Windmar</span>
+          <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#34d399]">
+            <motion.span className="block h-2 w-2 rounded-full bg-[#34d399]" animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.4, repeat: Infinity }} />
+            1 activo
+          </span>
         </div>
-        <div className="exec-card p-4">
-          <div className="exec-label">Activos</div>
-          <div className="kpi-number mt-1 text-3xl font-black text-[#0f9d58]">{activos}</div>
-        </div>
-        <div className="exec-card p-4">
-          <div className="exec-label">Por conectar</div>
-          <div className="kpi-number mt-1 text-3xl font-black text-[#e07d00]">{AGENTES.length - activos}</div>
-        </div>
-      </div>
 
-      {/* Grid de agentes */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {AGENTES.map((a, i) => {
-          const Icon = a.icon;
-          const st = ESTADO_STYLE[a.estado];
-          return (
-            <motion.div
-              key={a.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="exec-card p-4"
-            >
-              <div className="flex items-start gap-3">
-                <span
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-xl"
-                  style={{ background: `${a.color}1f`, color: a.color }}
+        {/* sala */}
+        <div
+          className="relative px-6 py-10"
+          style={{
+            background:
+              "linear-gradient(180deg,#141b35 0%,#0e1426 100%)",
+            backgroundImage:
+              "linear-gradient(180deg,#141b35,#0e1426), repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(255,255,255,.03) 32px), repeating-linear-gradient(90deg,transparent,transparent 31px,rgba(255,255,255,.03) 32px)",
+          }}
+        >
+          <div className="mx-auto grid max-w-2xl grid-cols-2 gap-x-8 gap-y-12 sm:grid-cols-4 sm:gap-y-0">
+            {AGENTES.map((a, i) => {
+              const st = STATE_LABEL[a.state];
+              return (
+                <motion.div
+                  key={a.id}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  className="flex flex-col items-center"
                 >
-                  <Icon className="h-5 w-5" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="truncate text-sm font-black text-[var(--color-ink)]">{a.nombre}</h3>
-                    <span
-                      className="flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
-                      style={{ background: `${st.color}1f`, color: st.color }}
+                  <PixelBot color={a.color} state={a.state} />
+                  <div className="mt-2 text-center">
+                    <div className="text-xs font-black text-white">{a.nombre}</div>
+                    <div
+                      className="mt-1 inline-block rounded-full px-2 py-0.5 text-[9px] font-bold"
+                      style={{ background: `${st.c}22`, color: st.c }}
                     >
-                      {a.estado === "activo" ? (
-                        <motion.span
-                          animate={{ opacity: [1, 0.3, 1] }}
-                          transition={{ duration: 1.4, repeat: Infinity }}
-                        >
-                          <CircleDot className="h-3 w-3" />
-                        </motion.span>
-                      ) : (
-                        <CircleDot className="h-3 w-3" />
-                      )}
-                      {st.label}
-                    </span>
+                      {st.t}
+                    </div>
+                    <div className="mt-1 max-w-[110px] text-[10px] leading-tight text-slate-400">{a.say}</div>
                   </div>
-                  <p className="mt-0.5 text-xs text-[var(--color-muted)]">{a.rol}</p>
-                  <p className="mt-2 text-[11px] text-[var(--color-ink-soft)]">{a.ultimo}</p>
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Consola de órdenes */}
+      {/* ── Consola de órdenes ── */}
       <div className="exec-card p-5">
         <h2 className="exec-label mb-3 flex items-center gap-1.5">
           <Terminal className="h-3.5 w-3.5" /> Dar una orden
@@ -186,14 +234,10 @@ export default function PixelAgents() {
           </button>
         </form>
 
-        {/* Actividad */}
-        <div className="mt-4 max-h-64 space-y-1.5 overflow-y-auto rounded-lg bg-[var(--color-subtle)] p-3 font-mono text-xs">
+        <div className="mt-4 max-h-56 space-y-1.5 overflow-y-auto rounded-lg bg-[var(--color-subtle)] p-3 font-mono text-xs">
           {log.map((l, i) => (
             <div key={i} className="flex gap-2">
-              <span
-                className="shrink-0 font-bold"
-                style={{ color: l.t === "tú" ? "#f89b24" : l.t === "agente" ? "#0f9d58" : "#6d6e71" }}
-              >
+              <span className="shrink-0 font-bold" style={{ color: l.t === "tú" ? "#f89b24" : l.t === "agente" ? "#0f9d58" : "#6d6e71" }}>
                 [{l.t}]
               </span>
               <span className="text-[var(--color-ink-soft)]">{l.msg}</span>
