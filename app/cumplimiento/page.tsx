@@ -133,8 +133,9 @@ export default function Cumplimiento() {
           </Reveal>
         ))}
       </div>
-      <p className="text-xs text-[var(--color-muted)]">
-        ⚠ = gerente con 2+ citas no contestadas en el rango (candidato a Black List según la regla de penalización).
+      <p className="flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
+        <AlertTriangle className="h-3 w-3 shrink-0 text-red-500" /> = gerente con 2+ citas no contestadas
+        en el rango (candidato a Black List según la regla de penalización).
       </p>
     </div>
   );

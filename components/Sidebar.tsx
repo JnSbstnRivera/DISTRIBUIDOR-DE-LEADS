@@ -15,6 +15,7 @@ import {
   History,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -100,6 +101,11 @@ function Brand() {
   );
 }
 
+async function logout() {
+  await fetch("/api/logout", { method: "POST" });
+  window.location.href = "/login";
+}
+
 export default function Sidebar() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
@@ -107,15 +113,25 @@ export default function Sidebar() {
   // cerrar el drawer al cambiar de ruta
   useEffect(() => setOpen(false), [path]);
 
+  if (path === "/login") return null;
+
   return (
     <>
       {/* Desktop sidebar */}
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col border-r border-[var(--color-line)] bg-[var(--color-surface)]/80 backdrop-blur-md lg:flex">
         <Brand />
         <NavList path={path} />
-        <div className="flex items-center justify-between border-t border-[var(--color-line)] px-4 py-3">
-          <span className="text-[10px] uppercase tracking-widest text-wh-grey">Tema</span>
-          <ThemeToggle />
+        <div className="space-y-1 border-t border-[var(--color-line)] px-3 py-3">
+          <button
+            onClick={logout}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-[var(--color-ink-soft)] transition hover:bg-red-500/10 hover:text-red-500"
+          >
+            <LogOut className="h-[18px] w-[18px]" /> Cerrar sesión
+          </button>
+          <div className="flex items-center justify-between px-3 pt-1">
+            <span className="text-[10px] uppercase tracking-widest text-wh-grey">Tema</span>
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
 

@@ -96,7 +96,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-black uppercase tracking-tight text-[var(--color-ink)]">
+          <h1 className="text-2xl font-black uppercase tracking-tight text-[var(--color-ink)]">
             Centro de <span className="accent-orange">Distribución</span>
           </h1>
           <p className="mt-1 text-sm text-[var(--color-muted)]">
