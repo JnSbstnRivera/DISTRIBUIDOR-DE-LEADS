@@ -1,0 +1,15 @@
+SPRITES DE PIXEL AGENTS — WINDMAR HOME
+======================================
+Guarda aquí las hojas de sprites (PNG) que generes con ChatGPT.
+
+Nombres a usar:
+  windmar-male.png            (hombre, pelo castaño)
+  windmar-female-castano.png  (mujer, pelo castaño)
+  windmar-female-rubia.png    (mujer, pelo rubio)
+  windmar-male-negro.png      (hombre, pelo negro / barba)
+  leadbringer.png             (el que TRAE los leads, con carpeta)
+
+Formato esperado: grilla 4x4 (4 direcciones x 4 frames de caminar).
+Fila 1 = abajo, Fila 2/3 = lados, Fila 4 = arriba (espalda).
+No importa si el fondo es blanco o las celdas están algo disparejas:
+Juan/Claude lo procesa (transparencia + recorte uniforme).

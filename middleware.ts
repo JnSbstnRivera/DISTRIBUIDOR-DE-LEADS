@@ -21,5 +21,5 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   // excluye API, estáticos e imágenes; protege todas las páginas
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|agents).*)"],
 };

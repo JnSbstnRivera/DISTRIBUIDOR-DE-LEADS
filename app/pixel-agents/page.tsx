@@ -3,21 +3,21 @@
 import { useEffect, useState } from "react";
 import { Send, Terminal, Bot, Pencil, Check } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
-import PixelOffice, { AgentSprite, type OfficeAgent } from "@/components/PixelOffice";
+import PixelOffice, { SpriteImg, type OfficeAgent } from "@/components/PixelOffice";
 
-const HAIRS = ["#2a2f45", "#5a3a1a", "#1a1a1a", "#7a5230", "#caa14a", "#3a2a4a"];
+// hojas de sprites disponibles (en /public/agents/clean)
+const SHEETS = ["agent1", "agent2", "agent3", "agent4", "leadH", "leadM"];
 
 // zona = caja donde el agente deambula (en %), desk = punto donde se sienta
 function mk(
   id: string,
   nombre: string,
-  genero: "h" | "m",
-  hair: string,
+  sheet: string,
   desk: { x: number; y: number },
   zone: { x0: number; y0: number; x1: number; y1: number }
 ): OfficeAgent {
   return {
-    id, nombre, genero, hair, desk, zone,
+    id, nombre, sheet, genero: "h", hair: "#5a3a1a", desk, zone,
     x: desk.x, y: desk.y, tx: desk.x, ty: desk.y,
     state: "idle", facing: "down", frame: 0, wait: 0, goingDesk: false,
   };
@@ -28,12 +28,12 @@ const MGR = { x0: 68, y0: 60, x1: 95, y1: 90 };
 const MEET = { x0: 70, y0: 16, x1: 95, y1: 42 };
 
 const DEFAULTS: OfficeAgent[] = [
-  mk("distribuidor", "Distribuidor", "h", "#5a3a1a", { x: 16, y: 30 }, WORK),
-  mk("asignador", "Asignación", "m", "#5a3a1a", { x: 44, y: 30 }, WORK),
-  mk("zoho", "Zoho Sync", "h", "#1a1a1a", { x: 16, y: 68 }, WORK),
-  mk("n8n", "N8N Notifier", "m", "#caa14a", { x: 44, y: 68 }, WORK),
-  mk("gerente", "Gerente", "h", "#2a2f45", { x: 80, y: 72 }, MGR),
-  mk("calidad", "Calidad", "m", "#7a5230", { x: 82, y: 28 }, MEET),
+  mk("distribuidor", "Distribuidor", "agent1", { x: 16, y: 30 }, WORK),
+  mk("asignador", "Asignación", "agent2", { x: 44, y: 30 }, WORK),
+  mk("zoho", "Zoho Sync", "agent3", { x: 16, y: 68 }, WORK),
+  mk("n8n", "N8N Notifier", "agent4", { x: 44, y: 68 }, WORK),
+  mk("gerente", "Gerente", "leadH", { x: 80, y: 72 }, MGR),
+  mk("calidad", "Calidad", "leadM", { x: 82, y: 28 }, MEET),
 ];
 
 export default function PixelAgents() {
@@ -54,7 +54,7 @@ export default function PixelAgents() {
         setAgents((prev) =>
           prev.map((a) => {
             const s = saved.find((x) => x.id === a.id);
-            return s ? { ...a, nombre: s.nombre ?? a.nombre, genero: (s.genero as any) ?? a.genero, hair: s.hair ?? a.hair } : a;
+            return s ? { ...a, nombre: s.nombre ?? a.nombre, sheet: s.sheet ?? a.sheet } : a;
           })
         );
       }
@@ -70,7 +70,7 @@ export default function PixelAgents() {
       try {
         localStorage.setItem(
           "pixelOfficeAgents",
-          JSON.stringify(next.map((a) => ({ id: a.id, nombre: a.nombre, genero: a.genero, hair: a.hair })))
+          JSON.stringify(next.map((a) => ({ id: a.id, nombre: a.nombre, sheet: a.sheet })))
         );
       } catch {}
       return next;
@@ -124,25 +124,25 @@ export default function PixelAgents() {
           <div className="grid gap-3 sm:grid-cols-2">
             {agents.map((a) => (
               <div key={a.id} className="flex items-center gap-3 rounded-lg bg-[var(--color-subtle)] p-3">
-                <div className="scale-90">
-                  <AgentSprite genero={a.genero} hair={a.hair} facing="down" walking={false} sitting={false} />
-                </div>
+                <SpriteImg sheet={a.sheet} facing="down" frame={0} w={34} />
                 <div className="flex-1 space-y-2">
                   <input
                     value={a.nombre}
                     onChange={(e) => update(a.id, { nombre: e.target.value })}
                     className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-sm font-semibold text-[var(--color-ink)] outline-none focus:border-wh-orange"
                   />
-                  <div className="flex items-center gap-2">
-                    <div className="flex overflow-hidden rounded-md border border-[var(--color-line)] text-[11px] font-bold">
-                      <button onClick={() => update(a.id, { genero: "h" })} className={`px-2 py-1 ${a.genero === "h" ? "bg-wh-blue text-white" : "text-[var(--color-muted)]"}`}>Hombre</button>
-                      <button onClick={() => update(a.id, { genero: "m" })} className={`px-2 py-1 ${a.genero === "m" ? "bg-wh-blue text-white" : "text-[var(--color-muted)]"}`}>Mujer</button>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-1">
-                      {HAIRS.map((c) => (
-                        <button key={c} onClick={() => update(a.id, { hair: c })} className="h-4 w-4 rounded-full ring-1 ring-black/20" style={{ background: c, outline: a.hair === c ? "2px solid var(--color-ink)" : "none" }} />
-                      ))}
-                    </div>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {SHEETS.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => update(a.id, { sheet: s })}
+                        className="rounded-md p-0.5"
+                        style={{ outline: a.sheet === s ? "2px solid var(--color-wh-orange)" : "1px solid var(--color-line)" }}
+                        title={s}
+                      >
+                        <SpriteImg sheet={s} facing="down" frame={0} w={22} />
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>

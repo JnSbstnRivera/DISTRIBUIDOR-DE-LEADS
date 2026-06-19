@@ -24,6 +24,7 @@ export type AgentState = "walking" | "working" | "idle";
 export type OfficeAgent = {
   id: string;
   nombre: string;
+  sheet: string; // nombre del sprite en /agents/clean (ej. "agent1")
   genero: "h" | "m";
   hair: string;
   x: number; // %
@@ -39,66 +40,37 @@ export type OfficeAgent = {
   goingDesk: boolean;
 };
 
-/* ── Sprite del agente (estilo pixel, identidad Windmar) ── */
-export function AgentSprite({
-  genero,
-  hair,
-  facing,
-  walking,
-  sitting,
-  scale = 1,
+/* ── Sprite del agente desde la hoja PNG real (4 dir × 4 frames) ── */
+const ROW: Record<Facing, number> = { down: 0, up: 3, left: 2, right: 2 };
+
+export function SpriteImg({
+  sheet,
+  facing = "down",
+  frame = 0,
+  w = 40,
 }: {
-  genero: "h" | "m";
-  hair: string;
-  facing: Facing;
-  walking: boolean;
-  sitting: boolean;
-  scale?: number;
+  sheet: string;
+  facing?: Facing;
+  frame?: number;
+  w?: number;
 }) {
-  const back = facing === "up";
-  const flip = facing === "left";
-  const px = { imageRendering: "pixelated" as const };
-  const step = walking ? 1 : 0;
+  const h = w * 1.5; // celda 64×96 = 2:3
+  const row = ROW[facing] ?? 0;
+  const flip = facing === "right";
   return (
-    <div
-      style={{ width: 26 * scale, transform: flip ? "scaleX(-1)" : undefined, ...px }}
-      className="relative flex flex-col items-center"
-    >
-      {/* Gorra blanca + visera azul + W */}
-      <div className="relative" style={{ width: 18 * scale, height: 7 * scale }}>
-        <div style={{ position: "absolute", inset: 0, background: "#fff", borderRadius: `${3 * scale}px ${3 * scale}px 0 0`, border: `1px solid ${C.navy}` }} />
-        <div style={{ position: "absolute", left: 2 * scale, top: 1 * scale, fontSize: 5 * scale, fontWeight: 900, color: C.blue, lineHeight: 1 }}>W</div>
-        {!back && <div style={{ position: "absolute", bottom: -2 * scale, left: 2 * scale, width: 14 * scale, height: 2.5 * scale, background: C.blue, borderRadius: 2 }} />}
-      </div>
-      {/* Cabeza */}
-      <div style={{ width: 16 * scale, height: 9 * scale, marginTop: -1 * scale, background: back ? hair : C.skin, borderRadius: 2, position: "relative", border: `1px solid rgba(0,0,0,.15)` }}>
-        {/* pelo lados (mujer = más largo) */}
-        {!back && (
-          <>
-            <span style={{ position: "absolute", left: -1 * scale, top: 0, width: 3 * scale, height: (genero === "m" ? 11 : 6) * scale, background: hair, borderRadius: 2 }} />
-            <span style={{ position: "absolute", right: -1 * scale, top: 0, width: 3 * scale, height: (genero === "m" ? 11 : 6) * scale, background: hair, borderRadius: 2 }} />
-            {/* ojos */}
-            <span style={{ position: "absolute", left: 4 * scale, top: 4 * scale, width: 2 * scale, height: 2 * scale, background: C.black, borderRadius: 9 }} />
-            <span style={{ position: "absolute", right: 4 * scale, top: 4 * scale, width: 2 * scale, height: 2 * scale, background: C.black, borderRadius: 9 }} />
-          </>
-        )}
-      </div>
-      {/* Polo azul Windmar + cuello blanco */}
-      <div style={{ width: 18 * scale, height: 11 * scale, marginTop: -1 * scale, background: C.blue, borderRadius: 3, position: "relative", border: `1px solid ${C.navy}` }}>
-        <span style={{ position: "absolute", top: 0, left: 6 * scale, width: 6 * scale, height: 2 * scale, background: "#fff", borderRadius: 1 }} />
-        {/* brazos / tecleando */}
-        <span style={{ position: "absolute", left: -2 * scale, top: 2 * scale, width: 3 * scale, height: 7 * scale, background: C.blue, borderRadius: 2, transform: sitting ? `translateY(${2 * scale}px)` : undefined }} />
-        <span style={{ position: "absolute", right: -2 * scale, top: 2 * scale, width: 3 * scale, height: 7 * scale, background: C.blue, borderRadius: 2, transform: sitting ? `translateY(${2 * scale}px)` : undefined }} />
-      </div>
-      {/* Pantalón beige + piernas (ocultas si sentado) */}
-      {!sitting && (
-        <div style={{ width: 14 * scale, marginTop: -1 * scale, display: "flex", justifyContent: "space-between" }}>
-          <span style={{ width: 5 * scale, height: 7 * scale, background: C.beige, borderRadius: 2, border: `1px solid ${C.tgrey}`, transform: `translateY(${walking ? step * 2 : 0}px)` }} />
-          <span style={{ width: 5 * scale, height: 7 * scale, background: C.beige, borderRadius: 2, border: `1px solid ${C.tgrey}`, transform: `translateY(${walking ? (1 - step) * 2 : 0}px)` }} />
-        </div>
-      )}
-      {/* sombra */}
-      <div style={{ width: 16 * scale, height: 3 * scale, marginTop: 1 * scale, background: "rgba(0,0,0,.28)", borderRadius: 99, filter: "blur(1px)" }} />
+    <div className="relative flex flex-col items-center">
+      <div
+        style={{
+          width: w,
+          height: h,
+          backgroundImage: `url(/agents/clean/${sheet}.png)`,
+          backgroundSize: `${w * 4}px ${h * 4}px`,
+          backgroundPosition: `-${frame * w}px -${row * h}px`,
+          imageRendering: "pixelated",
+          transform: flip ? "scaleX(-1)" : undefined,
+        }}
+      />
+      <div style={{ width: w * 0.5, height: 4, marginTop: -2, background: "rgba(0,0,0,.28)", borderRadius: 99, filter: "blur(1px)" }} />
     </div>
   );
 }
@@ -185,16 +157,10 @@ export default function PixelOffice({ agents }: { agents: OfficeAgent[] }) {
           className="absolute z-10"
           style={{ left: `${a.x}%`, top: `${a.y}%`, transform: "translate(-50%,-100%)", transition: "left .12s linear, top .12s linear" }}
         >
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black/55 px-1 text-[8px] font-bold text-white">
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black/55 px-1 text-[8px] font-bold text-white">
             {a.nombre}
           </div>
-          <AgentSprite
-            genero={a.genero}
-            hair={a.hair}
-            facing={a.facing}
-            walking={a.state === "walking"}
-            sitting={a.state === "working"}
-          />
+          <SpriteImg sheet={a.sheet} facing={a.facing} frame={a.frame} w={42} />
         </div>
       ))}
     </div>
