@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Send, Terminal, Bot, Pencil, Check } from "lucide-react";
+import { Send, Terminal, Bot, Pencil, Check, Plus, Trash2 } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
 import PixelOffice, { SpriteImg, type OfficeAgent } from "@/components/PixelOffice";
 
@@ -12,33 +12,49 @@ function rnd(a: number, b: number) {
   return a + (b - a) * Math.random();
 }
 
-// zona = caja donde el agente deambula (en %), desk = punto donde se sienta
-function mk(
-  id: string,
-  nombre: string,
-  sheet: string,
-  desk: { x: number; y: number },
-  zone: { x0: number; y0: number; x1: number; y1: number }
-): OfficeAgent {
+// Oficinas (cuartos): zona donde deambulan + escritorios donde se sientan
+export const ROOMS: Record<string, { label: string; zone: { x0: number; y0: number; x1: number; y1: number }; desks: { x: number; y: number }[] }> = {
+  work: { label: "Workspace", zone: { x0: 8, y0: 22, x1: 52, y1: 88 }, desks: [ { x: 16, y: 30 }, { x: 44, y: 30 }, { x: 16, y: 68 }, { x: 44, y: 68 } ] },
+  meet: { label: "Sala de reunión", zone: { x0: 70, y0: 16, x1: 95, y1: 42 }, desks: [ { x: 80, y: 26 }, { x: 88, y: 26 } ] },
+  mgr: { label: "Gerencia", zone: { x0: 68, y0: 60, x1: 95, y1: 90 }, desks: [ { x: 82, y: 72 }, { x: 74, y: 72 } ] },
+};
+
+function mk(id: string, nombre: string, sheet: string, room: string, deskIdx = 0): OfficeAgent {
+  const r = ROOMS[room] || ROOMS.work;
+  const desk = r.desks[deskIdx % r.desks.length];
   return {
-    id, nombre, sheet, genero: "h", hair: "#5a3a1a", desk, zone,
+    id, nombre, sheet, room, desk, zone: r.zone,
     x: desk.x, y: desk.y, tx: desk.x, ty: desk.y,
     state: "idle", facing: "down", frame: 0, wait: 0, goingDesk: false,
   };
 }
 
-const WORK = { x0: 8, y0: 22, x1: 52, y1: 88 };
-const MGR = { x0: 68, y0: 60, x1: 95, y1: 90 };
-const MEET = { x0: 70, y0: 16, x1: 95, y1: 42 };
+type Mini = { id: string; nombre: string; sheet: string; room: string };
 
-const DEFAULTS: OfficeAgent[] = [
-  mk("distribuidor", "Distribuidor", "char_0", { x: 16, y: 30 }, WORK),
-  mk("asignador", "Asignación", "char_1", { x: 44, y: 30 }, WORK),
-  mk("zoho", "Zoho Sync", "char_2", { x: 16, y: 68 }, WORK),
-  mk("n8n", "N8N Notifier", "char_3", { x: 44, y: 68 }, WORK),
-  mk("gerente", "Gerente", "char_4", { x: 80, y: 72 }, MGR),
-  mk("calidad", "Calidad", "char_5", { x: 82, y: 28 }, MEET),
+const DEFAULT_MINI: Mini[] = [
+  { id: "distribuidor", nombre: "Distribuidor", sheet: "char_0", room: "work" },
+  { id: "asignador", nombre: "Asignación", sheet: "char_1", room: "work" },
+  { id: "zoho", nombre: "Zoho Sync", sheet: "char_2", room: "work" },
+  { id: "n8n", nombre: "N8N Notifier", sheet: "char_3", room: "work" },
+  { id: "gerente", nombre: "Gerente", sheet: "char_4", room: "mgr" },
+  { id: "calidad", nombre: "Calidad", sheet: "char_5", room: "meet" },
 ];
+
+// construye los agentes (asigna escritorio por orden dentro de cada cuarto)
+function build(mini: Mini[]): OfficeAgent[] {
+  const counts: Record<string, number> = {};
+  return mini.map((s) => {
+    const r = s.room || "work";
+    counts[r] = (counts[r] ?? -1) + 1;
+    return mk(s.id, s.nombre, s.sheet || "char_0", r, counts[r]);
+  });
+}
+const miniOf = (list: OfficeAgent[]): Mini[] => list.map((a) => ({ id: a.id, nombre: a.nombre, sheet: a.sheet, room: a.room }));
+function save(mini: Mini[]) {
+  try { localStorage.setItem("pixelOfficeAgents", JSON.stringify(mini)); } catch {}
+}
+
+const DEFAULTS = build(DEFAULT_MINI);
 
 export default function PixelAgents() {
   const [agents, setAgents] = useState<OfficeAgent[]>(DEFAULTS);
@@ -49,18 +65,13 @@ export default function PixelAgents() {
     { t: "sistema", msg: "Oficina Windmar lista. Agentes quietos hasta definir la secuencia de leads." },
   ]);
 
-  // cargar personalización
+  // cargar roster guardado (soporta agregar/quitar)
   useEffect(() => {
     try {
       const raw = localStorage.getItem("pixelOfficeAgents");
       if (raw) {
-        const saved = JSON.parse(raw) as Partial<OfficeAgent>[];
-        setAgents((prev) =>
-          prev.map((a) => {
-            const s = saved.find((x) => x.id === a.id);
-            return s ? { ...a, nombre: s.nombre ?? a.nombre, sheet: s.sheet ?? a.sheet } : a;
-          })
-        );
+        const saved = JSON.parse(raw) as Mini[];
+        if (Array.isArray(saved) && saved.length) setAgents(build(saved));
       }
     } catch {}
   }, []);
@@ -70,7 +81,8 @@ export default function PixelAgents() {
     const iv = setInterval(() => {
       setAgents((prev) =>
         prev.map((a) => {
-          let { x, y, tx, ty, state, facing, frame, wait, goingDesk } = a;
+          let { x, y, tx, ty, state, facing, wait, goingDesk } = a;
+          const frame = a.frame + 1; // avanza animación (caminar o teclear)
           if (state === "walking") {
             const dx = tx - x, dy = ty - y;
             const d = Math.hypot(dx, dy);
@@ -81,7 +93,6 @@ export default function PixelAgents() {
               const sp = 1.0;
               x += (dx / d) * sp; y += (dy / d) * sp;
               facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
-              frame = frame + 1; // avanza el ciclo de caminata
             }
           } else {
             wait--;
@@ -94,20 +105,30 @@ export default function PixelAgents() {
           return { ...a, x, y, tx, ty, state, facing, frame, wait, goingDesk };
         })
       );
-    }, 160);
+    }, 200);
     return () => clearInterval(iv);
   }, []);
 
-  function update(id: string, patch: Partial<OfficeAgent>) {
+  // editar nombre / modelo / cuarto (reconstruye para reubicar escritorio)
+  function update(id: string, patch: Partial<Mini>) {
     setAgents((prev) => {
-      const next = prev.map((a) => (a.id === id ? { ...a, ...patch } : a));
-      try {
-        localStorage.setItem(
-          "pixelOfficeAgents",
-          JSON.stringify(next.map((a) => ({ id: a.id, nombre: a.nombre, sheet: a.sheet })))
-        );
-      } catch {}
-      return next;
+      const mini = miniOf(prev).map((m) => (m.id === id ? { ...m, ...patch } : m));
+      save(mini);
+      return build(mini);
+    });
+  }
+  function addAgent() {
+    setAgents((prev) => {
+      const mini = [...miniOf(prev), { id: "a" + Date.now(), nombre: "Nuevo agente", sheet: "char_0", room: "work" }];
+      save(mini);
+      return build(mini);
+    });
+  }
+  function removeAgent(id: string) {
+    setAgents((prev) => {
+      const mini = miniOf(prev).filter((m) => m.id !== id);
+      save(mini);
+      return build(mini);
     });
   }
 
@@ -152,19 +173,50 @@ export default function PixelAgents() {
 
       {edit && (
         <div className="exec-card p-5">
-          <h2 className="exec-label mb-3 flex items-center gap-1.5">
-            <Pencil className="h-3.5 w-3.5" /> Personalizar agentes
-          </h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="exec-label flex items-center gap-1.5">
+              <Pencil className="h-3.5 w-3.5" /> Agentes y oficinas ({agents.length})
+            </h2>
+            <button
+              onClick={addAgent}
+              className="flex items-center gap-1.5 rounded-lg bg-wh-orange px-2.5 py-1 text-[11px] font-bold text-white shadow-orange transition hover:brightness-105"
+            >
+              <Plus className="h-3 w-3" /> Agregar agente
+            </button>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {agents.map((a) => (
-              <div key={a.id} className="flex items-center gap-3 rounded-lg bg-[var(--color-subtle)] p-3">
-                <SpriteImg sheet={a.sheet} facing="down" frame={0} scale={0.7} />
+              <div key={a.id} className="flex items-start gap-3 rounded-lg bg-[var(--color-subtle)] p-3">
+                <SpriteImg sheet={a.sheet} facing="down" frame={0} scale={0.55} />
                 <div className="flex-1 space-y-2">
-                  <input
-                    value={a.nombre}
-                    onChange={(e) => update(a.id, { nombre: e.target.value })}
-                    className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-sm font-semibold text-[var(--color-ink)] outline-none focus:border-wh-orange"
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={a.nombre}
+                      onChange={(e) => update(a.id, { nombre: e.target.value })}
+                      placeholder="Función / nombre"
+                      className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-sm font-semibold text-[var(--color-ink)] outline-none focus:border-wh-orange"
+                    />
+                    <button
+                      onClick={() => removeAgent(a.id)}
+                      title="Quitar agente"
+                      className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-[var(--color-muted)] transition hover:bg-red-500/15 hover:text-red-500"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  {/* oficina / cuarto */}
+                  <div className="flex gap-1">
+                    {Object.entries(ROOMS).map(([key, r]) => (
+                      <button
+                        key={key}
+                        onClick={() => update(a.id, { room: key })}
+                        className={`flex-1 rounded-md px-1.5 py-1 text-[10px] font-bold transition ${a.room === key ? "bg-wh-blue text-white" : "border border-[var(--color-line)] text-[var(--color-muted)] hover:text-[var(--color-ink)]"}`}
+                      >
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
+                  {/* modelo */}
                   <div className="flex flex-wrap items-center gap-1.5">
                     {SHEETS.map((s) => (
                       <button
@@ -174,7 +226,7 @@ export default function PixelAgents() {
                         style={{ outline: a.sheet === s ? "2px solid var(--color-wh-orange)" : "1px solid var(--color-line)" }}
                         title={s}
                       >
-                        <SpriteImg sheet={s} facing="down" frame={0} scale={0.5} />
+                        <SpriteImg sheet={s} facing="down" frame={0} scale={0.4} />
                       </button>
                     ))}
                   </div>
@@ -182,7 +234,9 @@ export default function PixelAgents() {
               </div>
             ))}
           </div>
-          <p className="mt-3 text-[11px] text-[var(--color-muted)]">La gorra W, el polo azul y el pantalón beige son fijos (identidad Windmar). Los cambios se guardan en tu navegador.</p>
+          <p className="mt-3 text-[11px] text-[var(--color-muted)]">
+            Agrega/quita agentes, elige su función (nombre), el cuarto (oficina) y el modelo. Se guarda en tu navegador.
+          </p>
         </div>
       )}
 
