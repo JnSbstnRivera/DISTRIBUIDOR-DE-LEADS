@@ -93,10 +93,14 @@ export default function PixelOffice({
   onPickRoom, onMoveRoom, onResizeRoom,
   onPickLogo, onMoveLogo, onResizeLogo,
   onClearSelection,
+  editing = false,
+  status = {},
 }: {
   layout: OfficeLayout;
   agents: OfficeAgent[];
   areasMode?: boolean;
+  editing?: boolean; // solo permite arrastrar/editar cuando está activo
+  status?: Record<string, string>; // estado en vivo por agente (burbuja)
   selFurn?: string | null;
   selRoom?: string | null;
   selLogo?: string | null;
@@ -146,7 +150,7 @@ export default function PixelOffice({
     (e.target as Element).setPointerCapture?.(e.pointerId);
   }
   function startRoomDrag(e: React.PointerEvent, room: Room, mode: "move" | "resize") {
-    if (!areasMode) return;
+    if (!editing || !areasMode) return;
     e.preventDefault(); e.stopPropagation();
     onPickRoom?.(room.id);
     const t = tileFromEvent(e);
@@ -184,8 +188,15 @@ export default function PixelOffice({
       style={{ aspectRatio: `${cols} / ${rows}`, background: C.wall, border: `4px solid ${C.navy}` }}
       onPointerMove={onMove}
       onPointerUp={onUp}
-      onPointerDown={() => onClearSelection?.()}
+      onPointerDown={() => editing && onClearSelection?.()}
     >
+      {/* Logo Pixel Agents en la esquina */}
+      <div className="pointer-events-none absolute flex items-center gap-1.5 rounded-md px-1.5 py-1" style={{ right: 8, bottom: 8, background: "rgba(20,26,55,.82)", border: `1px solid ${C.orange}`, zIndex: 9000 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/agents/pixel/pixel-agents-icon.png" alt="Pixel Agents" width={18} height={18} style={{ imageRendering: "pixelated", borderRadius: 3 }} />
+        <span style={{ color: "#fff", fontWeight: 800, fontSize: 10, letterSpacing: 0.3 }}>Pixel Agents</span>
+      </div>
+
       {/* Áreas (pisos) */}
       {layout.rooms.map((room) => {
         const sel = areasMode && selRoom === room.id;
@@ -198,8 +209,8 @@ export default function PixelOffice({
               left: room.col * tile, top: room.row * tile, width: room.w * tile, height: room.h * tile,
               zIndex: 2,
               border: `2px solid ${sel ? C.orange : C.navy}`,
-              cursor: areasMode ? "grab" : "default",
-              pointerEvents: areasMode ? "auto" : "none",
+              cursor: editing && areasMode ? "grab" : "default",
+              pointerEvents: editing && areasMode ? "auto" : "none",
             }}
           >
             {/* piso (solo este lleva el tinte, para no teñir la etiqueta) */}
@@ -248,7 +259,8 @@ export default function PixelOffice({
               left: f.col * tile + (fw - sw) / 2, top: f.row * tile + (fh - sh), width: sw, height: sh,
               imageRendering: "pixelated", zIndex: sel ? 8000 : z,
               transform: f.mirrored ? "scaleX(-1)" : undefined,
-              cursor: "grab",
+              cursor: editing ? "grab" : "default",
+              pointerEvents: editing ? "auto" : "none",
               outline: sel ? `2px dashed ${C.orange}` : undefined, outlineOffset: 2,
               touchAction: "none",
             }}
@@ -267,7 +279,8 @@ export default function PixelOffice({
             className="absolute"
             style={{
               left: lg.col * tile, top: lg.row * tile, width: lg.w * tile, height: lg.h * tile,
-              zIndex: sel ? 8000 : z, cursor: "grab",
+              zIndex: sel ? 8000 : z, cursor: editing ? "grab" : "default",
+              pointerEvents: editing ? "auto" : "none",
               outline: sel ? `2px dashed ${C.orange}` : undefined, outlineOffset: 2, touchAction: "none",
               // marco tipo cuadro colgado en la pared
               ...(lg.frame ? { background: "#fff", border: `${Math.max(2, tile * 0.18)}px solid ${C.navy}`, padding: tile * 0.12, boxShadow: "2px 3px 0 rgba(0,0,0,.35)" } : {}),
@@ -288,11 +301,11 @@ export default function PixelOffice({
         return (
           <div
             key={a.id}
-            onPointerDown={(e) => { e.stopPropagation(); onPickAgent?.(a.id); }}
+            onPointerDown={(e) => { if (!editing) return; e.stopPropagation(); onPickAgent?.(a.id); }}
             className="absolute"
             style={{
               left: (a.col + 0.5) * tile, top: (a.row + 1) * tile,
-              transform: "translate(-50%,-100%)", transition: "left .12s linear, top .12s linear", zIndex: z, cursor: "pointer",
+              transform: "translate(-50%,-100%)", transition: "left .12s linear, top .12s linear", zIndex: z, cursor: editing ? "pointer" : "default",
             }}
           >
             <SpriteImg sheet={a.sheet} facing={a.facing} frame={a.frame} walking={a.state === "walking"} working={a.state === "working"} w={tile * AGENT_SCALE} />
@@ -300,16 +313,21 @@ export default function PixelOffice({
         );
       })}
 
-      {/* Etiquetas de agentes — capa superior */}
-      {agents.map((a) => (
-        <div
-          key={`lbl_${a.id}`}
-          className="pointer-events-none absolute whitespace-nowrap rounded bg-black/65 px-1.5 py-0.5 text-[9px] font-bold text-white"
-          style={{ left: (a.col + 0.5) * tile, top: (a.row + 1) * tile, transform: `translate(-50%,calc(-100% - ${tile * AGENT_SCALE * 2}px))`, zIndex: 8500 }}
-        >
-          {a.nombre}
-        </div>
-      ))}
+      {/* Etiquetas + burbuja de estado en vivo — capa superior */}
+      {agents.map((a) => {
+        const spriteH = tile * AGENT_SCALE * 2;
+        const st = status[a.id];
+        return (
+          <div key={`lbl_${a.id}`} className="pointer-events-none absolute flex flex-col items-center gap-0.5" style={{ left: (a.col + 0.5) * tile, top: (a.row + 1) * tile, transform: `translate(-50%,calc(-100% - ${spriteH}px))`, zIndex: 8500 }}>
+            {st && (
+              <span className="whitespace-nowrap rounded px-1.5 py-0.5 text-[9px] font-bold text-white" style={{ background: a.state === "working" ? "#0f9d58" : "#1d429b" }}>
+                {st}
+              </span>
+            )}
+            <span className="whitespace-nowrap rounded bg-black/65 px-1.5 py-0.5 text-[9px] font-bold text-white">{a.nombre}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Send, Terminal, Bot, Plus, Trash2, Users, LayoutGrid,
   FlipHorizontal2, RotateCcw, Maximize2, Image as ImageIcon, DoorOpen, Minus, Settings2,
-  ChevronDown, ChevronUp, Activity,
+  ChevronDown, ChevronUp, Activity, Check, Pencil,
 } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
 import PixelOffice, { SpriteImg, type OfficeAgent } from "@/components/PixelOffice";
@@ -61,7 +61,8 @@ export default function PixelAgents() {
   const [layout, setLayout] = useState<OfficeLayout>(DEFAULT_LAYOUT);
   const [agents, setAgents] = useState<OfficeAgent[]>(() => build(DEFAULT_MINI, DEFAULT_LAYOUT));
   const [tab, setTab] = useState<Tab>("agentes");
-  const [panelOpen, setPanelOpen] = useState(true); // panel de edición expandido/contraído
+  const [editing, setEditing] = useState(false); // modo edición (off = solo ver a los agentes)
+  const [live, setLive] = useState<{ fuente: string; total: number; sinConsultor: number } | null>(null);
   const [selFurn, setSelFurn] = useState<string | null>(null);
   const [selRoom, setSelRoom] = useState<string | null>(null);
   const [selLogo, setSelLogo] = useState<string | null>(null);
@@ -75,6 +76,25 @@ export default function PixelAgents() {
 
   const walkRef = useRef(walkableGrid(DEFAULT_LAYOUT));
   const panelRef = useRef<HTMLDivElement>(null);
+  const busyRef = useRef<Set<string>>(new Set()); // agentes con trabajo real → van a su escritorio
+
+  // ── Datos en vivo de Zoho → estado real de los agentes ──
+  useEffect(() => {
+    const pull = async () => {
+      try {
+        const r = await fetch("/api/zoho/leads", { cache: "no-store" });
+        const j = await r.json();
+        const leads: { decision?: { via?: string } }[] = j.leads || [];
+        const sinConsultor = leads.filter((l) => l.decision?.via === "distribuidor").length;
+        setLive({ fuente: j.fuente, total: leads.length, sinConsultor });
+      } catch {}
+    };
+    pull();
+    const iv = setInterval(pull, 45000);
+    const onVis = () => { if (document.visibilityState === "visible") pull(); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => { clearInterval(iv); document.removeEventListener("visibilitychange", onVis); };
+  }, []);
 
   // cargar layout + roster guardados
   useEffect(() => {
@@ -138,7 +158,8 @@ export default function PixelAgents() {
         } else {
           wait--;
           if (wait <= 0) {
-            const goSeat = !!seat && Math.random() < 0.45;
+            // si el agente tiene trabajo real (Zoho), va a su escritorio; si no, deambula
+            const goSeat = !!seat && (busyRef.current.has(a.id) ? Math.random() < 0.85 : Math.random() < 0.45);
             const goal = goSeat ? seat! : randomWalkable(walk);
             if (goal) {
               const extra = seat ? new Set([`${seat.col},${seat.row}`]) : undefined;
@@ -203,10 +224,10 @@ export default function PixelAgents() {
   function resetLayout() { commit(DEFAULT_LAYOUT); setSelFurn(null); setSelRoom(null); setSelLogo(null); }
 
   // ── Click-para-editar desde el lienzo (abre el panel si estaba contraído) ──
-  function pickFurniture(id: string) { setPanelOpen(true); setTab("muebles"); setSelFurn(id); setSelRoom(null); setSelLogo(null); }
-  function pickAgent(id: string) { setPanelOpen(true); setTab("agentes"); setSelAgent(id); panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
-  function pickRoom(id: string) { setPanelOpen(true); setTab("areas"); setSelRoom(id); }
-  function pickLogo(id: string) { setPanelOpen(true); setTab("logo"); setSelLogo(id); }
+  function pickFurniture(id: string) { setEditing(true); setTab("muebles"); setSelFurn(id); setSelRoom(null); setSelLogo(null); }
+  function pickAgent(id: string) { setEditing(true); setTab("agentes"); setSelAgent(id); panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+  function pickRoom(id: string) { setEditing(true); setTab("areas"); setSelRoom(id); }
+  function pickLogo(id: string) { setEditing(true); setTab("logo"); setSelLogo(id); }
   function clearSelection() { setSelFurn(null); setSelRoom(null); setSelLogo(null); }
 
   const selRoomObj = layout.rooms.find((r) => r.id === selRoom);
@@ -244,6 +265,22 @@ export default function PixelAgents() {
     return rm?.label ?? "—";
   }
 
+  // estado en vivo por agente (burbuja) derivado de los datos reales de Zoho
+  const liveStatus: Record<string, string> = {};
+  if (live) {
+    liveStatus.zoho = live.fuente === "zoho" ? `Zoho · ${live.total}` : `Demo · ${live.total}`;
+    liveStatus.distribuidor = live.sinConsultor > 0 ? `Distribuir ${live.sinConsultor}` : "Al día";
+    liveStatus.asignador = live.sinConsultor > 0 ? "Asignando…" : "Disponible";
+    liveStatus.calidad = "Revisando citas";
+  }
+  // agentes "ocupados" → en la simulación van a su escritorio a trabajar
+  const busy = new Set<string>();
+  if (live) {
+    if (live.fuente === "zoho") busy.add("zoho");
+    if (live.sinConsultor > 0) { busy.add("distribuidor"); busy.add("asignador"); }
+  }
+  busyRef.current = busy;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -257,14 +294,30 @@ export default function PixelAgents() {
       <div className="exec-card overflow-hidden p-0">
         <div className="flex items-center justify-between gap-2 border-b border-[var(--color-line)] px-4 py-2.5">
           <span className="exec-label">Oficina de agentes · Windmar Home</span>
-          <span className="text-[10px] text-[var(--color-muted)]">{layout.cols}×{layout.rows} · {agents.length} agentes · {layout.rooms.length} áreas</span>
+          <div className="flex items-center gap-3">
+            {live && (
+              <span className="flex items-center gap-1.5 text-[10px] font-bold">
+                <span className={`h-1.5 w-1.5 rounded-full ${live.fuente === "zoho" ? "bg-green-500" : "bg-[var(--color-muted)]"}`} />
+                <span style={{ color: live.fuente === "zoho" ? "#0f9d58" : "#6d6e71" }}>{live.fuente === "zoho" ? "Zoho en vivo" : "Demo"}</span>
+                <span className="text-[var(--color-muted)]">· {live.total} citas · {live.sinConsultor} a distribuir</span>
+              </span>
+            )}
+            <button
+              onClick={() => setEditing((v) => !v)}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${editing ? "bg-wh-orange text-white shadow-orange" : "border border-[var(--color-line)] text-[var(--color-muted)] hover:text-[var(--color-ink)]"}`}
+            >
+              {editing ? <><Check className="h-3 w-3" /> Dejar de editar</> : <><Pencil className="h-3 w-3" /> Editar</>}
+            </button>
+          </div>
         </div>
         <div className="p-3">
           <div className="mx-auto max-w-[1000px]">
             <PixelOffice
               layout={layout}
               agents={agents}
-              areasMode={tab === "areas"}
+              editing={editing}
+              status={liveStatus}
+              areasMode={editing && tab === "areas"}
               selFurn={selFurn}
               selRoom={selRoom}
               selLogo={selLogo}
@@ -281,9 +334,11 @@ export default function PixelAgents() {
             />
           </div>
           <p className="mt-2 text-center text-[11px] text-[var(--color-muted)]">
-            {tab === "areas"
-              ? "Modo Áreas: arrastra/redimensiona las secciones. Toca un mueble para volver a editarlo."
-              : "Haz clic en un agente o mueble para seleccionarlo y editarlo abajo. Arrastra los muebles para moverlos."}
+            {!editing
+              ? "Solo viendo a los agentes. Pulsa “Editar” (arriba a la derecha) para personalizar la oficina."
+              : tab === "areas"
+              ? "Modo edición · Áreas: arrastra/redimensiona las secciones."
+              : "Modo edición: haz clic en un agente o mueble para seleccionarlo, o arrastra los muebles."}
           </p>
         </div>
       </div>
@@ -293,7 +348,7 @@ export default function PixelAgents() {
         <div className="mb-3 flex items-center gap-1.5">
           <Activity className="h-4 w-4 text-wh-orange" />
           <span className="exec-label flex-1">Actividad de agentes · en vivo</span>
-          <span className="text-[10px] text-[var(--color-muted)]">simulado — será real al conectar Zoho</span>
+          <span className="text-[10px] text-[var(--color-muted)]">{live?.fuente === "zoho" ? `Zoho en vivo · ${live.total} citas` : "modo demo"}</span>
         </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
           {agents.map((a) => {
@@ -317,15 +372,15 @@ export default function PixelAgents() {
       {/* Panel de personalización (abajo, contraíble) */}
       <div ref={panelRef} className="exec-card overflow-hidden p-0">
         <button
-          onClick={() => setPanelOpen((v) => !v)}
+          onClick={() => setEditing((v) => !v)}
           className="flex w-full items-center gap-1.5 border-b border-[var(--color-line)] px-4 py-2.5 transition hover:bg-[var(--color-subtle)]"
         >
           <Settings2 className="h-4 w-4 text-wh-orange" />
           <span className="exec-label flex-1 text-left">Personalizar oficina</span>
-          <span className="text-[10px] text-[var(--color-muted)]">{panelOpen ? "Contraer" : "Expandir"}</span>
-          {panelOpen ? <ChevronUp className="h-4 w-4 text-[var(--color-muted)]" /> : <ChevronDown className="h-4 w-4 text-[var(--color-muted)]" />}
+          <span className="text-[10px] text-[var(--color-muted)]">{editing ? "Dejar de editar" : "Editar"}</span>
+          {editing ? <ChevronUp className="h-4 w-4 text-[var(--color-muted)]" /> : <ChevronDown className="h-4 w-4 text-[var(--color-muted)]" />}
         </button>
-        {panelOpen && (
+        {editing && (
         <div className="flex flex-wrap gap-1 border-b border-[var(--color-line)] p-2">
           {tabs.map((t) => (
             <button
@@ -339,7 +394,7 @@ export default function PixelAgents() {
         </div>
         )}
 
-        {panelOpen && (
+        {editing && (
         <div className="p-4">
           {/* AGENTES */}
           {tab === "agentes" && (
