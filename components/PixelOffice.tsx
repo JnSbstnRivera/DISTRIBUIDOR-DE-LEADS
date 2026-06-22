@@ -1,220 +1,313 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { FURN_CATALOG, SPR, TINTS, type OfficeLayout, type Room, type Furn, type LogoItem } from "@/lib/office";
+
 /* ── Paleta Windmar ── */
-const C = {
-  orange: "#F89B24",
-  blue: "#1D429B",
-  black: "#231F20",
-  lblue: "#A6C3E6",
-  grey: "#6D6E71",
-  tgrey: "#A7A9AC",
-  navy: "#21274E",
-  beige: "#F6F1E6",
-  skin: "#e7b48a",
-  floorWork: "#e9e5dd",
-  floorMgr: "#2e4f86",
-  wall: "#1a2240",
-};
+const C = { orange: "#F89B24", navy: "#21274E", wall: "#1a2240" };
 
 export type Facing = "down" | "up" | "left" | "right";
 export type AgentState = "walking" | "working" | "idle";
 
+// Agente en coordenadas de tile (col,row flotantes para interpolar el paso).
 export type OfficeAgent = {
-  id: string;
-  nombre: string;
-  sheet: string; // sprite (char_0..5)
-  room: string; // work | meet | mgr
-  x: number; // %
-  y: number; // %
-  tx: number;
-  ty: number;
-  desk: { x: number; y: number };
-  zone: { x0: number; y0: number; x1: number; y1: number };
-  state: AgentState;
-  facing: Facing;
-  frame: number;
-  wait: number;
-  goingDesk: boolean;
+  id: string; nombre: string; sheet: string;
+  col: number; row: number;
+  path: { col: number; row: number }[];
+  seat: { col: number; row: number } | null;
+  state: AgentState; facing: Facing; frame: number; wait: number; goingSeat: boolean;
 };
 
-/* ── Sprite del agente (soporta hojas animation-ready del repo pixel-agents) ── */
+/* ── Sprites de personaje ── */
 type SheetMeta = {
-  cols: number;
-  rows: number;
-  fw: number; // ancho del frame en px de la hoja
-  fh: number; // alto del frame
-  dispH: number; // alto de despliegue de la celda
-  base: string; // carpeta del PNG
+  cols: number; rows: number; fw: number; fh: number; dispH: number; base: string;
   dir: { down: number; up: number; left?: number; right?: number };
-  walk: number[];
-  idle: number;
-  type?: number[]; // frames de "tecleando" (trabajando)
+  walk: number[]; idle: number; type?: number[];
 };
-
-// char_0..5: animation-ready (7x3, 16x32). cols: walk1,walk2(idle),walk3,type1,type2,read1,read2
 const CHAR: Omit<SheetMeta, "base"> = {
   cols: 7, rows: 3, fw: 16, fh: 32, dispH: 104,
   dir: { down: 0, up: 1, right: 2 }, walk: [0, 1, 2], idle: 1, type: [3, 4],
 };
-
 export const SHEET_META: Record<string, SheetMeta> = {
-  char_0: { ...CHAR, base: "/agents/pixel/" },
-  char_1: { ...CHAR, base: "/agents/pixel/" },
-  char_2: { ...CHAR, base: "/agents/pixel/" },
-  char_3: { ...CHAR, base: "/agents/pixel/" },
-  char_4: { ...CHAR, base: "/agents/pixel/" },
-  char_5: { ...CHAR, base: "/agents/pixel/" },
+  char_0: { ...CHAR, base: "/agents/pixel/" }, char_1: { ...CHAR, base: "/agents/pixel/" },
+  char_2: { ...CHAR, base: "/agents/pixel/" }, char_3: { ...CHAR, base: "/agents/pixel/" },
+  char_4: { ...CHAR, base: "/agents/pixel/" }, char_5: { ...CHAR, base: "/agents/pixel/" },
 };
 
+const SIT_OFFSET = 0.16; // baja un poco al sentarse
+// Escala NATIVA como el repo Pixel Agents: personaje = 1 tile de ancho, muebles a su footprint exacto.
+const AGENT_SCALE = 1.0;
+const FURN_SCALE = 1.0;
+
 export function SpriteImg({
-  sheet,
-  facing = "down",
-  frame = 0,
-  walking = false,
-  working = false,
-  scale = 1,
+  sheet, facing = "down", frame = 0, walking = false, working = false, scale = 1, w,
 }: {
-  sheet: string;
-  facing?: Facing;
-  frame?: number;
-  walking?: boolean;
-  working?: boolean;
-  scale?: number;
+  sheet: string; facing?: Facing; frame?: number; walking?: boolean; working?: boolean; scale?: number; w?: number;
 }) {
   const m = SHEET_META[sheet] || SHEET_META.char_0;
-  const dispH = m.dispH * scale;
-  const dispW = (dispH * m.fw) / m.fh;
+  const dispW = w != null ? w : (m.dispH * scale * m.fw) / m.fh;
+  const dispH = (dispW * m.fh) / m.fw;
 
   let row = m.dir.down;
   let flip = false;
   if (facing === "up") row = m.dir.up;
   else if (facing === "down") row = m.dir.down;
-  else if (facing === "right") {
-    if (m.dir.right != null) row = m.dir.right;
-    else { row = m.dir.left!; flip = true; }
-  } else if (facing === "left") {
-    if (m.dir.left != null) row = m.dir.left;
-    else { row = m.dir.right!; flip = true; }
-  }
+  else if (facing === "right") { if (m.dir.right != null) row = m.dir.right; else { row = m.dir.left!; flip = true; } }
+  else if (facing === "left") { if (m.dir.left != null) row = m.dir.left; else { row = m.dir.right!; flip = true; } }
 
   const typeFrames = m.type ?? [m.idle];
   const col = working ? typeFrames[frame % typeFrames.length] : walking ? m.walk[frame % m.walk.length] : m.idle;
-  // al trabajar, baja un poco para "sentarse" en la silla frente al PC
-  const sitOffset = working ? dispH * 0.16 : 0;
+  const sitOffset = working ? dispH * SIT_OFFSET : 0;
 
   return (
     <div className="relative flex flex-col items-center" style={{ transform: flip ? "scaleX(-1)" : undefined }}>
       <div
         style={{
-          width: dispW,
-          height: dispH,
-          transform: `translateY(${sitOffset}px)`,
+          width: dispW, height: dispH, transform: `translateY(${sitOffset}px)`,
           backgroundImage: `url(${m.base}${sheet}.png)`,
           backgroundSize: `${dispW * m.cols}px ${dispH * m.rows}px`,
           backgroundPosition: `-${col * dispW}px -${row * dispH}px`,
           imageRendering: "pixelated",
         }}
       />
-      <div style={{ width: dispW * 0.55, height: 4, marginTop: -3, background: "rgba(0,0,0,.3)", borderRadius: 99, filter: "blur(1px)" }} />
+      <div style={{ width: dispW * 0.55, height: 3, marginTop: -2, background: "rgba(0,0,0,.3)", borderRadius: 99, filter: "blur(1px)" }} />
     </div>
   );
 }
 
-/* ── Mobiliario real (sprites del repo pixel-agents) ── */
-const OFF = "/agents/pixel/office/";
-const FS = 2.6; // escala de los muebles
+/* z-index por fila inferior: lo más abajo se pinta encima (sentarse natural). */
+function zFromRow(bottomRow: number) { return 100 + Math.round(bottomRow * 10); }
 
-function Furn({ name, x, y, w, h, z = 2 }: { name: string; x: number; y: number; w: number; h: number; z?: number }) {
-  // eslint-disable-next-line @next/next/no-img-element
-  return (
-    <img
-      src={`${OFF}${name}.png`}
-      alt=""
-      className="absolute"
-      style={{ left: `${x}%`, top: `${y}%`, width: w * FS, height: h * FS, imageRendering: "pixelated", zIndex: z }}
-    />
-  );
-}
-function LogoFrame({ x, y }: { x: number; y: number }) {
-  return (
-    <div className="absolute z-[2] grid place-items-center" style={{ left: `${x}%`, top: `${y}%`, width: 38, height: 26, background: "#fff", borderRadius: 2, border: `2px solid ${C.navy}` }}>
-      <span style={{ color: C.blue, fontWeight: 900, fontSize: 14, lineHeight: 1 }}>W</span>
-    </div>
-  );
-}
+type DragState =
+  | { kind: "furn"; id: string; gdc: number; gdr: number }
+  | { kind: "room"; id: string; mode: "move" | "resize"; gdc: number; gdr: number }
+  | { kind: "logo"; id: string; mode: "move" | "resize"; gdc: number; gdr: number }
+  | null;
 
-// piso texturizado con un tile real repetido
-function Floor({ tile, ...s }: { tile: string } & React.CSSProperties) {
+export default function PixelOffice({
+  layout, agents,
+  areasMode = false,
+  selFurn = null, selRoom = null, selLogo = null,
+  onPickFurniture, onMoveFurniture,
+  onPickAgent,
+  onPickRoom, onMoveRoom, onResizeRoom,
+  onPickLogo, onMoveLogo, onResizeLogo,
+  onClearSelection,
+}: {
+  layout: OfficeLayout;
+  agents: OfficeAgent[];
+  areasMode?: boolean;
+  selFurn?: string | null;
+  selRoom?: string | null;
+  selLogo?: string | null;
+  onPickFurniture?: (id: string) => void;
+  onMoveFurniture?: (id: string, col: number, row: number) => void;
+  onPickAgent?: (id: string) => void;
+  onPickRoom?: (id: string) => void;
+  onMoveRoom?: (id: string, col: number, row: number) => void;
+  onResizeRoom?: (id: string, w: number, h: number) => void;
+  onPickLogo?: (id: string) => void;
+  onMoveLogo?: (id: string, col: number, row: number) => void;
+  onResizeLogo?: (id: string, w: number, h: number) => void;
+  onClearSelection?: () => void;
+}) {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [wPx, setWPx] = useState(820);
+  const drag = useRef<DragState>(null);
+  const { cols, rows } = layout;
+  const tile = wPx / cols;
+
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setWPx(el.clientWidth || 820));
+    ro.observe(el);
+    setWPx(el.clientWidth || 820);
+    return () => ro.disconnect();
+  }, []);
+
+  function tileFromEvent(e: { clientX: number; clientY: number }) {
+    const r = boxRef.current!.getBoundingClientRect();
+    return { c: ((e.clientX - r.left) / r.width) * cols, r: ((e.clientY - r.top) / r.height) * rows };
+  }
+
+  function startFurnDrag(e: React.PointerEvent, f: Furn) {
+    e.preventDefault(); e.stopPropagation();
+    onPickFurniture?.(f.id);
+    const t = tileFromEvent(e);
+    drag.current = { kind: "furn", id: f.id, gdc: t.c - f.col, gdr: t.r - f.row };
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+  }
+  function startLogoDrag(e: React.PointerEvent, lg: LogoItem, mode: "move" | "resize") {
+    e.preventDefault(); e.stopPropagation();
+    onPickLogo?.(lg.id);
+    const t = tileFromEvent(e);
+    drag.current = { kind: "logo", id: lg.id, mode, gdc: t.c - lg.col, gdr: t.r - lg.row };
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+  }
+  function startRoomDrag(e: React.PointerEvent, room: Room, mode: "move" | "resize") {
+    if (!areasMode) return;
+    e.preventDefault(); e.stopPropagation();
+    onPickRoom?.(room.id);
+    const t = tileFromEvent(e);
+    drag.current = { kind: "room", id: room.id, mode, gdc: t.c - room.col, gdr: t.r - room.row };
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+  }
+
+  function onMove(e: React.PointerEvent) {
+    const d = drag.current;
+    if (!d) return;
+    const t = tileFromEvent(e);
+    const clamp = (v: number, max: number) => Math.max(0, Math.min(max, v));
+    if (d.kind === "furn") {
+      const cat = FURN_CATALOG[layout.furniture.find((f) => f.id === d.id)?.type ?? ""];
+      const tw = cat?.tw ?? 1, th = cat?.th ?? 1;
+      onMoveFurniture?.(d.id, clamp(Math.round(t.c - d.gdc), cols - tw), clamp(Math.round(t.r - d.gdr), rows - th));
+    } else if (d.kind === "room") {
+      const room = layout.rooms.find((r) => r.id === d.id);
+      if (!room) return;
+      if (d.mode === "move") onMoveRoom?.(d.id, clamp(Math.round(t.c - d.gdc), cols - room.w), clamp(Math.round(t.r - d.gdr), rows - room.h));
+      else onResizeRoom?.(d.id, Math.max(3, Math.min(cols - room.col, Math.round(t.c - room.col + 0.5))), Math.max(3, Math.min(rows - room.row, Math.round(t.r - room.row + 0.5))));
+    } else if (d.kind === "logo") {
+      const lg = layout.logos?.find((l) => l.id === d.id);
+      if (!lg) return;
+      if (d.mode === "move") onMoveLogo?.(d.id, clamp(Math.round(t.c - d.gdc), cols - lg.w), clamp(Math.round(t.r - d.gdr), rows - lg.h));
+      else onResizeLogo?.(d.id, Math.max(1, Math.min(cols - lg.col, Math.round(t.c - lg.col + 0.5))), Math.max(1, Math.min(rows - lg.row, Math.round(t.r - lg.row + 0.5))));
+    }
+  }
+  function onUp() { drag.current = null; }
+
   return (
     <div
-      className="absolute"
-      style={{ backgroundImage: `url(${OFF}${tile}.png)`, backgroundSize: "44px 44px", imageRendering: "pixelated", borderRadius: 2, ...s }}
-    />
-  );
-}
-
-export default function PixelOffice({ agents }: { agents: OfficeAgent[] }) {
-  return (
-    <div
-      className="relative w-full overflow-hidden rounded-xl"
-      style={{ aspectRatio: "1.9 / 1", background: C.wall, border: `5px solid ${C.navy}` }}
+      ref={boxRef}
+      className="relative w-full overflow-hidden rounded-xl select-none"
+      style={{ aspectRatio: `${cols} / ${rows}`, background: C.wall, border: `4px solid ${C.navy}` }}
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+      onPointerDown={() => onClearSelection?.()}
     >
-      {/* Pisos / cuartos (tiles reales) */}
-      <Floor tile="floor_0" left="2%" top="4%" width="58%" height="92%" />
-      <Floor tile="floor_3" left="63%" top="4%" width="35%" height="44%" />
-      <Floor tile="floor_5" left="63%" top="52%" width="35%" height="44%" />
-      {/* divisores de pared */}
-      <div className="absolute" style={{ left: "60.5%", top: "2%", width: 6, height: "96%", background: C.navy }} />
-      <div className="absolute" style={{ left: "63%", top: "48%", width: "35%", height: 6, background: C.navy }} />
+      {/* Áreas (pisos) */}
+      {layout.rooms.map((room) => {
+        const sel = areasMode && selRoom === room.id;
+        return (
+          <div
+            key={room.id}
+            onPointerDown={(e) => startRoomDrag(e, room, "move")}
+            className="absolute overflow-hidden"
+            style={{
+              left: room.col * tile, top: room.row * tile, width: room.w * tile, height: room.h * tile,
+              zIndex: 2,
+              border: `2px solid ${sel ? C.orange : C.navy}`,
+              cursor: areasMode ? "grab" : "default",
+              pointerEvents: areasMode ? "auto" : "none",
+            }}
+          >
+            {/* piso (solo este lleva el tinte, para no teñir la etiqueta) */}
+            <div className="absolute inset-0" style={{ backgroundImage: `url(${SPR}${room.tile}.png)`, backgroundSize: `${tile}px ${tile}px`, imageRendering: "pixelated", filter: room.tint ? TINTS[room.tint] : undefined }} />
+            {/* pared trasera 3D (cap superior claro + cara navy + sombra base) — donde cuelgan cuadros y estantes */}
+            <div
+              className="pointer-events-none absolute left-0 right-0 top-0"
+              style={{
+                height: Math.round(tile * 0.95),
+                background: `linear-gradient(180deg, #3c4a86 0%, #3c4a86 30%, #262e57 31%, #1c2247 100%)`,
+                borderBottom: `${Math.max(2, tile * 0.12)}px solid #11152b`,
+                boxShadow: "inset 0 2px 0 rgba(255,255,255,.08)",
+                zIndex: 3,
+              }}
+            />
+            <span className="pointer-events-none absolute left-1 top-1 rounded-sm px-1.5 py-0.5 text-[9px] font-bold" style={{ background: C.navy, color: C.orange, border: `1px solid ${C.orange}`, zIndex: 50 }}>
+              {room.label}
+            </span>
+            {sel && (
+              <div onPointerDown={(e) => startRoomDrag(e, room, "resize")} title="Redimensionar" className="absolute" style={{ right: -7, bottom: -7, width: 14, height: 14, background: C.orange, border: "2px solid #fff", borderRadius: 3, cursor: "nwse-resize", zIndex: 60 }} />
+            )}
+          </div>
+        );
+      })}
 
-      {/* Letreros Windmar Home */}
-      <div className="absolute z-[3] flex items-center gap-1 rounded-sm px-2 py-0.5" style={{ left: "21%", top: "1.5%", background: C.navy, border: `1px solid ${C.orange}` }}>
-        <span style={{ color: C.orange, fontWeight: 900, fontSize: 11, letterSpacing: 1 }}>WINDMAR</span>
-        <span style={{ color: "#fff", fontWeight: 900, fontSize: 11, letterSpacing: 1 }}>HOME</span>
-      </div>
-      <div className="absolute z-[3] rounded-sm px-1.5 py-0.5" style={{ left: "74%", top: "50.5%", background: C.navy, border: `1px solid ${C.orange}` }}>
-        <span style={{ color: "#fff", fontWeight: 900, fontSize: 9, letterSpacing: 1 }}>WINDMAR HOME</span>
-      </div>
+      {/* Mobiliario (z-sort por fila inferior, escala visual anclada al borde inferior) */}
+      {layout.furniture.map((f) => {
+        const cat = FURN_CATALOG[f.type];
+        if (!cat) return null;
+        const sel = selFurn === f.id;
+        const z = zFromRow(f.row + cat.th);
+        // electrónica (monitores) se renderiza compacta para que se vea como pantalla sobre el escritorio, no como torre
+        const scl = cat.cat === "electronica" ? 0.8 : FURN_SCALE;
+        const fw = cat.tw * tile, fh = cat.th * tile;
+        const sw = fw * scl, sh = fh * scl;
+        return (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={f.id}
+            src={`${SPR}${f.type}.png`}
+            alt={cat.label}
+            draggable={false}
+            onPointerDown={(e) => startFurnDrag(e, f)}
+            className="absolute"
+            style={{
+              left: f.col * tile + (fw - sw) / 2, top: f.row * tile + (fh - sh), width: sw, height: sh,
+              imageRendering: "pixelated", zIndex: sel ? 8000 : z,
+              transform: f.mirrored ? "scaleX(-1)" : undefined,
+              cursor: "grab",
+              outline: sel ? `2px dashed ${C.orange}` : undefined, outlineOffset: 2,
+              touchAction: "none",
+            }}
+          />
+        );
+      })}
 
-      {/* Workspace */}
-      <Furn name="DOUBLE_BOOKSHELF" x={6} y={5} w={32} h={32} />
-      <Furn name="DOUBLE_BOOKSHELF" x={22} y={5} w={32} h={32} />
-      <Furn name="BOOKSHELF" x={38} y={6} w={32} h={16} />
-      <Furn name="COFFEE" x={47} y={6} w={16} h={16} />
-      <Furn name="CLOCK" x={52} y={4} w={16} h={32} />
-      <LogoFrame x={43} y={6} />
-      <Furn name="DESK_FRONT" x={9} y={28} w={48} h={32} />
-      <Furn name="DESK_FRONT" x={36} y={28} w={48} h={32} />
-      <Furn name="DESK_FRONT" x={9} y={64} w={48} h={32} />
-      <Furn name="DESK_FRONT" x={36} y={64} w={48} h={32} />
-      <Furn name="PLANT" x={3} y={84} w={16} h={32} />
-      <Furn name="LARGE_PLANT" x={50} y={80} w={32} h={48} />
+      {/* Logos pixel-art */}
+      {(layout.logos ?? []).map((lg) => {
+        const sel = selLogo === lg.id;
+        const z = zFromRow(lg.row + lg.h);
+        return (
+          <div
+            key={lg.id}
+            onPointerDown={(e) => startLogoDrag(e, lg, "move")}
+            className="absolute"
+            style={{
+              left: lg.col * tile, top: lg.row * tile, width: lg.w * tile, height: lg.h * tile,
+              zIndex: sel ? 8000 : z, cursor: "grab",
+              outline: sel ? `2px dashed ${C.orange}` : undefined, outlineOffset: 2, touchAction: "none",
+              // marco tipo cuadro colgado en la pared
+              ...(lg.frame ? { background: "#fff", border: `${Math.max(2, tile * 0.18)}px solid ${C.navy}`, padding: tile * 0.12, boxShadow: "2px 3px 0 rgba(0,0,0,.35)" } : {}),
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={lg.src} alt="logo" draggable={false} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }} />
+            {sel && (
+              <div onPointerDown={(e) => startLogoDrag(e, lg, "resize")} title="Redimensionar" className="absolute" style={{ right: -7, bottom: -7, width: 14, height: 14, background: C.orange, border: "2px solid #fff", borderRadius: 3, cursor: "nwse-resize" }} />
+            )}
+          </div>
+        );
+      })}
 
-      {/* Meeting room */}
-      <LogoFrame x={80} y={7} />
-      <Furn name="TABLE_FRONT" x={77} y={20} w={48} h={64} z={2} />
-      <Furn name="CUSHIONED_CHAIR_FRONT" x={72} y={26} w={16} h={16} />
-      <Furn name="CUSHIONED_CHAIR_FRONT" x={90} y={26} w={16} h={16} />
-      <Furn name="PLANT" x={66} y={10} w={16} h={32} />
+      {/* Agentes — clic para editar; z-sort por la fila de los pies */}
+      {agents.map((a) => {
+        const z = zFromRow(a.row + 1 + (a.state === "working" ? 0.5 : 0.9));
+        return (
+          <div
+            key={a.id}
+            onPointerDown={(e) => { e.stopPropagation(); onPickAgent?.(a.id); }}
+            className="absolute"
+            style={{
+              left: (a.col + 0.5) * tile, top: (a.row + 1) * tile,
+              transform: "translate(-50%,-100%)", transition: "left .12s linear, top .12s linear", zIndex: z, cursor: "pointer",
+            }}
+          >
+            <SpriteImg sheet={a.sheet} facing={a.facing} frame={a.frame} walking={a.state === "walking"} working={a.state === "working"} w={tile * AGENT_SCALE} />
+          </div>
+        );
+      })}
 
-      {/* Manager room */}
-      <Furn name="LARGE_PAINTING" x={79} y={52} w={32} h={32} />
-      <Furn name="DESK_FRONT" x={76} y={70} w={48} h={32} />
-      <Furn name="BOOKSHELF" x={65} y={58} w={32} h={16} />
-      <Furn name="BOOKSHELF" x={88} y={58} w={32} h={16} />
-      <Furn name="LARGE_PLANT" x={65} y={82} w={32} h={48} />
-
-      {/* Agentes */}
+      {/* Etiquetas de agentes — capa superior */}
       {agents.map((a) => (
         <div
-          key={a.id}
-          className="absolute z-10"
-          style={{ left: `${a.x}%`, top: `${a.y}%`, transform: "translate(-50%,-100%)", transition: "left .12s linear, top .12s linear" }}
+          key={`lbl_${a.id}`}
+          className="pointer-events-none absolute whitespace-nowrap rounded bg-black/65 px-1.5 py-0.5 text-[9px] font-bold text-white"
+          style={{ left: (a.col + 0.5) * tile, top: (a.row + 1) * tile, transform: `translate(-50%,calc(-100% - ${tile * AGENT_SCALE * 2}px))`, zIndex: 8500 }}
         >
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black/65 px-1.5 py-0.5 text-[10px] font-bold text-white">
-            {a.nombre}
-          </div>
-          <SpriteImg sheet={a.sheet} facing={a.facing} frame={a.frame} walking={a.state === "walking"} working={a.state === "working"} />
+          {a.nombre}
         </div>
       ))}
     </div>
