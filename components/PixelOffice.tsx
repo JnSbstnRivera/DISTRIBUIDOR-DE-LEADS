@@ -7,7 +7,7 @@ import { FURN_CATALOG, SPR, TINTS, type OfficeLayout, type Room, type Furn, type
 const C = { orange: "#F89B24", navy: "#21274E", wall: "#1a2240" };
 
 export type Facing = "down" | "up" | "left" | "right";
-export type AgentState = "walking" | "working" | "idle";
+export type AgentState = "walking" | "working" | "idle" | "sitting";
 
 // Agente en coordenadas de tile (col,row flotantes para interpolar el paso).
 export type OfficeAgent = {
@@ -15,6 +15,7 @@ export type OfficeAgent = {
   col: number; row: number;
   path: { col: number; row: number }[];
   seat: { col: number; row: number } | null;
+  seatFace: Facing; // de perfil/espaldas al sentarse
   state: AgentState; facing: Facing; frame: number; wait: number; goingSeat: boolean;
 };
 
@@ -40,9 +41,9 @@ const AGENT_SCALE = 1.0;
 const FURN_SCALE = 1.0;
 
 export function SpriteImg({
-  sheet, facing = "down", frame = 0, walking = false, working = false, scale = 1, w,
+  sheet, facing = "down", frame = 0, walking = false, working = false, seated = false, scale = 1, w,
 }: {
-  sheet: string; facing?: Facing; frame?: number; walking?: boolean; working?: boolean; scale?: number; w?: number;
+  sheet: string; facing?: Facing; frame?: number; walking?: boolean; working?: boolean; seated?: boolean; scale?: number; w?: number;
 }) {
   const m = SHEET_META[sheet] || SHEET_META.char_0;
   const dispW = w != null ? w : (m.dispH * scale * m.fw) / m.fh;
@@ -57,7 +58,8 @@ export function SpriteImg({
 
   const typeFrames = m.type ?? [m.idle];
   const col = working ? typeFrames[frame % typeFrames.length] : walking ? m.walk[frame % m.walk.length] : m.idle;
-  const sitOffset = working ? dispH * SIT_OFFSET : 0;
+  // sentado (trabajando o quieto) baja al asiento; quieto usa el frame idle
+  const sitOffset = working || seated ? dispH * SIT_OFFSET : 0;
 
   return (
     <div className="relative flex flex-col items-center" style={{ transform: flip ? "scaleX(-1)" : undefined }}>
@@ -294,7 +296,8 @@ export default function PixelOffice({
 
       {/* Agentes — clic para editar; z-sort por la fila de los pies */}
       {agents.map((a) => {
-        const z = zFromRow(a.row + 1 + (a.state === "working" ? 0.5 : 0.9));
+        const sittingNow = a.state === "working" || a.state === "sitting";
+        const z = zFromRow(a.row + 1 + (sittingNow ? 0.5 : 0.9));
         return (
           <div
             key={a.id}
@@ -305,7 +308,7 @@ export default function PixelOffice({
               transform: "translate(-50%,-100%)", transition: "left .12s linear, top .12s linear", zIndex: z, cursor: editing ? "pointer" : "default",
             }}
           >
-            <SpriteImg sheet={a.sheet} facing={a.facing} frame={a.frame} walking={a.state === "walking"} working={a.state === "working"} w={tile * AGENT_SCALE} />
+            <SpriteImg sheet={a.sheet} facing={a.facing} frame={a.frame} walking={a.state === "walking"} working={a.state === "working"} seated={a.state === "sitting"} w={tile * AGENT_SCALE} />
           </div>
         );
       })}

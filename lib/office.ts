@@ -70,12 +70,15 @@ export type Room = {
   tint?: string; // clave de TINTS (madera/azul/verde/neutro)
 };
 
+export type Facing = "down" | "up" | "left" | "right";
+
 export type Furn = {
   id: string;
   type: string; // clave de FURN_CATALOG
   col: number;
   row: number;
   mirrored?: boolean;
+  face?: Facing; // si es escritorio: hacia dónde mira el agente sentado (perfil/espaldas)
 };
 
 // Logo pixel-art opcional dentro de la oficina (imagen subida por el usuario).
@@ -98,7 +101,7 @@ export type OfficeLayout = {
   logos?: LogoItem[];
 };
 
-export const LAYOUT_REV = 2;
+export const LAYOUT_REV = 3;
 
 export const MIN_COLS = 20;
 export const MAX_COLS = 80;
@@ -120,15 +123,15 @@ export const DEFAULT_LAYOUT: OfficeLayout = {
     { id: "d_bs1", type: "BOOKSHELF", col: 13, row: 1 },
     { id: "d_bs2", type: "BOOKSHELF", col: 15, row: 1 },
     { id: "d_hang", type: "HANGING_PLANT", col: 12, row: 1 },
-    // 4 escritorios con su PC al frente y silla detrás
-    { id: "d_dk1", type: "DESK_FRONT", col: 2, row: 4 },
-    { id: "d_dk2", type: "DESK_FRONT", col: 9, row: 4 },
-    { id: "d_dk3", type: "DESK_FRONT", col: 2, row: 9 },
-    { id: "d_dk4", type: "DESK_FRONT", col: 9, row: 9 },
-    { id: "d_pc1", type: "PC", col: 3, row: 5 },
-    { id: "d_pc2", type: "PC", col: 10, row: 5 },
-    { id: "d_pc3", type: "PC", col: 3, row: 10 },
-    { id: "d_pc4", type: "PC", col: 10, row: 10 },
+    // 4 escritorios — el agente se sienta de PERFIL hacia su monitor (PC de lado / de espaldas)
+    { id: "d_dk1", type: "DESK_FRONT", col: 2, row: 4, face: "right" },
+    { id: "d_dk2", type: "DESK_FRONT", col: 9, row: 4, face: "left" },
+    { id: "d_dk3", type: "DESK_FRONT", col: 2, row: 9, face: "right" },
+    { id: "d_dk4", type: "DESK_FRONT", col: 9, row: 9, face: "left" },
+    { id: "d_pc1", type: "PC_SIDE", col: 4, row: 4 },                // mira derecha → PC de lado a su derecha
+    { id: "d_pc2", type: "PC_SIDE", col: 9, row: 4, mirrored: true }, // mira izquierda → PC de lado a su izquierda
+    { id: "d_pc3", type: "PC_BACK", col: 4, row: 9 },                // monitor de espaldas (variedad)
+    { id: "d_pc4", type: "PC_SIDE", col: 9, row: 9, mirrored: true },
     { id: "ch_1", type: "CUSHIONED_CHAIR_BACK", col: 3, row: 4 },
     { id: "ch_2", type: "CUSHIONED_CHAIR_BACK", col: 10, row: 4 },
     { id: "ch_3", type: "CUSHIONED_CHAIR_BACK", col: 3, row: 9 },
@@ -140,7 +143,7 @@ export const DEFAULT_LAYOUT: OfficeLayout = {
     { id: "d_stbl", type: "SMALL_TABLE", col: 8, row: 11 },
     { id: "d_cac", type: "CACTUS", col: 11, row: 11 },
     // Meeting
-    { id: "d_tbl", type: "TABLE_FRONT", col: 19, row: 2 },
+    { id: "d_tbl", type: "TABLE_FRONT", col: 19, row: 2, face: "up" },
     { id: "ch_6", type: "CUSHIONED_CHAIR_BACK", col: 20, row: 2 },
     { id: "d_mch1", type: "CUSHIONED_CHAIR_FRONT", col: 18, row: 3 },
     { id: "d_mch2", type: "CUSHIONED_CHAIR_FRONT", col: 22, row: 3 },
@@ -148,8 +151,8 @@ export const DEFAULT_LAYOUT: OfficeLayout = {
     // Manager
     { id: "d_pnt", type: "LARGE_PAINTING", col: 18, row: 7 },
     { id: "d_bs3", type: "BOOKSHELF", col: 22, row: 7 },
-    { id: "d_dk5", type: "DESK_FRONT", col: 19, row: 10 },
-    { id: "d_pc5", type: "PC", col: 20, row: 11 },
+    { id: "d_dk5", type: "DESK_FRONT", col: 19, row: 10, face: "right" },
+    { id: "d_pc5", type: "PC_SIDE", col: 21, row: 10 },
     { id: "ch_5", type: "CUSHIONED_CHAIR_BACK", col: 20, row: 10 },
     { id: "d_lp2", type: "LARGE_PLANT", col: 24, row: 10 },
   ],
@@ -217,7 +220,7 @@ export function walkableGrid(layout: OfficeLayout): Grid {
    mirando al frente, y el cuerpo del escritorio (que baja en pantalla) le tapa
    las piernas vía z-sort. El asiento cae sobre el footprint del mueble, así que
    el pathfinding lo trata como caminable solo para ese agente (set `extra`). */
-export type Seat = { col: number; row: number; deskId: string };
+export type Seat = { col: number; row: number; deskId: string; face: Facing };
 
 export function deriveSeats(layout: OfficeLayout): Seat[] {
   const seats: Seat[] = [];
@@ -226,7 +229,7 @@ export function deriveSeats(layout: OfficeLayout): Seat[] {
     if (!cat?.isDesk) continue;
     const col = f.col + Math.floor(cat.tw / 2); // centro
     const row = f.row; // fila superior del escritorio
-    seats.push({ col, row, deskId: f.id });
+    seats.push({ col, row, deskId: f.id, face: f.face ?? "right" });
   }
   return seats;
 }

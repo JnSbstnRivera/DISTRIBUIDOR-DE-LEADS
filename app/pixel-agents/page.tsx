@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Send, Terminal, Bot, Plus, Trash2, Users, LayoutGrid,
   FlipHorizontal2, RotateCcw, Maximize2, Image as ImageIcon, DoorOpen, Minus, Settings2,
-  ChevronDown, ChevronUp, Activity, Check, Pencil,
+  ChevronDown, ChevronUp, Activity, Check, Pencil, Save,
 } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
 import PixelOffice, { SpriteImg, type OfficeAgent } from "@/components/PixelOffice";
@@ -36,11 +36,15 @@ function build(mini: Mini[], layout: OfficeLayout): OfficeAgent[] {
   const walk = walkableGrid(layout);
   return mini.map((m, i) => {
     const seat = seats[i] ?? null;
+    const face = seat?.face ?? "right";
     const start = seat ?? randomWalkable(walk) ?? { col: 1, row: 1 };
     return {
       id: m.id, nombre: m.nombre, sheet: m.sheet || "char_0",
-      col: start.col, row: start.row, path: [], seat,
-      state: "idle", facing: "down", frame: 0, wait: Math.round(rnd(8, 40)), goingSeat: false,
+      col: start.col, row: start.row, path: [],
+      seat: seat ? { col: seat.col, row: seat.row } : null, seatFace: face,
+      // arranca sentado en su escritorio (de perfil); si no tiene asiento, idle
+      state: seat ? "sitting" : "idle", facing: seat ? face : "down",
+      frame: 0, wait: Math.round(rnd(8, 40)), goingSeat: false,
     };
   });
 }
@@ -63,6 +67,7 @@ export default function PixelAgents() {
   const [tab, setTab] = useState<Tab>("agentes");
   const [editing, setEditing] = useState(false); // modo edición (off = solo ver a los agentes)
   const [live, setLive] = useState<{ fuente: string; total: number; sinConsultor: number } | null>(null);
+  const [savedMsg, setSavedMsg] = useState(false);
   const [selFurn, setSelFurn] = useState<string | null>(null);
   const [selRoom, setSelRoom] = useState<string | null>(null);
   const [selLogo, setSelLogo] = useState<string | null>(null);
@@ -126,7 +131,7 @@ export default function PixelAgents() {
         const n = nearestWalkable(walk, Math.round(col), Math.round(row));
         if (n) { col = n.col; row = n.row; }
       }
-      return { ...a, seat, col, row, path: [], state: a.state === "walking" ? "idle" : a.state, wait: Math.round(rnd(4, 20)) };
+      return { ...a, seat: seat ? { col: seat.col, row: seat.row } : null, seatFace: seat?.face ?? a.seatFace, col, row, path: [], state: a.state === "walking" ? "idle" : a.state, wait: Math.round(rnd(4, 20)) };
     }));
   }, [layout]);
 
@@ -152,14 +157,21 @@ export default function PixelAgents() {
             }
           }
           if (!path.length) {
-            if (goingSeat) { state = "working"; facing = "down"; if (seat) { col = seat.col; row = seat.row; } wait = Math.round(rnd(60, 150)); }
-            else { state = "idle"; facing = "down"; wait = Math.round(rnd(25, 70)); }
+            // llegó: si es su escritorio → sentado (tecleando si hay trabajo real), de perfil; si no → idle parado
+            if (goingSeat) { state = busyRef.current.has(a.id) ? "working" : "sitting"; facing = a.seatFace; if (seat) { col = seat.col; row = seat.row; } wait = Math.round(rnd(90, 200)); }
+            else { state = "idle"; facing = "down"; wait = Math.round(rnd(20, 50)); }
           }
         } else {
+          // sentado en su sitio: mantener la pose (teclea si hay tarea real), mirando de perfil
+          const atSeat = !!seat && Math.round(col) === seat.col && Math.round(row) === seat.row;
+          if (atSeat && (state === "sitting" || state === "working")) {
+            state = busyRef.current.has(a.id) ? "working" : "sitting";
+            facing = a.seatFace;
+          }
           wait--;
           if (wait <= 0) {
-            // si el agente tiene trabajo real (Zoho), va a su escritorio; si no, deambula
-            const goSeat = !!seat && (busyRef.current.has(a.id) ? Math.random() < 0.85 : Math.random() < 0.45);
+            // pasan la mayoría del tiempo sentados; rara vez se paran a caminar y vuelven
+            const goSeat = !!seat && (busyRef.current.has(a.id) ? Math.random() < 0.95 : Math.random() < 0.8);
             const goal = goSeat ? seat! : randomWalkable(walk);
             if (goal) {
               const extra = seat ? new Set([`${seat.col},${seat.row}`]) : undefined;
@@ -222,6 +234,7 @@ export default function PixelAgents() {
   function removeLogo(id: string) { commit({ ...layout, logos: (layout.logos ?? []).filter((l) => l.id !== id) }); setSelLogo(null); }
 
   function resetLayout() { commit(DEFAULT_LAYOUT); setSelFurn(null); setSelRoom(null); setSelLogo(null); }
+  function guardarCambios() { saveLayout(layout); saveAgents(miniOf(agents)); setSavedMsg(true); setTimeout(() => setSavedMsg(false), 1800); }
 
   // ── Click-para-editar desde el lienzo (abre el panel si estaba contraído) ──
   function pickFurniture(id: string) { setEditing(true); setTab("muebles"); setSelFurn(id); setSelRoom(null); setSelLogo(null); }
@@ -257,6 +270,7 @@ export default function PixelAgents() {
   const ESTADO: Record<string, { t: string; c: string }> = {
     working: { t: "Trabajando", c: "#0f9d58" },
     walking: { t: "Caminando", c: "#1d429b" },
+    sitting: { t: "Sentado", c: "#6d6e71" },
     idle: { t: "Disponible", c: "#6d6e71" },
   };
   function areaDe(a: OfficeAgent) {
@@ -381,7 +395,7 @@ export default function PixelAgents() {
           {editing ? <ChevronUp className="h-4 w-4 text-[var(--color-muted)]" /> : <ChevronDown className="h-4 w-4 text-[var(--color-muted)]" />}
         </button>
         {editing && (
-        <div className="flex flex-wrap gap-1 border-b border-[var(--color-line)] p-2">
+        <div className="flex flex-wrap items-center gap-1 border-b border-[var(--color-line)] p-2">
           {tabs.map((t) => (
             <button
               key={t.key}
@@ -391,6 +405,12 @@ export default function PixelAgents() {
               {t.icon} {t.label}
             </button>
           ))}
+          <div className="ml-auto flex items-center gap-2">
+            {savedMsg && <span className="text-[11px] font-bold text-green-600">Guardado ✓</span>}
+            <button onClick={guardarCambios} className="flex items-center gap-1.5 rounded-md bg-wh-orange px-2.5 py-1.5 text-[11px] font-bold text-white shadow-orange transition hover:brightness-105">
+              <Save className="h-3.5 w-3.5" /> Guardar cambios
+            </button>
+          </div>
         </div>
         )}
 
