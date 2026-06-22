@@ -21,6 +21,12 @@ export const F = {
   teamAssist: process.env.ZOHO_FIELD_TEAM || "Team_Assitance", // (sí, el API name tiene el typo "Assitance")
   qualityStage: "Quality_Stage",
   qualityOwner: "Quality_Owner", // dueño de calidad (analista: Cata, etc.)
+  // columnas del reporte de Calidad
+  nombre: "Full_Name",
+  direccion: "Direcci_n",
+  postCita: "Post_Cita_Status",
+  teamViejo: "Team_Assistance", // "Team Assistance - Viejo"
+  citaSeDio: "Qualified_Lead", // "¿Cita se dio?"
 };
 
 export const ESTADO_CITA = process.env.ZOHO_ESTADO_CITA || "Cita Coordinada";
@@ -81,30 +87,49 @@ export type CitaZoho = {
   consultor?: { nombre: string; activo: boolean };
   qualityStage?: string;
   qualityOwner?: string; // analista de Calidad (Cata, etc.) o "" si sin dueño
+  // columnas del reporte de Calidad
+  nombre?: string; // Lead Name
+  direccion?: string;
+  postCita?: string;
+  teamViejo?: string;
+  citaSeDio?: string;
+  ownerName?: string; // Lead Owner (asesor)
+  salesRepName?: string;
+  fechaHora?: string; // datetime completo de la cita
 };
 
 export async function getCitasCoordinadas(hoyISO: string): Promise<CitaZoho[]> {
   // COQL aplana lookups como "Sales_Rep.Name". Presenter_Appointment es datetime → límite con hora (PR -04:00).
   // COQL exige PARÉNTESIS al combinar 3+ condiciones con AND.
   const desde = `${hoyISO}T00:00:00-04:00`;
-  const cols = `id, ${F.leadNumber}, ${F.estado}, ${F.ciudad}, ${F.leadSource}, ${F.fechaCita}, ${F.teamAssist}, ${F.salesRep}.id, ${F.salesRep}.Name, ${F.owner}.id, ${F.owner}.first_name, ${F.owner}.last_name, ${F.qualityStage}, ${F.qualityOwner}.id, ${F.qualityOwner}.first_name, ${F.qualityOwner}.last_name`;
+  const cols = `id, ${F.leadNumber}, ${F.nombre}, ${F.estado}, ${F.ciudad}, ${F.direccion}, ${F.leadSource}, ${F.fechaCita}, ${F.teamAssist}, ${F.teamViejo}, ${F.postCita}, ${F.citaSeDio}, ${F.salesRep}.id, ${F.salesRep}.Name, ${F.owner}.id, ${F.owner}.first_name, ${F.owner}.last_name, ${F.qualityStage}, ${F.qualityOwner}.id, ${F.qualityOwner}.first_name, ${F.qualityOwner}.last_name`;
   const qstage = QUALITY_STAGE ? ` and ${F.qualityStage} = '${QUALITY_STAGE}'` : "";
   const q = `select ${cols} from Leads where (${F.estado} = '${ESTADO_CITA}'${qstage}) and (${F.fechaCita} >= '${desde}') order by ${F.fechaCita} asc limit 200`;
   const j = await coql(q);
   const rows: Record<string, unknown>[] = Array.isArray(j?.data) ? j.data : [];
   return rows.map((r) => {
-    const srName = r[`${F.salesRep}.Name`] as string | null;
+    const srName = (r[`${F.salesRep}.Name`] as string | null) || "";
     const team = r[F.teamAssist];
     const qo = [r[`${F.qualityOwner}.first_name`], r[`${F.qualityOwner}.last_name`]].filter(Boolean).join(" ").trim();
+    const ownerName = [r[`${F.owner}.first_name`], r[`${F.owner}.last_name`]].filter(Boolean).join(" ").trim();
+    const fechaHora = String(r[F.fechaCita] ?? "");
     return {
       id: String(r.id),
       ref: String(r[F.leadNumber] ?? r.id),
-      fechaCita: String(r[F.fechaCita] ?? "").slice(0, 10),
+      nombre: String(r[F.nombre] ?? ""),
+      fechaCita: fechaHora.slice(0, 10),
+      fechaHora,
       ciudad: String(r[F.ciudad] ?? ""),
+      direccion: String(r[F.direccion] ?? ""),
       teamAssistance: Array.isArray(team) ? team.join(", ") : String(team ?? ""),
+      teamViejo: String(r[F.teamViejo] ?? ""),
+      postCita: String(r[F.postCita] ?? ""),
+      citaSeDio: String(r[F.citaSeDio] ?? ""),
       leadSource: String(r[F.leadSource] ?? ""),
       salesRepId: (r[`${F.salesRep}.id`] as string) || undefined,
+      salesRepName: srName,
       ownerId: (r[`${F.owner}.id`] as string) || undefined,
+      ownerName,
       consultor: srName ? { nombre: srName, activo: true } : undefined,
       qualityStage: String(r[F.qualityStage] ?? ""),
       qualityOwner: qo,
