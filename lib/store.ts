@@ -1,41 +1,51 @@
-// Almacén persistente respaldado en archivo JSON (sin dependencias nativas).
-// En la fase 2 esto se reemplaza por Supabase (schema `distribuidor`).
+// Almacén respaldado en archivo JSON en local; en serverless (Vercel, FS de solo
+// lectura) opera en memoria leyendo el seed importado (va en el bundle).
+// Fase 2: reemplazar por Supabase (schema `distribuidor`).
 
 import fs from "fs";
 import path from "path";
 import type { DB } from "./types";
+import seedData from "../data/seed.json";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DB_FILE = path.join(DATA_DIR, "data.json");
-const SEED_FILE = path.join(DATA_DIR, "seed.json");
+const DB_FILE = path.join(process.cwd(), "data", "data.json");
 
-function init(): DB {
-  const seed = JSON.parse(fs.readFileSync(SEED_FILE, "utf-8"));
-  const db: DB = {
+let mem: DB | null = null; // caché en memoria (única fuente en serverless)
+
+function fromSeed(): DB {
+  const seed = seedData as unknown as DB;
+  return {
     ...seed,
     asignaciones: [],
     hoy: seed.hoy ?? [],
     canales: seed.canales ?? [],
     canalAsignaciones: [],
   };
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf-8");
-  return db;
+}
+
+function tryWrite(db: DB): void {
+  // En Vercel el FS es de solo-lectura → ignoramos el error y seguimos en memoria.
+  try { fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf-8"); } catch { /* solo memoria */ }
 }
 
 export function readDB(): DB {
-  if (!fs.existsSync(DB_FILE)) return init();
+  if (mem) return mem;
   try {
-    return JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
-  } catch {
-    return init();
-  }
+    if (fs.existsSync(DB_FILE)) { const d = JSON.parse(fs.readFileSync(DB_FILE, "utf-8")) as DB; mem = d; return d; }
+  } catch { /* archivo corrupto/no accesible → seed */ }
+  const d = fromSeed();
+  mem = d;
+  tryWrite(d);
+  return d;
 }
 
 export function writeDB(db: DB): void {
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf-8");
+  mem = db;
+  tryWrite(db);
 }
 
 /** Reinicia la data al estado original del Excel (útil para la demo). */
 export function resetDB(): DB {
-  return init();
+  mem = fromSeed();
+  tryWrite(mem);
+  return mem;
 }
