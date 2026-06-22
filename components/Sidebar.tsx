@@ -50,10 +50,6 @@ const GROUPS = [
     label: "Registro",
     items: [{ href: "/historial", label: "Historial", icon: History }],
   },
-  {
-    label: "Automatización",
-    items: [{ href: "/pixel-agents", label: "Pixel Agents", icon: Bot }],
-  },
 ];
 
 function isActive(path: string, href: string) {
@@ -140,8 +136,18 @@ export default function Sidebar() {
             <LogOut className="h-[18px] w-[18px]" /> Cerrar sesión
           </button>
           <div className="flex items-center justify-between px-3 pt-1">
-            <span className="text-[10px] uppercase tracking-widest text-wh-grey">Tema</span>
-            <ThemeToggle />
+            {/* easter egg: acceso discreto a Pixel Agents (solo el robot) */}
+            <Link
+              href="/pixel-agents"
+              aria-label="Pixel Agents"
+              className="grid h-6 w-6 place-items-center rounded text-[var(--color-muted)] opacity-25 transition hover:scale-110 hover:text-wh-orange hover:opacity-100"
+            >
+              <Bot className="h-4 w-4" />
+            </Link>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase tracking-widest text-wh-grey">Tema</span>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </aside>
