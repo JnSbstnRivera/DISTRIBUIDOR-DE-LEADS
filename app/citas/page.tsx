@@ -134,7 +134,7 @@ export default function Citas() {
 
       {/* tabla estilo reporte Zoho */}
       <div className="exec-card overflow-x-auto p-0">
-        <table className="w-full border-collapse text-[12px]">
+        <table className="w-max min-w-full border-collapse text-[12px]">
           <thead>
             <tr className="border-b border-[var(--color-line)] bg-[var(--color-subtle)] text-left text-[10px] font-bold uppercase tracking-wide text-[var(--color-muted)]">
               {COLS.map((c) => (
@@ -183,16 +183,17 @@ function GroupRows({ g, colspan, real, editRow, pick, saving, setEditRow, setPic
       {g.rows.map((l: any) => {
         const f = fmtFecha(l.fechaHora || l.fechaCita);
         const editing = editRow === (l.id || l.ref);
-        const td = "border-r border-[var(--color-line)] px-3 py-2 align-top last:border-r-0";
+        const td = "border-r border-[var(--color-line)] px-3 py-2 align-top whitespace-nowrap last:border-r-0";
+        const wrap = "border-r border-[var(--color-line)] px-3 py-2 align-top whitespace-normal last:border-r-0";
         return (
           <tr key={l.ref} className="border-b border-[var(--color-line)] hover:bg-[var(--color-subtle)]">
             <td className={`${td} whitespace-nowrap`}>{f.date}<div className="text-[var(--color-muted)]">{f.time}</div></td>
             <td className={`${td} font-mono text-[11px]`}>{l.ref}</td>
-            <td className={td}>
+            <td className={`${wrap} max-w-[150px]`}>
               {l.id ? <a href={zohoLeadUrl(l.id)} target="_blank" rel="noreferrer" className="font-semibold text-wh-blue hover:underline">{dash(l.nombre)}</a> : dash(l.nombre)}
             </td>
             <td className={td}>{dash(l.leadSource)}</td>
-            <td className={`${td} max-w-[160px]`}>{dash(l.direccion)}</td>
+            <td className={`${wrap} max-w-[170px]`}>{dash(l.direccion)}</td>
             <td className={td}>{dash(l.ciudad)}</td>
             <td className={`${td} whitespace-nowrap`}>{dash(l.estadoZoho || "Cita Coordinada")}</td>
             <td className={td}><span className="font-semibold text-wh-blue">{dash(l.salesRepName)}</span></td>
@@ -202,7 +203,7 @@ function GroupRows({ g, colspan, real, editRow, pick, saving, setEditRow, setPic
             <td className={td}>
               {l.qualityStage ? <span className="whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: "#ece7f6", color: "#6b4fb0" }}>{l.qualityStage}</span> : "-"}
             </td>
-            <td className={`${td} max-w-[150px]`}>{dash(l.citaSeDio)}</td>
+            <td className={`${wrap} max-w-[150px]`}>{dash(l.citaSeDio)}</td>
             <td className={`${td} whitespace-nowrap`}>
               {editing ? (
                 <div className="flex items-center gap-1">

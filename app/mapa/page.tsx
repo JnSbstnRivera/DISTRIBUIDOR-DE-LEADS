@@ -227,30 +227,38 @@ export default function Mapa() {
             )}
           </div>
 
+          <style>{`@keyframes oceanWave{from{transform:translateX(0)}to{transform:translateX(44px)}}@keyframes oceanWave2{from{transform:translateX(0)}to{transform:translateX(-60px)}}`}</style>
           <div
             ref={wrapRef}
-            className="relative flex flex-1 items-center justify-center rounded-2xl p-2"
-            style={{
-              minHeight: "60vh",
-              background: "radial-gradient(120% 120% at 50% 0%, rgba(166,195,230,0.12), transparent 70%)",
-            }}
+            className="relative flex flex-1 items-center justify-center overflow-hidden rounded-2xl p-3"
+            style={{ minHeight: "74vh" }}
             onMouseMove={(e) => {
               const r = wrapRef.current?.getBoundingClientRect();
               if (r) setTip({ x: e.clientX - r.left, y: e.clientY - r.top });
             }}
             onMouseLeave={() => setHovered(null)}
           >
+            {/* ── Mar (fondo) ── */}
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,#072742 0%,#0f4f86 42%,#1d7fc1 78%,#2a96d4 100%)" }} />
+              <div className="absolute inset-0" style={{ background: "radial-gradient(55% 40% at 50% 6%, rgba(255,255,255,0.28), transparent 60%)" }} />
+              <div className="absolute -inset-x-1/4 inset-y-0 opacity-40" style={{ background: "repeating-linear-gradient(115deg, transparent 0 20px, rgba(255,255,255,0.06) 20px 22px)", animation: "oceanWave 16s linear infinite" }} />
+              <div className="absolute -inset-x-1/4 inset-y-0 opacity-30" style={{ background: "repeating-linear-gradient(160deg, transparent 0 30px, rgba(255,255,255,0.05) 30px 32px)", animation: "oceanWave2 26s linear infinite" }} />
+              <span className="absolute left-1/2 top-3 -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.45em] text-white/40">Océano Atlántico</span>
+              <span className="absolute left-1/2 bottom-3 -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.45em] text-white/40">Mar Caribe</span>
+            </div>
+
             <svg
               viewBox={prMap.viewBox}
-              className="w-full"
-              style={{ filter: "drop-shadow(0 12px 26px rgba(8,18,50,0.25))" }}
+              className="relative w-full"
+              style={{ filter: "drop-shadow(0 16px 32px rgba(0,12,34,0.55))" }}
             >
               {MUNIS.map((m) => {
                 const st = stateOf(m);
                 const isHover = hovered?.name === m.name;
                 const isSel = selMuni === m.name;
                 const color = ZONA_COLOR[m.zona] ?? "#888";
-                const opacity = st === "dim" ? 0.12 : st === "active" ? 0.96 : 0.64;
+                const opacity = st === "dim" ? 0.42 : st === "active" ? 1 : 0.9;
                 return (
                   <path
                     key={m.name}
