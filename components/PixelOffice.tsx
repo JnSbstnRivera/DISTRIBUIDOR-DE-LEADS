@@ -190,12 +190,9 @@ export default function PixelOffice({
       onPointerUp={onUp}
       onPointerDown={() => editing && onClearSelection?.()}
     >
-      {/* Logo Pixel Agents en la esquina */}
-      <div className="pointer-events-none absolute flex items-center gap-1.5 rounded-md px-1.5 py-1" style={{ right: 8, bottom: 8, background: "rgba(20,26,55,.82)", border: `1px solid ${C.orange}`, zIndex: 9000 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/agents/pixel/pixel-agents-icon.png" alt="Pixel Agents" width={18} height={18} style={{ imageRendering: "pixelated", borderRadius: 3 }} />
-        <span style={{ color: "#fff", fontWeight: 800, fontSize: 10, letterSpacing: 0.3 }}>Pixel Agents</span>
-      </div>
+      {/* Logo Pixel Agents — discreto en la esquina inferior izquierda, solo el ícono */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/agents/pixel/pixel-agents-icon.png" alt="" className="pointer-events-none absolute" style={{ left: 8, bottom: 8, width: 20, height: 20, imageRendering: "pixelated", borderRadius: 4, opacity: 0.8, zIndex: 9000 }} />
 
       {/* Áreas (pisos) */}
       {layout.rooms.map((room) => {
