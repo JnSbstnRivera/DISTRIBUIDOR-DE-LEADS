@@ -19,9 +19,13 @@ export const F = {
   // confirmados contra la org real (2026-06-22):
   fechaCita: process.env.ZOHO_FIELD_FECHA || "Presenter_Appointment",
   teamAssist: process.env.ZOHO_FIELD_TEAM || "Team_Assitance", // (sí, el API name tiene el typo "Assitance")
+  qualityStage: "Quality_Stage",
+  qualityOwner: "Quality_Owner", // dueño de calidad (analista: Cata, etc.)
 };
 
 export const ESTADO_CITA = process.env.ZOHO_ESTADO_CITA || "Cita Coordinada";
+// Filtro de la cola de Calidad (vacío "" = sin filtro, trae todas). Replica el reporte de Cata.
+export const QUALITY_STAGE = process.env.ZOHO_QUALITY_STAGE ?? "On Hold Quality";
 
 export function zohoConfigured(): boolean {
   return Boolean(process.env.ZOHO_CLIENT_ID && process.env.ZOHO_CLIENT_SECRET && process.env.ZOHO_REFRESH_TOKEN);
@@ -75,18 +79,23 @@ export type CitaZoho = {
   salesRepId?: string;
   ownerId?: string;
   consultor?: { nombre: string; activo: boolean };
+  qualityStage?: string;
+  qualityOwner?: string; // analista de Calidad (Cata, etc.) o "" si sin dueño
 };
 
 export async function getCitasCoordinadas(hoyISO: string): Promise<CitaZoho[]> {
-  // COQL aplana los lookups como "Sales_Rep.Name". Presenter_Appointment es datetime → límite con hora (PR = -04:00).
+  // COQL aplana lookups como "Sales_Rep.Name". Presenter_Appointment es datetime → límite con hora (PR -04:00).
+  // COQL exige PARÉNTESIS al combinar 3+ condiciones con AND.
   const desde = `${hoyISO}T00:00:00-04:00`;
-  const cols = `id, ${F.leadNumber}, ${F.estado}, ${F.ciudad}, ${F.leadSource}, ${F.fechaCita}, ${F.teamAssist}, ${F.salesRep}.id, ${F.salesRep}.Name, ${F.owner}.id, ${F.owner}.first_name, ${F.owner}.last_name`;
-  const q = `select ${cols} from Leads where ${F.estado} = '${ESTADO_CITA}' and ${F.fechaCita} >= '${desde}' order by ${F.fechaCita} asc limit 200`;
+  const cols = `id, ${F.leadNumber}, ${F.estado}, ${F.ciudad}, ${F.leadSource}, ${F.fechaCita}, ${F.teamAssist}, ${F.salesRep}.id, ${F.salesRep}.Name, ${F.owner}.id, ${F.owner}.first_name, ${F.owner}.last_name, ${F.qualityStage}, ${F.qualityOwner}.id, ${F.qualityOwner}.first_name, ${F.qualityOwner}.last_name`;
+  const qstage = QUALITY_STAGE ? ` and ${F.qualityStage} = '${QUALITY_STAGE}'` : "";
+  const q = `select ${cols} from Leads where (${F.estado} = '${ESTADO_CITA}'${qstage}) and (${F.fechaCita} >= '${desde}') order by ${F.fechaCita} asc limit 200`;
   const j = await coql(q);
   const rows: Record<string, unknown>[] = Array.isArray(j?.data) ? j.data : [];
   return rows.map((r) => {
     const srName = r[`${F.salesRep}.Name`] as string | null;
     const team = r[F.teamAssist];
+    const qo = [r[`${F.qualityOwner}.first_name`], r[`${F.qualityOwner}.last_name`]].filter(Boolean).join(" ").trim();
     return {
       id: String(r.id),
       ref: String(r[F.leadNumber] ?? r.id),
@@ -96,8 +105,9 @@ export async function getCitasCoordinadas(hoyISO: string): Promise<CitaZoho[]> {
       leadSource: String(r[F.leadSource] ?? ""),
       salesRepId: (r[`${F.salesRep}.id`] as string) || undefined,
       ownerId: (r[`${F.owner}.id`] as string) || undefined,
-      // consultor = Sales_Rep. activo: regla real pendiente → asumimos activo.
       consultor: srName ? { nombre: srName, activo: true } : undefined,
+      qualityStage: String(r[F.qualityStage] ?? ""),
+      qualityOwner: qo,
     };
   });
 }

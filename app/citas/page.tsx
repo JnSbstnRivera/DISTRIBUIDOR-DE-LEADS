@@ -28,6 +28,7 @@ export default function Citas() {
   const [pick, setPick] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [ownerFilter, setOwnerFilter] = useState("todos"); // filtro por Quality Owner (analista)
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -71,6 +72,12 @@ export default function Citas() {
 
   if (!data) return <div className="text-[var(--color-muted)]">Cargando…</div>;
 
+  const allLeads: any[] = data.leads || [];
+  const owners = Array.from(new Set(allLeads.map((l) => l.qualityOwner || "").filter(Boolean))).sort() as string[];
+  const leads = allLeads.filter((l) =>
+    ownerFilter === "todos" ? true : ownerFilter === "__sin__" ? !l.qualityOwner : l.qualityOwner === ownerFilter
+  );
+
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-2">
@@ -86,6 +93,18 @@ export default function Citas() {
           Fuente: {real ? "Zoho (en vivo)" : "DEMO (mock)"}
         </span>
         <span className="text-xs text-[var(--color-muted)]">{data.rango?.filtro}</span>
+        {/* filtro por analista de Calidad (Quality Owner) — replica el reporte de cada uno */}
+        <select
+          value={ownerFilter}
+          onChange={(e) => setOwnerFilter(e.target.value)}
+          className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-xs font-semibold text-[var(--color-ink)] outline-none focus:border-wh-orange"
+        >
+          <option value="todos">Todas ({allLeads.length})</option>
+          <option value="__sin__">Sin dueño · cola ({allLeads.filter((l) => !l.qualityOwner).length})</option>
+          {owners.map((o) => (
+            <option key={o} value={o}>{o} ({allLeads.filter((l) => l.qualityOwner === o).length})</option>
+          ))}
+        </select>
         {updated && <span className="text-[11px] text-[var(--color-muted)]">Actualizado {updated.toLocaleTimeString()}</span>}
         <div className="ml-auto flex items-center gap-2">
           <a href={ZOHO_LEADS_URL} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-lg border border-[var(--color-line)] px-3 py-1.5 text-xs font-bold text-[var(--color-muted)] transition hover:border-wh-blue hover:text-wh-blue">
@@ -111,7 +130,7 @@ export default function Citas() {
             </tr>
           </thead>
           <tbody>
-            {data.leads.map((l: any) => {
+            {leads.map((l: any) => {
               const via = VIA[l.decision.via] ?? VIA.error;
               const editing = editRow === (l.id || l.ref);
               return (
