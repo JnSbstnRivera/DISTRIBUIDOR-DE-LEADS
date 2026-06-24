@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarClock, MapPin, Send, Tag, Crown, Check, X, Clock } from "lucide-react";
+import { CalendarClock, MapPin, Send, Tag, Check, X, Clock } from "lucide-react";
 import { SectionTitle, ZonaBadge, ZONA_NOMBRE, ZONA_COLOR } from "@/components/ui";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 
@@ -154,9 +154,6 @@ export default function Hoy() {
                   <span className="text-xs text-[var(--color-muted)]">{elegibles.length} elegibles · rotación de hoy</span>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-wh-orange/15">
-                    <Crown className="h-5 w-5 text-wh-orange" />
-                  </span>
                   <div>
                     <div className="exec-label">Le toca a</div>
                     <div className="text-xl font-black text-[var(--color-ink)]">

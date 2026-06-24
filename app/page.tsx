@@ -10,7 +10,6 @@ import {
   Layers,
   MapPin,
   RotateCcw,
-  Crown,
   TrendingUp,
 } from "lucide-react";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
@@ -184,9 +183,6 @@ export default function Dashboard() {
                   )}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-wh-orange/12">
-                    <Crown className="h-4 w-4 text-wh-orange" />
-                  </span>
                   <div className="min-w-0">
                     <div className="exec-label">Le toca a</div>
                     <div className="truncate text-base font-bold text-[var(--color-ink)]">

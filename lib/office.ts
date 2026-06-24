@@ -101,7 +101,7 @@ export type OfficeLayout = {
   logos?: LogoItem[];
 };
 
-export const LAYOUT_REV = 3;
+export const LAYOUT_REV = 4;
 
 export const MIN_COLS = 20;
 export const MAX_COLS = 80;
@@ -128,10 +128,10 @@ export const DEFAULT_LAYOUT: OfficeLayout = {
     { id: "d_dk2", type: "DESK_FRONT", col: 9, row: 4, face: "left" },
     { id: "d_dk3", type: "DESK_FRONT", col: 2, row: 9, face: "right" },
     { id: "d_dk4", type: "DESK_FRONT", col: 9, row: 9, face: "left" },
-    { id: "d_pc1", type: "PC_SIDE", col: 4, row: 4 },                // mira derecha → PC de lado a su derecha
-    { id: "d_pc2", type: "PC_SIDE", col: 9, row: 4, mirrored: true }, // mira izquierda → PC de lado a su izquierda
-    { id: "d_pc3", type: "PC_BACK", col: 4, row: 9 },                // monitor de espaldas (variedad)
-    { id: "d_pc4", type: "PC_SIDE", col: 9, row: 9, mirrored: true },
+    { id: "d_pc1", type: "PC_SIDE", col: 4, row: 4, mirrored: true }, // agente mira derecha → pantalla hacia él (izq)
+    { id: "d_pc2", type: "PC_SIDE", col: 9, row: 4 },                 // agente mira izquierda → pantalla hacia él (der)
+    { id: "d_pc3", type: "PC_BACK", col: 4, row: 9 },                 // monitor de espaldas (variedad)
+    { id: "d_pc4", type: "PC_SIDE", col: 9, row: 9 },
     { id: "ch_1", type: "CUSHIONED_CHAIR_BACK", col: 3, row: 4 },
     { id: "ch_2", type: "CUSHIONED_CHAIR_BACK", col: 10, row: 4 },
     { id: "ch_3", type: "CUSHIONED_CHAIR_BACK", col: 3, row: 9 },
@@ -152,7 +152,7 @@ export const DEFAULT_LAYOUT: OfficeLayout = {
     { id: "d_pnt", type: "LARGE_PAINTING", col: 18, row: 7 },
     { id: "d_bs3", type: "BOOKSHELF", col: 22, row: 7 },
     { id: "d_dk5", type: "DESK_FRONT", col: 19, row: 10, face: "right" },
-    { id: "d_pc5", type: "PC_SIDE", col: 21, row: 10 },
+    { id: "d_pc5", type: "PC_SIDE", col: 21, row: 10, mirrored: true }, // mira derecha → pantalla hacia él
     { id: "ch_5", type: "CUSHIONED_CHAIR_BACK", col: 20, row: 10 },
     { id: "d_lp2", type: "LARGE_PLANT", col: 24, row: 10 },
   ],
@@ -293,6 +293,17 @@ export function randomWalkable(walk: Grid): { col: number; row: number } | null 
   const cells: { col: number; row: number }[] = [];
   for (let r = 0; r < walk.length; r++)
     for (let c = 0; c < walk[0].length; c++) if (walk[r][c]) cells.push({ col: c, row: r });
+  if (!cells.length) return null;
+  return cells[Math.floor(Math.random() * cells.length)];
+}
+
+// Caminable dentro de una caja [x0..x1]×[y0..y1] (el cuarto del agente) → no cruza muros.
+export type Box = { x0: number; y0: number; x1: number; y1: number };
+export function randomWalkableIn(walk: Grid, box: Box): { col: number; row: number } | null {
+  const cells: { col: number; row: number }[] = [];
+  for (let r = Math.max(0, box.y0); r <= Math.min(walk.length - 1, box.y1); r++)
+    for (let c = Math.max(0, box.x0); c <= Math.min((walk[0]?.length ?? 0) - 1, box.x1); c++)
+      if (walk[r]?.[c]) cells.push({ col: c, row: r });
   if (!cells.length) return null;
   return cells[Math.floor(Math.random() * cells.length)];
 }

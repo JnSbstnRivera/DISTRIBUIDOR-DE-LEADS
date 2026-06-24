@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Crown, MapPin, Send, Tag, Check, Ban, Trophy } from "lucide-react";
+import { MapPin, Send, Tag, Check, Ban, Trophy } from "lucide-react";
 import { SectionTitle, ZonaBadge, ZONA_NOMBRE, ZONA_COLOR } from "@/components/ui";
 
 export default function Asignar() {
@@ -140,9 +140,6 @@ export default function Asignar() {
                   <span className="text-xs text-[var(--color-muted)]">{elegibles.length} elegibles</span>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-wh-orange/15">
-                    <Crown className="h-5 w-5 text-wh-orange" />
-                  </span>
                   <div>
                     <div className="exec-label">Le toca a</div>
                     <div className="text-xl font-black text-[var(--color-ink)]">
@@ -213,7 +210,6 @@ export default function Asignar() {
                     transition={{ delay: pi * 0.08, ease: [0.22, 1, 0.36, 1] }}
                     className="flex w-24 flex-col items-center"
                   >
-                    {c.rank === 1 && <Crown className="mb-1 h-5 w-5 text-wh-orange" />}
                     <div className="mb-1 text-center text-[11px] font-semibold leading-tight text-[var(--color-ink)]">
                       {c.gerente.nombre.split(" ").slice(0, 2).join(" ")}
                     </div>

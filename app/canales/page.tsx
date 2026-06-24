@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Radio, Crown, Send, Tag, Ban } from "lucide-react";
+import { Radio, Send, Tag, Ban } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
 
 export default function Canales() {
@@ -106,9 +106,6 @@ export default function Canales() {
                 <span className="text-xs text-[var(--color-muted)]">{elegibles.length} elegibles</span>
               </div>
               <div className="mt-2 flex items-center gap-2">
-                <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: `${color}26` }}>
-                  <Crown className="h-5 w-5" style={{ color }} />
-                </span>
                 <div>
                   <div className="exec-label">Le toca a</div>
                   <div className="text-xl font-black text-[var(--color-ink)]">

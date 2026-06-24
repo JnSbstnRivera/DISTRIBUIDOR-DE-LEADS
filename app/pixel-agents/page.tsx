@@ -10,9 +10,15 @@ import { SectionTitle } from "@/components/ui";
 import PixelOffice, { SpriteImg, type OfficeAgent } from "@/components/PixelOffice";
 import {
   FURN_CATALOG, FLOOR_TILES, TINTS, DEFAULT_LAYOUT, uid, deriveSeats, walkableGrid, bfs,
-  randomWalkable, nearestWalkable, MIN_COLS, MAX_COLS, MIN_ROWS, MAX_ROWS,
+  randomWalkable, randomWalkableIn, nearestWalkable, MIN_COLS, MAX_COLS, MIN_ROWS, MAX_ROWS,
   type OfficeLayout, type FurnCat,
 } from "@/lib/office";
+
+// caja del cuarto que contiene una posición (sin la fila de pared superior) → deambular sin cruzar muros
+function homeBox(layout: OfficeLayout, col: number, row: number) {
+  const r = layout.rooms.find((x) => col >= x.col && col < x.col + x.w && row >= x.row && row < x.row + x.h);
+  return r ? { x0: r.col, y0: r.row + 1, x1: r.col + r.w - 1, y1: r.row + r.h - 1 } : undefined;
+}
 
 const SHEETS = ["char_0", "char_1", "char_2", "char_3", "char_4", "char_5"];
 const TICK = 120; // ms
@@ -42,6 +48,7 @@ function build(mini: Mini[], layout: OfficeLayout): OfficeAgent[] {
       id: m.id, nombre: m.nombre, sheet: m.sheet || "char_0",
       col: start.col, row: start.row, path: [],
       seat: seat ? { col: seat.col, row: seat.row } : null, seatFace: face,
+      home: homeBox(layout, start.col, start.row),
       // arranca sentado en su escritorio (de perfil); si no tiene asiento, idle
       state: seat ? "sitting" : "idle", facing: seat ? face : "down",
       frame: 0, wait: Math.round(rnd(8, 40)), goingSeat: false,
@@ -131,7 +138,7 @@ export default function PixelAgents() {
         const n = nearestWalkable(walk, Math.round(col), Math.round(row));
         if (n) { col = n.col; row = n.row; }
       }
-      return { ...a, seat: seat ? { col: seat.col, row: seat.row } : null, seatFace: seat?.face ?? a.seatFace, col, row, path: [], state: a.state === "walking" ? "idle" : a.state, wait: Math.round(rnd(4, 20)) };
+      return { ...a, seat: seat ? { col: seat.col, row: seat.row } : null, seatFace: seat?.face ?? a.seatFace, home: homeBox(layout, seat?.col ?? Math.round(col), seat?.row ?? Math.round(row)) ?? a.home, col, row, path: [], state: a.state === "walking" ? "idle" : a.state, wait: Math.round(rnd(4, 20)) };
     }));
   }, [layout]);
 
@@ -172,7 +179,8 @@ export default function PixelAgents() {
           if (wait <= 0) {
             // pasan la mayoría del tiempo sentados; rara vez se paran a caminar y vuelven
             const goSeat = !!seat && (busyRef.current.has(a.id) ? Math.random() < 0.95 : Math.random() < 0.8);
-            const goal = goSeat ? seat! : randomWalkable(walk);
+            // al deambular, solo dentro de su propio cuarto (no cruza muros)
+            const goal = goSeat ? seat! : (a.home ? randomWalkableIn(walk, a.home) : randomWalkable(walk));
             if (goal) {
               const extra = seat ? new Set([`${seat.col},${seat.row}`]) : undefined;
               const p = bfs(walk, { col: Math.round(col), row: Math.round(row) }, goal, goSeat ? extra : undefined);

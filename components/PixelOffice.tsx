@@ -16,6 +16,7 @@ export type OfficeAgent = {
   path: { col: number; row: number }[];
   seat: { col: number; row: number } | null;
   seatFace: Facing; // de perfil/espaldas al sentarse
+  home?: { x0: number; y0: number; x1: number; y1: number }; // cuarto donde deambula (no cruza muros)
   state: AgentState; facing: Facing; frame: number; wait: number; goingSeat: boolean;
 };
 
