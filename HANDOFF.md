@@ -1,194 +1,148 @@
 # 🪟 HANDOFF — Distribuidor de Leads · Windmar Home
 
-> Documento de traspaso para **continuar en un chat nuevo**. Léelo completo: tiene el estado, la lógica de negocio, la arquitectura, lo pendiente y cómo seguir.
+> Traspaso para **continuar en un chat nuevo**. Léelo completo: estado, arquitectura, lógica, dónde vive la data, pendientes y roadmap.
+> _Última actualización: 2026-06-24._
 
 ---
 
-## 0) Cómo continuar en un chat nuevo (lee esto primero)
+## 0) Cómo continuar (lee esto primero)
 
-1. Proyecto en: `C:\Claude Code\DISTRIBUIDOR DE LEADS MIGUEL\app-distribuidor`
-2. Arrancar:
+1. **Proyecto:** `C:\Claude Code\DISTRIBUIDOR DE LEADS MIGUEL\app-distribuidor`
+2. **En producción (la empresa):** https://distribuidor-de-leads.vercel.app · login **ADMIN / 1234\*** · Vercel team **`windmar`**. **Push a `master` = auto-deploy.**
+3. **Repo:** https://github.com/JnSbstnRivera/DISTRIBUIDOR-DE-LEADS (público).
+4. **Local:**
    ```powershell
    cd "C:\Claude Code\DISTRIBUIDOR DE LEADS MIGUEL\app-distribuidor"; npm install; npm run dev
    ```
-   Abrir **http://localhost:3010** → login **ADMIN / 1234\***
-3. Fuente original (Excel + Word de Miguel): `C:\Claude Code\DISTRIBUIDOR DE LEADS MIGUEL\` (`Distribucion de Leads.xlsx`, `Criterios de Asignación de Leads.docx`).
-4. El repo de referencia de los pixel agents (assets + editor de layout para portar): `C:\Claude Code\DISTRIBUIDOR DE LEADS MIGUEL\pixel-agents-main\` (licencia **MIT**).
-5. Pégale al nuevo asistente: *"Lee `app-distribuidor/HANDOFF.md` y continúa."*
+   http://localhost:3010 (Next lee `.env.local` al **arrancar** → reiniciar tras cambiar env).
+5. **Fuentes:** Excel/Word de Miguel en `C:\Claude Code\DISTRIBUIDOR DE LEADS MIGUEL\` (`Distribucion de Leads.xlsx`, `Criterios de Asignación de Leads.docx`). Repo de assets pixel: `pixel-agents-main/` (MIT).
+6. **🔑 Decisión que desbloquea la Fase B (preguntar al usuario):** al asignar una cita, ¿qué campo se escribe en Zoho? **A)** `Sales_Rep` · **B)** `Gerente_Asignado` ("Sales Assist") · **C)** solo nota por ahora.
 
 ---
 
-## 1) Qué es y objetivo
+## 1) Qué es y visión
+App que **reemplaza el Excel de distribución de leads de Miguel** y la **vista manual de Zoho de Cata**. Personas: **Miguel Bethencourt** (jefe), **Catalina "Cata" Castro** + otros analistas de **Calidad**, **Andrés Rengifo** (técnico/Zoho).
 
-App que **reemplaza el Excel de distribución de leads de Miguel** (Telemercadeo/Calidad) y, a futuro, la **vista manual de Zoho de Cata**. Reunión base con **Miguel Bethencourt** (jefe) y **Catalina (Cata)**; **Andrés Rengifo** es el par técnico que dará acceso a Zoho.
-
-**Visión final:** Cata ya no mira Excel ni filtra Zoho a mano. Un **agente** lee las *citas coordinadas* de Zoho, **decide la asignación** según los criterios de Miguel/Cata, **N8N** notifica por Teams/correo y **Miguel aprueba/rechaza**.
+**Visión:** la app lee las citas coordinadas de Zoho, **decide la asignación** con las reglas del Excel, **N8N** notifica a Miguel por Teams/correo y él **aprueba**.
 
 ---
 
-## 2) Stack y cómo está hecho
+## 2) ESTADO ACTUAL (qué funciona hoy) ✅
+- 🌐 **EN VIVO en producción** (Vercel windmar) **conectado a Zoho real**.
+- **Citas (`/citas`)**: réplica del **reporte de Calidad de Zoho** — cola **On Hold Quality**, columnas idénticas (Cita Date/Time, Lead#, Lead Name, Lead Source, Dirección, City, Lead Status, Sales Rep, Post-Cita, Lead Owner, Team Assistance-Viejo, Quality Stage pill, ¿Cita se dió?), agrupado por fecha, **filtro por analista (Quality Owner)**, tabla con scroll horizontal. Columna extra **"Distribuidor"** (sugerencia del motor + Reasignar consultor → escribe en Zoho).
+- **Distribución Hoy (`/hoy`)**: tarjeta **en vivo** con las citas coordinadas **de hoy** + a quién le toca por la rotación same-day.
+- **Asignar (`/asignar`)**, **Cumplimiento**, **Mapa** (con fondo de mar), **Gerentes**, **Black List**, **Historial**, **Dashboard** — todo funcional con el motor del Excel.
+- **Pixel Agents** (escondido, easter-egg): oficina con agentes que reaccionan a Zoho en vivo.
+- **MANUAL por ahora** (Calidad asigna con clic). La escritura real del campo de asignación espera la decisión A/B/C.
 
-- **Next.js 16** (App Router) + **React 19** + **TypeScript** + **Tailwind v4**.
-- **Recharts** (gráficos), **Framer Motion** (animación), **Lucide** (iconos), **next-themes** (claro/oscuro).
-- **Auth**: cookie + `middleware.ts` (gating). Login `ADMIN/1234*` (igual panel Ventas).
-- **Persistencia**: archivo JSON (`data/data.json`, se regenera de `data/seed.json`). **Fase 2 = Supabase** schema `distribuidor`.
-- Puerto **3010**. Config preview en `C:\Claude Code\.claude\launch.json` (nombre `distribuidor`).
+---
 
-### Estructura
+## 3) Stack, arquitectura y DÓNDE VIVE LA DATA
+**Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind v4 · Recharts · Framer Motion · Lucide · next-themes. Auth = cookie + `middleware.ts` (login ADMIN/1234*). Puerto 3010.
+
+**🗄️ Dónde se guarda la data (importante):**
+| Capa | Qué guarda | Persiste? |
+|---|---|---|
+| **Zoho CRM** | Leads, citas, consultores, Quality Owner — la **verdad del negocio**. La app lo lee en vivo y (Fase B) escribe de vuelta. | ✅ (es Zoho) |
+| **GitHub → Vercel** | Código + **reglas del Excel** (`engine.ts`). | ✅ |
+| **Vercel Env Vars** | Credenciales Zoho (8 `ZOHO_*`). | ✅ (no en repo) |
+| **Memoria del server** | Estado de rotación (cargas, asignaciones, blacklist, hoy) arrancando de `seed.json`. | ⚠️ **NO** (serverless efímero) → **Fase 2 Supabase** |
+| **localStorage navegador** | SOLO la oficina Pixel Agents (decorativo). | por navegador |
+
+**Estructura:**
 ```
 app/
-  page.tsx            Dashboard (KPIs + charts + próximo turno por zona)
-  citas/              Citas Coordinadas (Zoho) + motor de decisión   ← lógica de negocio
-  asignar/            Asignar lead (rotación futura por zona)
-  hoy/                Distribución HOY (citas mismo día) + Contestó/No
-  canales/            Canales secundarios (Media/Booth/Instagram)
-  cumplimiento/       Dashboard de cumplimiento (Contestado vs No)
-  mapa/               Mapa interactivo PR (78 municipios) + lista
-  gerentes/           Opt-in por zona, ajuste, Tier 2, blacklist
-  blacklist/          Listas con vencimiento automático
-  historial/          Bitácora de asignaciones de la sesión
-  pixel-agents/       Oficina pixel top-down (agentes que caminan/trabajan)
-  login/              Login con fondo animado "Background Paths"
-  layout.tsx, template.tsx, globals.css
-  api/                state, asignar, gerente, reset, hoy, canales, cumplimiento,
-                      login, logout, zoho/leads
+  page.tsx (Dashboard) · citas/ (réplica reporte Calidad) · asignar/ · hoy/ (live)
+  canales/ · cumplimiento/ · mapa/ · gerentes/ · blacklist/ · historial/ · pixel-agents/ · login/
+  api/
+    state, asignar, gerente, reset, hoy, canales, cumplimiento, login, logout
+    zoho/{leads, hoy, sales_team, users, assign, note}   ← integración Zoho
 lib/
-  engine.ts           Motor de rotación (zona, HOY, canal) + blacklist
-  decision.ts         Cascada de decisión de citas coordinadas (Zoho)
-  store.ts            Almacén file-backed (seed → data)
-  types.ts            Tipos (DB, Gerente, Asignacion, HoyAsignacion, Canal, ...)
-  office.ts           Motor Pixel Agents: grid de tiles, catálogo muebles, áreas,
-                      asientos, walkable/blocked grids, BFS pathfinding
-components/
-  Sidebar, ThemeToggle/Provider, AnimatedBackground (aurora), BackgroundPaths,
-  charts, ui, AnimatedCounter, Reveal, PixelOffice
-data/  seed.json (extraído del Excel) · data.json (runtime) · pr_map.json (mapa)
-public/agents/  clean/ (sprites ChatGPT procesados) · pixel/ (char_0..5 + office/)
-scripts/  build_map.py · process_sprites.py · recolor_chars.py
+  engine.ts   Motor de rotación del Excel (zona, HOY, canal, blacklist)
+  decision.ts Cascada de decisión de citas coordinadas
+  zoho.ts     Cliente Zoho (token servicio, COQL, getCitasCoordinadas, getSalesTeam, updateLead, addNote)
+  store.ts    Almacén (seed importado → memoria; serverless-safe)
+  office.ts   Motor Pixel Agents (grid tiles, catálogo, áreas, asientos, BFS)
+  types.ts
+data/  seed.json (del Excel) · pr_map.json (mapa SVG PR)
+public/agents/pixel/  char_0..5 (personajes) · office/ (muebles+pisos) · windmar-logo.png · pixel-agents-icon.png
 ```
 
 ---
 
-## 3) El motor (lo que descifré del Excel) — `lib/engine.ts`
+## 4) ⭐ El motor del Excel — `lib/engine.ts`
+**Rotación equitativa por zona:** `carga = histórico + ajuste + asignaciones`. El próximo lead → gerente **opted-in, no blacklist, con MENOR carga**. **Ajuste** nivela a los que entraron tarde. **Tier 2 = mitad** (peso ×2). 6 zonas (SJ1, SJ2/Caguas, HAT, PON, MAYA, COR), 78 municipios→zona, ~50 gerentes.
 
-**Rotación equitativa por zona:** `carga efectiva = histórico + ajuste + asignaciones`. El próximo lead va al gerente **opted-in con MENOR carga**, no blacklisteado. El **ajuste** iguala a quien entró tarde. **Tier 2 = mitad de leads** (peso ×2). **Cordillera = opcional**.
+**Fórmulas reales (hoja `Dashboard - Leads`, verificado):**
+- `Offers-T1-{zona}` (carga) = `COUNTIFS(DistribucionLeads[zona], gerente) + Ajuste` (excluye BlackList; Tier2 marca aparte).
+- `Rank-{zona}` = menor T1 = rank 1 = siguiente. Tier 2 llega a rank 1 cada 2 vueltas.
+- Variante **Hoy**: igual contra las citas del día (se reinicia diario; primero-en-responder).
 
-- 6 zonas: `SJ1` San Juan 1 · `SJ2` San Juan 2 (Caguas) · `HAT` Hatillo · `PON` Ponce · `MAYA` Mayagüez · `COR` Cordillera. 78 municipios → zona.
-- 50 gerentes, ~5.320 asignaciones históricas, blacklist real (extraídos a `seed.json`).
-- Funciones: `rankZona/proximoGerente`, `rankZonaHoy/proximoGerenteHoy` (HOY = solo citas del día, se reinicia), `rankCanal/proximoGerenteCanal`, `blacklistActiva`, `zonaDeMunicipio`.
+**Funciones:** `rankZona/proximoGerente`, `rankZonaHoy/proximoGerenteHoy`, `rankCanal/proximoGerenteCanal`, `blacklistActiva`, `zonaDeMunicipio`.
 
-**Reglas (Word de Miguel):** cita mismo día = oferta Teams primero-en-responder (tope 1/gerente/zona/semana); cita futura = distribuidor; lead recurrente (con deal) → consultor existente; confirmación 20 min o pierde turno; blacklist 1ª 30d / 2ª 3 meses / 3ª permanente; top 50% cierre da prioridad.
-
-**Fórmulas reales del Excel (hoja `Dashboard - Leads`, verificado 2026-06-22):** por zona (SJ1/SJ2/HAT/PON/MAYA/COR) y su variante "Hoy":
-- `Opt In - {zona}` = 1 si el gerente participa en esa zona.
-- `Ajuste - {zona}` = handicap manual (ej. 10) para nivelar a los que entraron tarde.
-- `Black List` = `COUNTIFS(BlackList[Nombre De Consultor], gerente)` → >0 excluye.
-- `Offers - T1 - {zona}` (carga efectiva) = `IF(OptIn>0, IF(BlackList>0,"Black List", IF(Tier2>0,"Tier 2", COUNTIFS(DistribucionLeads[zona], gerente) + Ajuste)), "")`.
-- `Offers - T2 - {zona}` = igual pero sin la rama Tier2 (cuenta cruda + Ajuste).
-- `Rank - {zona}` = `IF(MIN(todos T1) - esteT2 == Tier2, 1, RANK.EQ(esteT1, columna T1, asc))` → **el de menor carga = rank 1 = siguiente**; Tier 2 solo llega a rank 1 cada 2 vueltas (= mitad de leads).
-- Variante **Hoy**: idéntica contra `DistribucionLeadsHoy` (citas del día, se reinicia).
-→ El motor `engine.ts` ya implementa esto (carga = histórico+ajuste+asignaciones; próximo = opted-in no-blacklist con menor carga; Tier2 peso ×2). Mapeo Zoho: el "consultor" del Excel = campo **`Sales_Rep`** (módulo Sales_Team), el "asesor/dueño" = **`Owner`**.
+**Cascada de decisión (`decision.ts`):** 1) ¿tiene Deal? → consultor del Deal. 2) ¿consultor activo? → se mantiene; inactivo → gerente líder. 3) sin consultor → **Distribuidor** (rotación hoy/futura).
 
 ---
 
-## 4) ⭐ Lógica de decisión de Citas Coordinadas (Zoho) — `lib/decision.ts`
-
-Disparador en Zoho: `Lead Status = "Cita coordinada"` y `Fecha ≥ hoy`. **Cascada** (función `decidir(db, lead)`):
-
-1. **¿Tiene Deal?** → respetar al **dueño del Deal** (consultor del deal).
-2. **¿Consultor asignado?**
-   - activo → se mantiene.
-   - inactivo → **gerente líder**; si el gerente también inactivo → **Distribuidor**.
-3. **Sin consultor** → **Distribuidor** (rotación HOY si la fecha es hoy, futura si no).
-
-Campos Zoho necesarios (solo-lectura): `Lead Status`, `Fecha de cita`, `Ciudad` (→ zona), `Team Assistance` (TELEMERCADEO/VENTAS/VASS), `Lead Source`, `Consultor/Owner` + activo/inactivo, `Deal + Deal Owner`, jerarquía `Reporting To` (consultor→gerente).
-
-**Estado actual (2026-06-22): BACKEND ZOHO LISTO, conmutable por env.** Cliente en `lib/zoho.ts` (token de servicio, COQL, getSalesTeam, getUsers, updateLead Sales_Rep/Owner, addNote firma BOT). Rutas:
-- `/api/zoho/leads` → REAL (COQL `Lead_Status=Cita coordinada AND fecha≥hoy`) si hay credenciales, si no MOCK (software vivo). Corre `decidir()` en cada lead.
-- `/api/zoho/sales_team` (consultores), `/api/zoho/users` (asesores), `/api/zoho/assign` POST (cambia Sales_Rep/Owner + nota), `/api/zoho/note` POST.
-- Activación: llenar `ZOHO_CLIENT_ID/SECRET/REFRESH_TOKEN` en `.env.local` (ver `.env.example`). Sin eso → modo demo (503 en escrituras, [] en listas).
-- **Vista `/citas`**: conectada, **botón Actualizar + auto-refresh (60s + al volver a la pestaña)**, fuente "Zoho (en vivo)" vs "DEMO", y **Reasignar consultor** (Calidad) que escribe `Sales_Rep` vía `/api/zoho/assign` (habilitado solo en vivo).
-- 🌐 **EN PRODUCCIÓN (Vercel team `windmar`)**: https://distribuidor-de-leads.vercel.app (login ADMIN/1234*). Live con Zoho (91 citas). Conectado al repo GitHub → push a master = auto-deploy. Env vars (8 ZOHO_*) en el proyecto Vercel. Store hecho serverless-safe (seed importado + escrituras best-effort; las asignaciones manuales no persisten entre instancias hasta Supabase). PAT/secretos NO en el repo.
-- ✅ **CONECTADO EN VIVO (2026-06-22)**: credenciales en `.env.local` (gitignored), refresh token con 11 scopes. API names **confirmados** contra la org: fecha=`Presenter_Appointment`, team=`Team_Assitance` (con typo), estado=`Cita Coordinada`. COQL probado: **91 citas coordinadas** reales fecha≥hoy + 4257 Sales_Team. Owner se consulta con `Owner.first_name/last_name/id` (NO `full_name`). **Para ver `/citas` en vivo hay que reiniciar `npm run dev`** (Next carga `.env.local` al arrancar).
-- ⚠️ **Pendiente**: regla de consultor **inactivo** (hoy se asume activo); enriquecer con Deal (COQL no hace join → query aparte a Deals si se quiere la rama "Deal→owner").
+## 5) Integración Zoho (LIVE) — `lib/zoho.ts`
+- **Org US `.com`, ORG 699641359.** Auth = token de servicio (refresh token en `.env.local` + Vercel env, **NO en repo**). Reutilizable en otros proyectos Windmar (misma org).
+- **Scopes (11):** `leads.READ/CREATE/UPDATE, deals.READ, notes.ALL, attachments.CREATE, custom.READ, users.READ, settings.fields.READ, settings.layouts.READ, coql.READ`.
+- **API names confirmados (contra org real):**
+  - Estado: `Lead_Status = 'Cita Coordinada'` · Fecha cita: **`Presenter_Appointment`** (datetime) · Ciudad: `City` · Dirección: **`Direcci_n`** (no `Street`) · Nombre: `Full_Name`.
+  - Consultor: **`Sales_Rep`** (lookup módulo `Sales_Team`, ~4257) · Asesor/dueño: `Owner` (subcampos `first_name/last_name/id`, **NO** `full_name`).
+  - **`Quality_Stage`** (On Hold Quality / Cita Confirmada / Ofrecida / Rechazada / On Hold Cita / Quality Audited) · **`Quality_Owner`** (analista: *Andrea Catalina Castro = Cata*, *Francisco Quiñones*, *Julieth Torres*; "sin dueño" = cola por repartir).
+  - `Team_Assitance` (multiselect, **typo** en el API name = el nuevo) vs `Team_Assistance` ("- Viejo") · `Post_Cita_Status` · `Qualified_Lead` ("¿Cita se dió?").
+- **El reporte de Calidad** = `Lead_Status='Cita Coordinada' AND Quality_Stage='On Hold Quality' AND Quality_Owner=<analista>`. La cola **"Sin dueño"** son las que faltan repartir (la app las muestra y filtra por analista).
+- **⚠️ COQL gotchas:** 3+ condiciones AND requieren **paréntesis** `(a and b) and (c)` o `SYNTAX_ERROR`; `count()` NO soportado; sin JOIN (Deal aparte); datetime con hora; la org devuelve `-05:00`.
+- **Rutas:** `/api/zoho/leads` (cola On Hold Quality + decisión), `/api/zoho/hoy` (citas de hoy + rotación), `/api/zoho/sales_team`, `/api/zoho/users`, `/api/zoho/assign` (POST escribe Sales_Rep/Owner + nota), `/api/zoho/note`. Todas **conmutan a MOCK** si no hay credenciales (`zohoConfigured()`).
+- **Reportes de Zoho** que usan los analistas: `crm.zoho.com/.../tab/Reports/list?category=everything` (no se listan por API; sí replicamos su data por COQL).
 
 ---
 
-## 5) Pixel Agents — oficina top-down
-
-- **Assets**: tomados del repo **pixel-agents-main** (MIT). Personajes **animation-ready** `char_0..5` (formato **7×3, 16×32**: fila0=abajo, 1=arriba, 2=derecha [izq=espejo]; columnas **walk1, walk2(idle), walk3, type1, type2, read1, read2**). Tileset real (pisos/muebles) en `public/agents/pixel/office/`.
-- **Motor visual** (`components/PixelOffice.tsx`): FSM caminar→trabajar(teclear, sentado con offset)→idle; `SpriteImg` recorta frames por `SHEET_META`. Agentes en % con `transition` suave.
-- **Gestión** (`app/pixel-agents/page.tsx`): agregar/quitar agentes, editar nombre(función)/cuarto(Workspace/Reunión/Gerencia)/modelo; persiste el roster en localStorage. Logos "WINDMAR HOME" dentro.
-- **Scripts**: `process_sprites.py` (limpia hojas de ChatGPT), `recolor_chars.py` (ropa→azul Windmar).
-
-### ✅ Reescrito 2026-06-19 a MODELO DE GRID DE TILES (control total) — sigue siendo DOM, no canvas
-A pedido del usuario ("control total: agregar áreas, escritorios libres, ampliar oficina, que anden por TODA la oficina esquivando muebles") se migró del modelo de % fijo a un **grid de tiles** (estilo repo pixel-agents) renderizado en DOM. Motor nuevo en **`lib/office.ts`**.
-
-- **`lib/office.ts`** (motor, sin React): `FURN_CATALOG` (footprint en TILES), tipos `Room/Furn/LogoItem/OfficeLayout`, `DEFAULT_LAYOUT` (40×22, 3 áreas), grids derivados `floorGrid/blockedGrid/walkableGrid`, `deriveSeats` (asiento = fila SUPERIOR del escritorio), **`bfs`** (4-vecinos, con set `extra` para el asiento sobre el mueble), `randomWalkable/nearestWalkable`, límites de tamaño.
-- **Caminar por toda la oficina** ✅ — agentes en coords de tile (float, interpolado); FSM en `page.tsx`: idle→elige meta (45% su escritorio, 55% celda aleatoria de TODA la oficina)→`bfs`→camina esquivando muebles→trabaja/idle. Áreas adyacentes quedan conectadas (validado: 665 celdas, 0 islas).
-- **Sentarse natural (z-sort)** ✅ — `zFromRow(bottomRow)`; agente sentado z = `row+1.5`, escritorio z = `row+2` → escritorio delante, **tapa piernas** (verificado: agente 179 < escritorio 180, etc.). Etiquetas z:8500.
-- **Fase A estética (2026-06-22)**: paredes traseras 3D por cuarto (cap claro + cara navy + sombra, donde cuelgan cuadros/estantes); pisos con tinte CSS (8 pisos, madera/azul/neutro); sillas detrás de cada agente; monitores compactos (electrónica escala 0.8) sobre el escritorio; logos Windmar enmarcados conservados; barra "Actividad en vivo" + panel contraíble + click-para-editar. Versión DOM-fiel; el pixel-exacto (autotile `walls.png`, pisos HSL, surface-items, pathfinding suave) requiere portar el motor canvas del repo.
-- **UI**: oficina arriba (acotada a `max-w-[1000px]` centrada) + **panel de personalización full-width ABAJO** con las 5 pestañas. **Click-para-editar**: tocar un agente/mueble/logo en el lienzo lo selecciona y abre su pestaña (`onPick*` en PixelOffice → `pick*` en page). Muebles/logos arrastrables siempre; áreas solo en pestaña "Áreas" (`areasMode`). Escalas balanceadas: `AGENT_SCALE` (1.5) y `FURN_SCALE` (1.15, solo visual, anclado al borde inferior; footprint/colisión intactos).
-- **Control total (panel derecho → 5 pestañas)** ✅:
-  - **Agentes**: nombre, modelo, agregar/quitar (cada uno toma un escritorio libre).
-  - **Muebles**: paleta por categoría, arrastrar (encaja a tile), espejar, borrar, **Restaurar oficina**.
-  - **Áreas**: agregar/renombrar/borrar cuartos, picker de piso (floor_0/3/5), arrastrar + **redimensionar** (handle naranja en el lienzo).
-  - **Tamaño**: ± columnas/filas (20–80 × 12–50) para ampliar la oficina.
-  - **Logo**: agregar logo pixel-art por URL/dataURL, arrastrar + redimensionar dentro de la oficina (`LogoItem`).
-- **Persistencia**: layout completo en `localStorage["pixelOfficeLayoutV2"]`; roster en `["pixelOfficeAgents"]` (sin `room`).
-
-### ⚠️ Pendiente de pulir en Pixel Agents
-1. **Logo del usuario**: cuando pase el PNG, guardarlo en `public/agents/pixel/` y dejar la ruta en la pestaña Logo (o ya lo agrega él por URL/dataURL).
-2. **Colisión al editar**: el editor no impide solapar muebles/áreas ni colocar fuera de un cuarto; el motor lo tolera (esas celdas no son caminables) pero faltaría validación visual (ghost verde/rojo del repo).
-3. **Tuning visual**: `SIT_OFFSET` (0.16) y el offset z de caminar (0.9) si hace falta ajustar cobertura/orden — ver en navegador real.
-4. **Caminata aún más fina**: el paso es lineal por celdas (BFS 4-vecinos); el repo añade diagonal/suavizado. Mesa de reunión (4 de alto) tapa bastante al agente sentado; si molesta, sentarlo en un borde lateral.
+## 6) Pixel Agents — `lib/office.ts` + `components/PixelOffice.tsx` + `app/pixel-agents/page.tsx`
+- **Modelo de grid de tiles** (DOM, no canvas). `DEFAULT_LAYOUT` actual = **28×15**, 3 áreas (Workspace, Reunión, Gerencia). `LAYOUT_REV=4` (al subirlo, recarga el layout viejo del navegador).
+- **Escala NATIVA** (como el repo): `AGENT_SCALE=1.0`, `FURN_SCALE=1.0`, electrónica 0.8.
+- **Comportamiento:** inactivo = **sentado** en su escritorio; con trabajo real (Zoho) = **tecleando**. Se sientan **de perfil** mirando su monitor (`face` por escritorio en el layout). Monitores **PC_SIDE / PC_BACK** espejados para apuntar al agente. **Deambulan solo dentro de su cuarto** (`homeBox`) → **no cruzan muros**. z-sort: el escritorio tapa las piernas.
+- **Estado en vivo:** la página consulta `/api/zoho/leads` (45s); agentes reaccionan (Zoho Sync lee, Distribuidor trabaja si hay citas sin consultor) con burbuja de estado real (`busyRef`).
+- **Editor:** botón **Editar / Dejar de editar** (por defecto solo se ven). 5 pestañas: Agentes, Muebles, Áreas, Tamaño, Logo. Click-para-editar, arrastrar/redimensionar, **botón Guardar cambios**. Persiste en `localStorage`.
+- **Acceso = easter egg:** robot discreto en la esquina inferior izquierda del sidebar (ya NO está en el menú).
+- **Pendiente estético:** paredes con autotile real (`walls.png`), pisos HSL, pathfinding diagonal — requieren portar el motor canvas del repo.
 
 ---
 
-## 6) Cobertura del Excel (pestaña por pestaña)
+## 7) 🗺️ ROADMAP (cómo continuar)
+**▶️ FASE B — cerrar el ciclo de asignación (siguiente)**
+1. Botón **"Distribuir"** en `/citas` (cola "Sin dueño") → aplica rotación del Excel (zona/carga) → **escribe en Zoho** (campo según decisión **A/B/C**) → registra en Historial. *(BLOQUEADO por la decisión A/B/C.)*
+2. **Historial + export a Excel** de lo repartido.
 
-| Excel | App | Estado |
-|---|---|---|
-| Leads Digitales | Asignar | ✅ |
-| Distribucion HOY | Hoy | ✅ |
-| Dashboard HOY | Cumplimiento | ✅ (sembrado 45/14 = 76%) |
-| Dashboard Leads | Dashboard | ✅ |
-| Zonas-Pueblos | Mapa | ✅ |
-| Booth\|Media + Instagram | Canales | ✅ |
-| Black List | Black List | ✅ |
-| Pivots | Dashboard/charts | ✅ |
-| **PP Hatillo** · **Histórico** | — | ⏳ pendiente |
+**FASE 2 — persistencia real (Supabase)**
+3. Migrar el estado de rotación (cargas, asignaciones, blacklist, historial) a **Supabase**. ⚠️ Usar el proyecto de la EMPRESA **"Dashboards - Jnsbstn Rivera"** (org WindMar Home, Vercel Marketplace), schema `distribuidor`. La org Marketplace no la alcanza el connector OAuth → operar con **Management API + PAT** (ver memoria `reference-supabase-windmar-home-mgmt-api`).
 
----
+**FASE 3 — automatización (N8N)**
+4. Endpoint **`/api/distribuir`** (que N8N pueda llamar).
+5. Flujo **N8N**: trigger (cita pasa a Cita Coordinada/On Hold Quality — webhook Zoho `notifications.ALL` o schedule) → llama la app → **avisa a Miguel por Teams/correo** → al aprobar, escribe en Zoho.
 
-## 7) Pendientes priorizados (roadmap)
-
-1. **Zoho real (solo-lectura)** — depende del acceso de **Andrés**. Reemplazar mock en `/api/zoho/leads`.
-2. **N8N + aprobación de Miguel** (Teams/correo, aprobar/rechazar) — agente N8N.
-3. **Escritura a Zoho** (registrar asignación) — fase 3.
-4. **Pixel Agents**: ✅ seating z-sorted + editor de muebles (2026-06-19). Falta: acoplar escritorios↔asientos, editar zonas/cuartos, pathfinding BFS (ver §5).
-5. **PP Hatillo** (canal) e **Histórico** (vista archivo).
-6. **Migrar a Supabase** (schema `distribuidor`) + deploy Vercel.
-7. Validación verde: cargar ~5.320 repartos históricos y comparar motor vs Excel.
+**Otros pendientes**
+6. Regla de **consultor inactivo** (hoy se asume activo) + rama **Deal→owner** (query aparte a Deals).
+7. Cobertura Excel faltante: **PP Hatillo** (canal) e **Histórico** (vista archivo).
+8. Validación: cargar ~5.320 repartos históricos y comparar motor vs Excel.
+9. **Seguridad:** la URL es pública con login simple y escribe en Zoho producción → endurecer login / roles antes de uso amplio.
 
 ---
 
-## 8) Tiempos / cadencia (propuesta para Miguel/Cata)
-
-- Zoho citas de HOY: revisar ~cada 10 min (o webhook = tiempo real). Futuras: ~cada 1 h.
-- Asignación: inmediata al detectar cita sin consultor.
-- Aprobación de Miguel: notificación inmediata; ventana 30 min; si no responde → recordatorio/escala.
-- Cumplimiento: reporte diario + on-demand.
-
-## 9) Preguntas abiertas (definir con Cata/Miguel/Andrés)
-① ¿Cómo se sabe que un consultor/gerente está **inactivo**? · ② ¿Jerarquía consultor→gerente en Zoho (`Reporting To`)? · ③ ¿`Team Assistance` cambia la rotación o solo etiqueta? · ④ ¿Aprueba solo Miguel? ¿timeout? · ⑤ ¿Escritura a Zoho ahora o después? · ⑥ ¿Webhook o polling? · ⑦ ¿Se mantiene el tope 1/gerente/zona/semana en citas de hoy?
+## 8) Preguntas abiertas (definir con Cata/Miguel/Andrés)
+1. **🔑 ¿Qué campo escribe el Distribuidor en Zoho?** (A `Sales_Rep` / B `Gerente_Asignado` / C nota) — **bloquea Fase B**.
+2. ¿Cómo se sabe que un consultor está **inactivo**?
+3. ¿`Team Assistance` cambia la rotación o solo etiqueta?
+4. ¿Aprueba solo Miguel? ¿timeout/escala?
+5. ¿Webhook o polling para el trigger?
+6. ¿Se mantiene el tope 1/gerente/zona/semana en citas de hoy?
 
 ---
 
-## 10) Notas técnicas
-- Login requerido; assets `/agents/**` excluidos del middleware.
-- `preview_screenshot` se cuelga con animaciones infinitas (aurora/loops) — verificar en navegador real.
-- Plan visual para Miguel: Artifact (ver historial) + `scratchpad/plan-distribuidor.html`.
-- Memorias relevantes (carpeta memory): `project_distribuidor_leads`, `reference_windmar_brand`, `project_windmar_ai_agent_zoho` (agente Zoho ya tiene `asignar_leads`).
-
-_Última actualización: 2026-06-19 · v1 funcional en localhost (Fase 0) · Pixel Agents: seating z-sort natural + editor de muebles._
+## 9) Notas técnicas
+- **Renombres recientes:** Cumplimiento KPI "Contestadas/No contestadas" → **"Atendidas/No atendidas"** (confundía con contestar llamadas). Coronas (ícono Crown) **quitadas** de Asignar/Canales/Hoy/Dashboard.
+- `.env.local` está **gitignored** (verificado). Las llaves Zoho viven ahí (local) y en Vercel env (prod). El **PAT de Vercel** lo da el usuario por chat cuando hay que desplegar/operar (no se guarda).
+- `preview_screenshot` se cuelga con animaciones; verificar en navegador real. Next 16 = un solo dev server por carpeta (no levantar 2 en 3010).
+- Verificación típica: `npx tsc --noEmit` + smoke con `curl -b "wh_auth=1" .../api/zoho/leads`.
+- **Memorias relevantes:** `project_distribuidor_leads`, `reference_windmar_zoho_integracion` (scopes, API names, COQL), `reference_supabase_windmar_home_mgmt_api`, `reference_windmar_brand`, `project_windmar_ai_agent_zoho`.
