@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CalendarCheck, RefreshCw, ExternalLink, Filter, Check, X, UserCog } from "lucide-react";
+import { CalendarCheck, RefreshCw, ExternalLink, Filter, Check, X, UserCog, Send } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
 
 const ZOHO_LEADS_URL = "https://crm.zoho.com/crm/org699641359/tab/Leads";
@@ -32,6 +32,8 @@ export default function Citas() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [ownerFilter, setOwnerFilter] = useState("todos");
+  const [distRow, setDistRow] = useState<string | null>(null); // fila en confirmación de "Distribuir"
+  const [distSaving, setDistSaving] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -69,6 +71,31 @@ export default function Citas() {
       else setMsg(j.error || "No se pudo actualizar.");
     } catch (e) { setMsg(String((e as Error).message)); }
     finally { setSaving(false); }
+  }
+
+  // Fase B: aplica la rotación del Excel y escribe la asignación en Zoho (confirmado por el usuario).
+  async function distribuir(lead: any) {
+    setDistSaving(true); setMsg(null);
+    try {
+      const r = await fetch("/api/distribuir", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          leadId: lead.id, leadRef: lead.ref, ciudad: lead.ciudad,
+          fechaCita: lead.fechaHora || lead.fechaCita,
+          teamAssistance: lead.teamAssistance, leadSource: lead.leadSource,
+        }),
+      });
+      const j = await r.json();
+      if (j.ok) {
+        const dest = j.consultor || j.gerente;
+        const how = j.zoho === "sales_rep" ? "asignado en Zoho ✓"
+          : j.zoho === "nota" ? "nota dejada (revisar manual)"
+          : "registrado (demo)";
+        setMsg(`Distribuido a ${dest} · ${how}`);
+        setDistRow(null); load();
+      } else setMsg(j.error || "No se pudo distribuir.");
+    } catch (e) { setMsg(String((e as Error).message)); }
+    finally { setDistSaving(false); }
   }
 
   if (!data) return <div className="text-[var(--color-muted)]">Cargando…</div>;
@@ -156,6 +183,10 @@ export default function Citas() {
                 setPick={setPick}
                 setMsg={setMsg}
                 guardar={guardar}
+                distRow={distRow}
+                distSaving={distSaving}
+                setDistRow={setDistRow}
+                distribuir={distribuir}
               />
             ))}
             {leads.length === 0 && (
@@ -172,7 +203,7 @@ export default function Citas() {
   );
 }
 
-function GroupRows({ g, colspan, real, editRow, pick, saving, setEditRow, setPick, setMsg, guardar }: any) {
+function GroupRows({ g, colspan, real, editRow, pick, saving, setEditRow, setPick, setMsg, guardar, distRow, distSaving, setDistRow, distribuir }: any) {
   return (
     <>
       <tr className="border-b border-[var(--color-line)] bg-[var(--color-track)]/60">
@@ -182,7 +213,10 @@ function GroupRows({ g, colspan, real, editRow, pick, saving, setEditRow, setPic
       </tr>
       {g.rows.map((l: any) => {
         const f = fmtFecha(l.fechaHora || l.fechaCita);
-        const editing = editRow === (l.id || l.ref);
+        const rowId = l.id || l.ref;
+        const editing = editRow === rowId;
+        const confirming = distRow === rowId;
+        const puedeDistribuir = l.decision?.via === "distribuidor" && l.decision?.gerente;
         const td = "border-r border-[var(--color-line)] px-3 py-2 align-top whitespace-nowrap last:border-r-0";
         const wrap = "border-r border-[var(--color-line)] px-3 py-2 align-top whitespace-normal last:border-r-0";
         return (
@@ -211,12 +245,24 @@ function GroupRows({ g, colspan, real, editRow, pick, saving, setEditRow, setPic
                   <button onClick={() => guardar(l.id || l.ref)} disabled={saving} className="grid h-6 w-6 place-items-center rounded bg-wh-orange text-white disabled:opacity-50"><Check className="h-3 w-3" /></button>
                   <button onClick={() => { setEditRow(null); setPick(""); }} className="grid h-6 w-6 place-items-center rounded border border-[var(--color-line)] text-[var(--color-muted)]"><X className="h-3 w-3" /></button>
                 </div>
+              ) : confirming ? (
+                <div className="flex items-center gap-1">
+                  <span className="whitespace-nowrap text-[11px]">Asignar a <b className="text-[var(--color-ink)]">{l.decision?.gerente}</b>?</span>
+                  <button onClick={() => distribuir(l)} disabled={distSaving} title="Confirmar asignación" className="grid h-6 w-6 place-items-center rounded text-white disabled:opacity-50" style={{ background: "#0f9d58" }}><Check className="h-3 w-3" /></button>
+                  <button onClick={() => setDistRow(null)} title="Cancelar" className="grid h-6 w-6 place-items-center rounded border border-[var(--color-line)] text-[var(--color-muted)]"><X className="h-3 w-3" /></button>
+                </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  {l.decision?.gerente && (
+                  {puedeDistribuir ? (
+                    <button onClick={() => { setDistRow(rowId); setMsg(null); }} disabled={!real} title={`Distribuir según la rotación del Excel · ${l.decision?.detalle}`} className="flex items-center gap-1 rounded-md bg-wh-orange px-2 py-0.5 text-[10px] font-bold text-white shadow-orange transition hover:brightness-105 disabled:opacity-40">
+                      <Send className="h-3 w-3" /> Distribuir → {l.decision.gerente}
+                    </button>
+                  ) : l.decision?.via === "error" ? (
+                    <span className="text-[11px] font-semibold" style={{ color: "#c0392b" }} title={l.decision?.detalle}>{l.decision?.detalle || "Sin zona"}</span>
+                  ) : l.decision?.gerente ? (
                     <span className="text-[11px]"><span className="text-[var(--color-muted)]">→</span> <b className="text-[var(--color-ink)]">{l.decision.gerente}</b></span>
-                  )}
-                  <button onClick={() => { setEditRow(l.id || l.ref); setPick(""); setMsg(null); }} disabled={!real} title="Reasignar consultor" className="flex items-center gap-1 rounded-md border border-[var(--color-line)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--color-muted)] transition hover:text-wh-blue disabled:opacity-40">
+                  ) : null}
+                  <button onClick={() => { setEditRow(rowId); setPick(""); setMsg(null); }} disabled={!real} title="Reasignar consultor" className="flex items-center gap-1 rounded-md border border-[var(--color-line)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--color-muted)] transition hover:text-wh-blue disabled:opacity-40">
                     <UserCog className="h-3 w-3" /> Reasignar
                   </button>
                 </div>

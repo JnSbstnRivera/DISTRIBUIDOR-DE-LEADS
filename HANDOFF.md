@@ -16,7 +16,7 @@
    ```
    http://localhost:3010 (Next lee `.env.local` al **arrancar** → reiniciar tras cambiar env).
 5. **Fuentes:** Excel/Word de Miguel en `C:\Claude Code\DISTRIBUIDOR DE LEADS MIGUEL\` (`Distribucion de Leads.xlsx`, `Criterios de Asignación de Leads.docx`). Repo de assets pixel: `pixel-agents-main/` (MIT).
-6. **🔑 Decisión que desbloquea la Fase B (preguntar al usuario):** al asignar una cita, ¿qué campo se escribe en Zoho? **A)** `Sales_Rep` · **B)** `Gerente_Asignado` ("Sales Assist") · **C)** solo nota por ahora.
+6. **✅ Decisión Fase B resuelta (2026-06-24):** el usuario eligió **flujo de confirmación** (no A/B/C directo): el botón muestra a quién le toca por la lógica y, al confirmar, asigna automático escribiendo **`Sales_Rep`** (mapeando gerente→Sales_Team por nombre) + nota. Ya implementado (ver §7).
 
 ---
 
@@ -33,7 +33,7 @@ App que **reemplaza el Excel de distribución de leads de Miguel** y la **vista 
 - **Distribución Hoy (`/hoy`)**: tarjeta **en vivo** con las citas coordinadas **de hoy** + a quién le toca por la rotación same-day.
 - **Asignar (`/asignar`)**, **Cumplimiento**, **Mapa** (con fondo de mar), **Gerentes**, **Black List**, **Historial**, **Dashboard** — todo funcional con el motor del Excel.
 - **Pixel Agents** (escondido, easter-egg): oficina con agentes que reaccionan a Zoho en vivo.
-- **MANUAL por ahora** (Calidad asigna con clic). La escritura real del campo de asignación espera la decisión A/B/C.
+- **✅ Distribuir (Fase B)**: en `/citas`, las filas sin consultor (`decision.via='distribuidor'`) muestran **"Distribuir → [gerente]"**; al confirmar, escribe **`Sales_Rep` + nota** en Zoho (mapeo gerente→Sales_Team por nombre; si no hay match, deja solo nota) y registra en Historial. **Historial** con columnas Consultor/Zoho + **export a Excel (CSV)**.
 
 ---
 
@@ -111,9 +111,11 @@ public/agents/pixel/  char_0..5 (personajes) · office/ (muebles+pisos) · windm
 ---
 
 ## 7) 🗺️ ROADMAP (cómo continuar)
-**▶️ FASE B — cerrar el ciclo de asignación (siguiente)**
-1. Botón **"Distribuir"** en `/citas` (cola "Sin dueño") → aplica rotación del Excel (zona/carga) → **escribe en Zoho** (campo según decisión **A/B/C**) → registra en Historial. *(BLOQUEADO por la decisión A/B/C.)*
-2. **Historial + export a Excel** de lo repartido.
+**✅ FASE B — cerrar el ciclo de asignación (HECHA 2026-06-24)**
+1. ✅ Botón **"Distribuir → [gerente]"** en `/citas` → confirmación inline → `POST /api/distribuir` recomputa la decisión (autoritativo), mapea **gerente→Sales_Team por nombre** (normalizado), escribe **`Sales_Rep` + nota (BOT DISTRIBUIDOR)** y registra en store (`asignaciones` + `hoy` si es de hoy → avanza rotación). Si el gerente no existe en Sales_Team, deja **solo nota** y lo marca.
+2. ✅ **Historial** con columnas Consultor/Zoho + **export a Excel (CSV con BOM)**. Tipo `Asignacion` extendido (`via/consultor/leadId/zoho`).
+   - _Verificado contra Zoho real: match exacto del gerente en los 4260 Sales_Team; camino de escritura probado sin tocar prod (omitiendo `leadId`)._
+   - _Pendiente menor: el campo escrito es `Sales_Rep` (consultor). Si Miguel quiere un campo "gerente asignado" aparte, es un cambio de 1 línea en `updateLead`._
 
 **FASE 2 — persistencia real (Supabase)**
 3. Migrar el estado de rotación (cargas, asignaciones, blacklist, historial) a **Supabase**. ⚠️ Usar el proyecto de la EMPRESA **"Dashboards - Jnsbstn Rivera"** (org WindMar Home, Vercel Marketplace), schema `distribuidor`. La org Marketplace no la alcanza el connector OAuth → operar con **Management API + PAT** (ver memoria `reference-supabase-windmar-home-mgmt-api`).

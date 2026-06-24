@@ -42,6 +42,11 @@ export interface Asignacion {
   gerente: string;
   leadRef: string | null;
   origen: "auto" | "manual";
+  // ── Fase B: cierre del ciclo (escritura en Zoho desde /citas) ──
+  via?: string; // cascada de decisión (distribuidor | consultor | …)
+  consultor?: string | null; // nombre escrito como Sales_Rep en Zoho (si hubo match)
+  leadId?: string | null; // id real del lead en Zoho
+  zoho?: "sales_rep" | "nota" | "no"; // qué se escribió de vuelta en Zoho
 }
 
 export type EstadoHoy = "pendiente" | "contestado" | "no_contestado";
