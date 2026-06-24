@@ -354,15 +354,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 10,
-          "historico": 58
+          "historico": 58,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         },
         "PON": {
           "ajuste": 19,
-          "historico": 13
+          "historico": 13,
+          "tier2": false
         }
       }
     },
@@ -381,15 +384,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 4,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 27,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         }
       }
     },
@@ -401,15 +407,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 3,
-          "historico": 65
+          "historico": 65,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         },
         "PON": {
           "ajuste": 27,
-          "historico": 5
+          "historico": 5,
+          "tier2": false
         }
       }
     },
@@ -421,23 +430,28 @@
       "zonas": {
         "SJ1": {
           "ajuste": 16,
-          "historico": 52
+          "historico": 52,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 20,
-          "historico": 14
+          "historico": 14,
+          "tier2": false
         },
         "PON": {
           "ajuste": 19,
-          "historico": 13
+          "historico": 13,
+          "tier2": false
         },
         "COR": {
           "ajuste": 8,
-          "historico": 9
+          "historico": 9,
+          "tier2": false
         }
       }
     },
@@ -449,11 +463,13 @@
       "zonas": {
         "SJ1": {
           "ajuste": 4,
-          "historico": 63
+          "historico": 63,
+          "tier2": true
         },
         "SJ2": {
           "ajuste": 2,
-          "historico": 35
+          "historico": 35,
+          "tier2": true
         }
       }
     },
@@ -465,15 +481,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 0,
-          "historico": 68
+          "historico": 68,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 27,
-          "historico": 6
+          "historico": 6,
+          "tier2": false
         }
       }
     },
@@ -485,19 +504,23 @@
       "zonas": {
         "SJ1": {
           "ajuste": 0,
-          "historico": 68
+          "historico": 68,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 27,
-          "historico": 6
+          "historico": 6,
+          "tier2": false
         },
         "PON": {
           "ajuste": 0,
-          "historico": 32
+          "historico": 32,
+          "tier2": false
         },
         "COR": {
           "ajuste": 7,
-          "historico": 10
+          "historico": 10,
+          "tier2": false
         }
       }
     },
@@ -509,19 +532,23 @@
       "zonas": {
         "SJ1": {
           "ajuste": 37,
-          "historico": 31
+          "historico": 31,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 20,
-          "historico": 13
+          "historico": 13,
+          "tier2": false
         },
         "PON": {
           "ajuste": 20,
-          "historico": 12
+          "historico": 12,
+          "tier2": false
         },
         "MAYA": {
           "ajuste": 21,
-          "historico": 17
+          "historico": 17,
+          "tier2": false
         }
       }
     },
@@ -533,15 +560,18 @@
       "zonas": {
         "HAT": {
           "ajuste": 0,
-          "historico": 33
+          "historico": 33,
+          "tier2": false
         },
         "PON": {
           "ajuste": 0,
-          "historico": 32
+          "historico": 32,
+          "tier2": false
         },
         "MAYA": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         }
       }
     },
@@ -553,11 +583,13 @@
       "zonas": {
         "SJ1": {
           "ajuste": 0,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         }
       }
     },
@@ -565,19 +597,22 @@
       "id": 12,
       "nombre": "Elliot Rodriguez Gonzalez",
       "blacklist": false,
-      "tier2": false,
+      "tier2": true,
       "zonas": {
         "SJ1": {
           "ajuste": 4,
-          "historico": 62
+          "historico": 62,
+          "tier2": true
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 36
+          "historico": 36,
+          "tier2": true
         },
         "HAT": {
           "ajuste": 28,
-          "historico": 3
+          "historico": 3,
+          "tier2": true
         }
       }
     },
@@ -589,11 +624,13 @@
       "zonas": {
         "SJ2": {
           "ajuste": 22,
-          "historico": 15
+          "historico": 15,
+          "tier2": true
         },
         "HAT": {
           "ajuste": 20,
-          "historico": 12
+          "historico": 12,
+          "tier2": true
         }
       }
     },
@@ -605,19 +642,23 @@
       "zonas": {
         "SJ2": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 27,
-          "historico": 6
+          "historico": 6,
+          "tier2": false
         },
         "PON": {
           "ajuste": 26,
-          "historico": 6
+          "historico": 6,
+          "tier2": false
         },
         "COR": {
           "ajuste": 7,
-          "historico": 10
+          "historico": 10,
+          "tier2": false
         }
       }
     },
@@ -629,15 +670,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 10,
-          "historico": 57
+          "historico": 57,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 4,
-          "historico": 34
+          "historico": 34,
+          "tier2": false
         },
         "PON": {
           "ajuste": 3,
-          "historico": 29
+          "historico": 29,
+          "tier2": false
         }
       }
     },
@@ -649,19 +693,23 @@
       "zonas": {
         "SJ1": {
           "ajuste": 2,
-          "historico": 64
+          "historico": 64,
+          "tier2": true
         },
         "SJ2": {
           "ajuste": 1,
-          "historico": 36
+          "historico": 36,
+          "tier2": true
         },
         "HAT": {
           "ajuste": 0,
-          "historico": 32
+          "historico": 32,
+          "tier2": true
         },
         "COR": {
           "ajuste": 7,
-          "historico": 9
+          "historico": 9,
+          "tier2": true
         }
       }
     },
@@ -673,19 +721,23 @@
       "zonas": {
         "SJ1": {
           "ajuste": 7,
-          "historico": 60
+          "historico": 60,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 2,
-          "historico": 36
+          "historico": 36,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 27,
-          "historico": 6
+          "historico": 6,
+          "tier2": false
         },
         "COR": {
           "ajuste": 14,
-          "historico": 3
+          "historico": 3,
+          "tier2": false
         }
       }
     },
@@ -693,15 +745,17 @@
       "id": 18,
       "nombre": "Isabel Echevarria Garcia",
       "blacklist": true,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "SJ1": {
           "ajuste": 2,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         }
       }
     },
@@ -713,7 +767,8 @@
       "zonas": {
         "PON": {
           "ajuste": 3,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         }
       }
     },
@@ -721,11 +776,12 @@
       "id": 20,
       "nombre": "Israel Pons Martinez",
       "blacklist": true,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "PON": {
           "ajuste": 3,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         }
       }
     },
@@ -737,19 +793,23 @@
       "zonas": {
         "SJ2": {
           "ajuste": 1,
-          "historico": 37
+          "historico": 37,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 3,
-          "historico": 30
+          "historico": 30,
+          "tier2": false
         },
         "MAYA": {
           "ajuste": 27,
-          "historico": 11
+          "historico": 11,
+          "tier2": false
         },
         "COR": {
           "ajuste": 7,
-          "historico": 10
+          "historico": 10,
+          "tier2": false
         }
       }
     },
@@ -757,15 +817,17 @@
       "id": 22,
       "nombre": "Joel E Muniz Aybar",
       "blacklist": false,
-      "tier2": false,
+      "tier2": true,
       "zonas": {
         "PON": {
           "ajuste": 0,
-          "historico": 30
+          "historico": 30,
+          "tier2": true
         },
         "MAYA": {
           "ajuste": 0,
-          "historico": 36
+          "historico": 36,
+          "tier2": true
         }
       }
     },
@@ -777,15 +839,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 3,
-          "historico": 64
+          "historico": 64,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 0,
-          "historico": 33
+          "historico": 33,
+          "tier2": false
         }
       }
     },
@@ -793,15 +858,17 @@
       "id": 24,
       "nombre": "Jose Luis Nogueras",
       "blacklist": false,
-      "tier2": false,
+      "tier2": true,
       "zonas": {
         "HAT": {
           "ajuste": 4,
-          "historico": 27
+          "historico": 27,
+          "tier2": true
         },
         "MAYA": {
           "ajuste": 2,
-          "historico": 30
+          "historico": 30,
+          "tier2": true
         }
       }
     },
@@ -813,15 +880,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 2,
-          "historico": 65
+          "historico": 65,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         },
         "PON": {
           "ajuste": 22,
-          "historico": 9
+          "historico": 9,
+          "tier2": false
         }
       }
     },
@@ -829,19 +899,22 @@
       "id": 26,
       "nombre": "Joshua Lopez",
       "blacklist": false,
-      "tier2": false,
+      "tier2": true,
       "zonas": {
         "HAT": {
           "ajuste": 3,
-          "historico": 28
+          "historico": 28,
+          "tier2": true
         },
         "PON": {
           "ajuste": 26,
-          "historico": 3
+          "historico": 3,
+          "tier2": true
         },
         "MAYA": {
           "ajuste": 2,
-          "historico": 33
+          "historico": 33,
+          "tier2": true
         }
       }
     },
@@ -853,15 +926,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 1,
-          "historico": 65
+          "historico": 65,
+          "tier2": true
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 37
+          "historico": 37,
+          "tier2": true
         },
         "HAT": {
           "ajuste": 28,
-          "historico": 4
+          "historico": 4,
+          "tier2": true
         }
       }
     },
@@ -873,15 +949,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 9,
-          "historico": 58
+          "historico": 58,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 5,
-          "historico": 33
+          "historico": 33,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 29,
-          "historico": 4
+          "historico": 4,
+          "tier2": false
         }
       }
     },
@@ -889,23 +968,27 @@
       "id": 29,
       "nombre": "Luis Torres Velazquez",
       "blacklist": false,
-      "tier2": false,
+      "tier2": true,
       "zonas": {
         "SJ2": {
           "ajuste": 30,
-          "historico": 6
+          "historico": 6,
+          "tier2": true
         },
         "PON": {
           "ajuste": 0,
-          "historico": 29
+          "historico": 29,
+          "tier2": true
         },
         "MAYA": {
           "ajuste": 0,
-          "historico": 35
+          "historico": 35,
+          "tier2": true
         },
         "COR": {
           "ajuste": 14,
-          "historico": 1
+          "historico": 1,
+          "tier2": true
         }
       }
     },
@@ -917,15 +1000,18 @@
       "zonas": {
         "PON": {
           "ajuste": 2,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         },
         "MAYA": {
           "ajuste": 2,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         },
         "COR": {
           "ajuste": 5,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         }
       }
     },
@@ -937,11 +1023,13 @@
       "zonas": {
         "SJ1": {
           "ajuste": 0,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         },
         "PON": {
           "ajuste": 0,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         }
       }
     },
@@ -953,15 +1041,18 @@
       "zonas": {
         "HAT": {
           "ajuste": 5,
-          "historico": 27
+          "historico": 27,
+          "tier2": true
         },
         "MAYA": {
           "ajuste": 0,
-          "historico": 36
+          "historico": 36,
+          "tier2": true
         },
         "COR": {
           "ajuste": 7,
-          "historico": 10
+          "historico": 10,
+          "tier2": true
         }
       }
     },
@@ -973,19 +1064,23 @@
       "zonas": {
         "HAT": {
           "ajuste": 3,
-          "historico": 30
+          "historico": 30,
+          "tier2": false
         },
         "PON": {
           "ajuste": 26,
-          "historico": 5
+          "historico": 5,
+          "tier2": false
         },
         "MAYA": {
           "ajuste": 2,
-          "historico": 35
+          "historico": 35,
+          "tier2": false
         },
         "COR": {
           "ajuste": 5,
-          "historico": 12
+          "historico": 12,
+          "tier2": false
         }
       }
     },
@@ -1011,19 +1106,23 @@
       "zonas": {
         "SJ1": {
           "ajuste": 1,
-          "historico": 66
+          "historico": 66,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 0,
-          "historico": 33
+          "historico": 33,
+          "tier2": false
         },
         "PON": {
           "ajuste": 25,
-          "historico": 6
+          "historico": 6,
+          "tier2": false
         },
         "COR": {
           "ajuste": 6,
-          "historico": 11
+          "historico": 11,
+          "tier2": false
         }
       }
     },
@@ -1035,15 +1134,18 @@
       "zonas": {
         "HAT": {
           "ajuste": 0,
-          "historico": 30
+          "historico": 30,
+          "tier2": true
         },
         "MAYA": {
           "ajuste": 0,
-          "historico": 33
+          "historico": 33,
+          "tier2": true
         },
         "COR": {
           "ajuste": 7,
-          "historico": 9
+          "historico": 9,
+          "tier2": true
         }
       }
     },
@@ -1055,19 +1157,23 @@
       "zonas": {
         "SJ1": {
           "ajuste": 6,
-          "historico": 60
+          "historico": 60,
+          "tier2": true
         },
         "SJ2": {
           "ajuste": 30,
-          "historico": 7
+          "historico": 7,
+          "tier2": true
         },
         "HAT": {
           "ajuste": 0,
-          "historico": 32
+          "historico": 32,
+          "tier2": true
         },
         "COR": {
           "ajuste": 7,
-          "historico": 10
+          "historico": 10,
+          "tier2": true
         }
       }
     },
@@ -1079,11 +1185,13 @@
       "zonas": {
         "SJ1": {
           "ajuste": 8,
-          "historico": 59
+          "historico": 59,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 6,
-          "historico": 27
+          "historico": 27,
+          "tier2": false
         }
       }
     },
@@ -1095,15 +1203,18 @@
       "zonas": {
         "SJ2": {
           "ajuste": 31,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 27,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         },
         "PON": {
           "ajuste": 26,
-          "historico": 0
+          "historico": 0,
+          "tier2": false
         }
       }
     },
@@ -1111,23 +1222,27 @@
       "id": 41,
       "nombre": "Raul Deya",
       "blacklist": false,
-      "tier2": false,
+      "tier2": true,
       "zonas": {
         "HAT": {
           "ajuste": 2,
-          "historico": 29
+          "historico": 29,
+          "tier2": true
         },
         "PON": {
           "ajuste": 26,
-          "historico": 3
+          "historico": 3,
+          "tier2": true
         },
         "MAYA": {
           "ajuste": 0,
-          "historico": 32
+          "historico": 32,
+          "tier2": true
         },
         "COR": {
           "ajuste": 5,
-          "historico": 10
+          "historico": 10,
+          "tier2": true
         }
       }
     },
@@ -1139,19 +1254,23 @@
       "zonas": {
         "SJ1": {
           "ajuste": 1,
-          "historico": 66
+          "historico": 66,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 17,
-          "historico": 16
+          "historico": 16,
+          "tier2": false
         },
         "COR": {
           "ajuste": 7,
-          "historico": 10
+          "historico": 10,
+          "tier2": false
         }
       }
     },
@@ -1163,15 +1282,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 2,
-          "historico": 65
+          "historico": 65,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 2,
-          "historico": 36
+          "historico": 36,
+          "tier2": false
         },
         "COR": {
           "ajuste": 5,
-          "historico": 12
+          "historico": 12,
+          "tier2": false
         }
       }
     },
@@ -1183,15 +1305,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 5,
-          "historico": 62
+          "historico": 62,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         },
         "PON": {
           "ajuste": 25,
-          "historico": 6
+          "historico": 6,
+          "tier2": false
         }
       }
     },
@@ -1210,19 +1335,23 @@
       "zonas": {
         "SJ1": {
           "ajuste": 3,
-          "historico": 62
+          "historico": 62,
+          "tier2": false
         },
         "PON": {
           "ajuste": 3,
-          "historico": 28
+          "historico": 28,
+          "tier2": false
         },
         "MAYA": {
           "ajuste": 27,
-          "historico": 10
+          "historico": 10,
+          "tier2": false
         },
         "COR": {
           "ajuste": 14,
-          "historico": 3
+          "historico": 3,
+          "tier2": false
         }
       }
     },
@@ -1234,15 +1363,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 34,
-          "historico": 33
+          "historico": 33,
+          "tier2": false
         },
         "HAT": {
           "ajuste": 0,
-          "historico": 33
+          "historico": 33,
+          "tier2": false
         },
         "COR": {
           "ajuste": 8,
-          "historico": 8
+          "historico": 8,
+          "tier2": false
         }
       }
     },
@@ -1261,15 +1393,18 @@
       "zonas": {
         "SJ1": {
           "ajuste": 0,
-          "historico": 67
+          "historico": 67,
+          "tier2": false
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 38
+          "historico": 38,
+          "tier2": false
         },
         "COR": {
           "ajuste": 7,
-          "historico": 9
+          "historico": 9,
+          "tier2": false
         }
       }
     },
@@ -2186,6 +2321,6 @@
   "meta": {
     "fuente": "Distribucion de Leads Miguel.xlsx",
     "importado": "2026-06-24",
-    "nota": "Fase 1 reimport (fix Tier2: carga=Offers-T2); PP Hatillo por producto; sin Media/Booth/IG"
+    "nota": "Fase 5: Tier2 POR ZONA (OffersT1=Tier 2); carga=OffersT2; modelo 5/6 piloto"
   }
 }

@@ -44,13 +44,17 @@ export function rankZona(db: DB, zona: ZonaCodigo, hoy = new Date()): Candidato[
     .filter((g) => g.zonas[zona]) // sólo opted-in a la zona
     .map((g) => {
       const carga = cargaEfectiva(db, g, zona);
-      // Tier 2 cuenta doble => lo eligen la mitad de veces (mitad de leads)
-      const score = carga * (g.tier2 ? 2 : 1);
+      // La carga (OffersT2 del Excel) ya refleja el ½ de Tier 2 → se rankea por carga directa.
+      const score = carga;
       let elegible = true;
       let motivo: string | undefined;
       if (g.blacklist || blacklistActiva(db, g.nombre, hoy)) {
         elegible = false;
         motivo = "Black List";
+      } else if (g.zonas[zona]?.tier2) {
+        // Tier 2 EN ESTA ZONA → se intercala aparte ("cada 2 vueltas"), no es el "siguiente" regular.
+        elegible = false;
+        motivo = "Tier 2 (½ ronda)";
       }
       return { gerente: g, cargaEfectiva: carga, score, rank: 0, elegible, motivo };
     });

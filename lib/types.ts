@@ -16,6 +16,7 @@ export interface Municipio {
 export interface ZonaGerente {
   ajuste: number; // handicap para igualar carga al ingresar tarde
   historico: number; // leads recibidos en esa zona (base del Excel)
+  tier2?: boolean; // Tier 2 EN ESTA ZONA (celda OffersT1="Tier 2"); recibe ½ y se intercala aparte
 }
 
 export interface Gerente {
