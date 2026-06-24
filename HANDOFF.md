@@ -145,6 +145,8 @@ public/agents/pixel/  char_0..5 (personajes) · office/ (muebles+pisos) · windm
 ## 9) Notas técnicas
 - **Renombres recientes:** Cumplimiento KPI "Contestadas/No contestadas" → **"Atendidas/No atendidas"** (confundía con contestar llamadas). Coronas (ícono Crown) **quitadas** de Asignar/Canales/Hoy/Dashboard.
 - `.env.local` está **gitignored** (verificado). Las llaves Zoho viven ahí (local) y en Vercel env (prod). El **PAT de Vercel** lo da el usuario por chat cuando hay que desplegar/operar (no se guarda).
+- **🔒 Interruptor de escritura `DISTRIBUIDOR_ESCRIBE`** (`lib/zoho.ts → escrituraHabilitada()`): **apagado por defecto = modo demo** (lee Zoho en vivo, pero "Distribuir" NO escribe; muestra a quién le tocaría y lo registra en Historial con badge "Demo"). Para **activar la escritura real**: en Vercel (team `windmar`) → env var `DISTRIBUIDOR_ESCRIBE=1` y redeploy. `/citas` muestra banner ámbar "Modo DEMO" / verde "Escritura ACTIVA". Plan: dejarlo en demo hasta que Cata valide la lógica.
+- ⚠️ **Zoho rate-limita el refresh del token por cuenta**: probar `/api/distribuir`/`/leads` muchas veces seguidas agota los refresh y la app cae a MOCK temporalmente (se recupera solo en minutos). No martillar el endpoint en pruebas.
 - `preview_screenshot` se cuelga con animaciones; verificar en navegador real. Next 16 = un solo dev server por carpeta (no levantar 2 en 3010).
 - Verificación típica: `npx tsc --noEmit` + smoke con `curl -b "wh_auth=1" .../api/zoho/leads`.
 - **Memorias relevantes:** `project_distribuidor_leads`, `reference_windmar_zoho_integracion` (scopes, API names, COQL), `reference_supabase_windmar_home_mgmt_api`, `reference_windmar_brand`, `project_windmar_ai_agent_zoho`.
