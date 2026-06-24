@@ -33,7 +33,6 @@ const GROUPS = [
     items: [
       { href: "/mapa", label: "Mapa de Zonas", icon: Map },
       { href: "/consulta", label: "Consulta", icon: LayoutDashboard },
-      { href: "/oficina-hd", label: "Oficina HD", icon: Bot },
     ],
   },
   {

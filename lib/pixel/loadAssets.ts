@@ -90,8 +90,14 @@ async function decodeFurniture(catalog: CatalogEntry[]): Promise<Record<string, 
   return sprites;
 }
 
-/** Carga y decodifica todos los assets, alimenta el motor y devuelve el layout por defecto. */
-export async function loadPixelAssets(): Promise<any> {
+// Cache a nivel módulo: decodificar los PNG una sola vez (es caro). Los setters del
+// motor son estado global, así que basta llamarlos una vez.
+let _cache: { layout: any; loadedAssets: { catalog: any; sprites: Record<string, string[][]> } } | null = null;
+
+/** Carga y decodifica todos los assets (una sola vez), alimenta el motor y devuelve
+ *  el layout + los loadedAssets (catalog+sprites) que el EditorToolbar necesita. */
+export async function loadPixelAssets(): Promise<{ layout: any; loadedAssets: { catalog: any; sprites: Record<string, string[][]> } }> {
+  if (_cache) return _cache;
   const [index, catalog] = await Promise.all([
     fetch(`${BASE}asset-index.json`).then((r) => r.json()) as Promise<AssetIndex>,
     fetch(`${BASE}furniture-catalog.json`).then((r) => r.json()) as Promise<CatalogEntry[]>,
@@ -102,9 +108,11 @@ export async function loadPixelAssets(): Promise<any> {
   setCharacterTemplates(characters);
   setFloorSprites(floors);
   setWallSprites(walls);
-  buildDynamicCatalog({ catalog: catalog as any, sprites: furnitureSprites });
+  const loadedAssets = { catalog: catalog as any, sprites: furnitureSprites };
+  buildDynamicCatalog(loadedAssets);
   const layout = index.defaultLayout
     ? await fetch(`${BASE}${index.defaultLayout}`).then((r) => r.json())
     : null;
-  return layout;
+  _cache = { layout, loadedAssets };
+  return _cache;
 }
