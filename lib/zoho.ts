@@ -98,13 +98,16 @@ export type CitaZoho = {
   fechaHora?: string; // datetime completo de la cita
 };
 
-export async function getCitasCoordinadas(hoyISO: string): Promise<CitaZoho[]> {
+export async function getCitasCoordinadas(hoyISO: string, hastaISO?: string): Promise<CitaZoho[]> {
   // COQL aplana lookups como "Sales_Rep.Name". Presenter_Appointment es datetime → límite con hora (PR -04:00).
-  // COQL exige PARÉNTESIS al combinar 3+ condiciones con AND.
+  // COQL exige PARÉNTESIS al combinar 3+ condiciones con AND. hastaISO opcional → rango (ej. solo HOY).
   const desde = `${hoyISO}T00:00:00-04:00`;
+  const fechaClause = hastaISO
+    ? `${F.fechaCita} between '${desde}' and '${hastaISO}T23:59:59-04:00'`
+    : `${F.fechaCita} >= '${desde}'`;
   const cols = `id, ${F.leadNumber}, ${F.nombre}, ${F.estado}, ${F.ciudad}, ${F.direccion}, ${F.leadSource}, ${F.fechaCita}, ${F.teamAssist}, ${F.teamViejo}, ${F.postCita}, ${F.citaSeDio}, ${F.salesRep}.id, ${F.salesRep}.Name, ${F.owner}.id, ${F.owner}.first_name, ${F.owner}.last_name, ${F.qualityStage}, ${F.qualityOwner}.id, ${F.qualityOwner}.first_name, ${F.qualityOwner}.last_name`;
   const qstage = QUALITY_STAGE ? ` and ${F.qualityStage} = '${QUALITY_STAGE}'` : "";
-  const q = `select ${cols} from Leads where (${F.estado} = '${ESTADO_CITA}'${qstage}) and (${F.fechaCita} >= '${desde}') order by ${F.fechaCita} asc limit 200`;
+  const q = `select ${cols} from Leads where (${F.estado} = '${ESTADO_CITA}'${qstage}) and (${fechaClause}) order by ${F.fechaCita} asc limit 200`;
   const j = await coql(q);
   const rows: Record<string, unknown>[] = Array.isArray(j?.data) ? j.data : [];
   return rows.map((r) => {

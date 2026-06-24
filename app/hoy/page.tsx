@@ -2,9 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarClock, MapPin, Send, Tag, Check, X, Clock } from "lucide-react";
+import { CalendarClock, MapPin, Send, Tag, Check, X, Clock, ExternalLink, RefreshCw, ArrowRight } from "lucide-react";
 import { SectionTitle, ZonaBadge, ZONA_NOMBRE, ZONA_COLOR } from "@/components/ui";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
+
+const zohoLeadUrl = (id: string) => `https://crm.zoho.com/crm/org699641359/tab/Leads/${id}`;
+const hhmm = (iso?: string) => { const m = /T(\d{2}):(\d{2})/.exec(iso || ""); if (!m) return ""; let h = +m[1]; const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12; return `${h}:${m[2]} ${ap}`; };
 
 export default function Hoy() {
   const [data, setData] = useState<any>(null);
@@ -13,6 +16,7 @@ export default function Hoy() {
   const [leadRef, setLeadRef] = useState("");
   const [busy, setBusy] = useState(false);
   const [muniList, setMuniList] = useState<any[]>([]);
+  const [live, setLive] = useState<any>(null);
 
   async function load() {
     const r = await fetch("/api/hoy", { cache: "no-store" });
@@ -20,8 +24,14 @@ export default function Hoy() {
     setData(j);
     setMuniList(j.municipios);
   }
+  async function loadLive() {
+    try { const r = await fetch("/api/zoho/hoy", { cache: "no-store" }); setLive(await r.json()); } catch {}
+  }
   useEffect(() => {
     load();
+    loadLive();
+    const iv = setInterval(loadLive, 60000);
+    return () => clearInterval(iv);
   }, []);
 
   const zonaResuelta = useMemo(() => {
@@ -86,6 +96,46 @@ export default function Hoy() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Citas coordinadas de HOY · Zoho en vivo */}
+      <div className="exec-card p-5">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <h2 className="exec-label flex-1">Citas coordinadas de HOY · en vivo</h2>
+          <span className="rounded-full bg-[var(--color-subtle)] px-2.5 py-0.5 text-[11px] font-bold" style={{ color: live?.fuente === "zoho" ? "#0f9d58" : "#6d6e71" }}>
+            {live?.fuente === "zoho" ? `Zoho en vivo · ${live.citas.length}` : "DEMO"}
+          </span>
+          <button onClick={loadLive} className="flex items-center gap-1.5 rounded-lg border border-[var(--color-line)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-muted)] transition hover:text-wh-blue">
+            <RefreshCw className="h-3 w-3" /> Actualizar
+          </button>
+        </div>
+        {!live?.citas?.length ? (
+          <div className="py-6 text-center text-sm text-[var(--color-muted)]">
+            {live?.fuente === "zoho" ? "No hay citas coordinadas para hoy." : "Conecta Zoho para ver las citas de hoy en vivo."}
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {live.citas.map((c: any) => (
+              <div key={c.id || c.ref} className="flex flex-wrap items-center gap-2 rounded-lg bg-[var(--color-subtle)] px-3 py-2 text-sm">
+                <span className="w-16 shrink-0 font-mono text-[12px] text-[var(--color-muted)]">{hhmm(c.fechaHora)}</span>
+                <span className="min-w-0 flex-1 truncate font-semibold text-[var(--color-ink)]">{c.nombre || c.ref}</span>
+                <span className="text-[var(--color-muted)]">{c.ciudad || "—"}</span>
+                {c.zona && <ZonaBadge z={c.zona} />}
+                {c.sugerido && (
+                  <span className="flex items-center gap-1 text-[12px]">
+                    <ArrowRight className="h-3 w-3 text-[var(--color-muted)]" /> <b className="text-[var(--color-ink)]">{c.sugerido}</b>
+                  </span>
+                )}
+                {c.id && (
+                  <a href={zohoLeadUrl(c.id)} target="_blank" rel="noreferrer" title="Abrir en Zoho" className="grid h-6 w-6 place-items-center rounded text-[var(--color-muted)] hover:text-wh-blue">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        <p className="mt-2 text-[11px] text-[var(--color-muted)]">Citas cuya cita es hoy (rotación same-day). “→ Nombre” = a quién le tocaría por la rotación de hoy. Se actualiza solo cada 60s.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
