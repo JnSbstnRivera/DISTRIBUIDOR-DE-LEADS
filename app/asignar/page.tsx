@@ -64,8 +64,8 @@ export default function Asignar() {
 
   return (
     <div>
-      <SectionTitle sub="Ingresa el municipio (resuelve la zona) o elige la zona directamente. El motor calcula a quién le toca según la rotación equitativa.">
-        Asignar Lead
+      <SectionTitle sub="Citas coordinadas de mañana en adelante sin consultor. El municipio resuelve la zona y el motor calcula a quién le toca por la rotación equitativa del Excel.">
+        Leads Digitales
       </SectionTitle>
 
       <div className="grid gap-6 lg:grid-cols-5">

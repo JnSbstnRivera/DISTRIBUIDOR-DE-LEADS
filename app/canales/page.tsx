@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Radio, Send, Tag, Ban } from "lucide-react";
+import { Boxes, Send, Tag, Ban } from "lucide-react";
 import { SectionTitle } from "@/components/ui";
 
 export default function Canales() {
@@ -49,9 +49,9 @@ export default function Canales() {
   return (
     <div>
       <div className="flex items-center gap-2">
-        <Radio className="h-5 w-5 text-wh-orange" />
-        <SectionTitle sub="Rotación equitativa para canales secundarios: Media Tour, Booth Hatillo e Instagram por zona. Cada canal tiene su propio pool de gerentes.">
-          Canales
+        <Boxes className="h-5 w-5 text-wh-orange" />
+        <SectionTitle sub="Plan piloto Hatillo: rotación equitativa por LÍNEA DE PRODUCTO (Solar y Roofing · Water y Anker). Cada producto tiene su propia lista de consultores.">
+          PP Hatillo
         </SectionTitle>
       </div>
 

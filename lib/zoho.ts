@@ -27,6 +27,12 @@ export const F = {
   postCita: "Post_Cita_Status",
   teamViejo: "Team_Assistance", // "Team Assistance - Viejo"
   citaSeDio: "Qualified_Lead", // "¿Cita se dio?"
+  // Fase 3 — confirmados contra la org (2026-06-24):
+  salesAssist: "Gerente_Asignado", // "Sales Assist" (text) — puede traer un promotor
+  assignName: "Assign_Cons_Appt_Name", // "Assign Consultant Appointment Name" (text) ← AQUÍ escribe el distribuidor
+  assignId: "Assign_Cons_Appt_Id", // "Assign Consultant Appointment Id" (text)
+  leadType: "Lead_Type", // "Products" (multiselect) — línea de producto (PP Hatillo)
+  booths: "Booths", // "Booths" (picklist) — origen booth (Hatillo)
 };
 
 export const ESTADO_CITA = process.env.ZOHO_ESTADO_CITA || "Cita Coordinada";
@@ -104,6 +110,12 @@ export type CitaZoho = {
   ownerName?: string; // Lead Owner (asesor)
   salesRepName?: string;
   fechaHora?: string; // datetime completo de la cita
+  // Fase 3:
+  salesAssist?: string; // Gerente_Asignado ("Sales Assist")
+  assignName?: string; // Assign_Cons_Appt_Name (consultor ya asignado por el distribuidor)
+  assignId?: string; // Assign_Cons_Appt_Id
+  leadType?: string; // Lead_Type (productos)
+  booths?: string; // Booths
 };
 
 export async function getCitasCoordinadas(hoyISO: string, hastaISO?: string): Promise<CitaZoho[]> {
@@ -113,7 +125,7 @@ export async function getCitasCoordinadas(hoyISO: string, hastaISO?: string): Pr
   const fechaClause = hastaISO
     ? `${F.fechaCita} between '${desde}' and '${hastaISO}T23:59:59-04:00'`
     : `${F.fechaCita} >= '${desde}'`;
-  const cols = `id, ${F.leadNumber}, ${F.nombre}, ${F.estado}, ${F.ciudad}, ${F.direccion}, ${F.leadSource}, ${F.fechaCita}, ${F.teamAssist}, ${F.teamViejo}, ${F.postCita}, ${F.citaSeDio}, ${F.salesRep}.id, ${F.salesRep}.Name, ${F.owner}.id, ${F.owner}.first_name, ${F.owner}.last_name, ${F.qualityStage}, ${F.qualityOwner}.id, ${F.qualityOwner}.first_name, ${F.qualityOwner}.last_name`;
+  const cols = `id, ${F.leadNumber}, ${F.nombre}, ${F.estado}, ${F.ciudad}, ${F.direccion}, ${F.leadSource}, ${F.fechaCita}, ${F.teamAssist}, ${F.teamViejo}, ${F.postCita}, ${F.citaSeDio}, ${F.salesRep}.id, ${F.salesRep}.Name, ${F.owner}.id, ${F.owner}.first_name, ${F.owner}.last_name, ${F.qualityStage}, ${F.qualityOwner}.id, ${F.qualityOwner}.first_name, ${F.qualityOwner}.last_name, ${F.salesAssist}, ${F.assignName}, ${F.assignId}, ${F.leadType}, ${F.booths}`;
   const qstage = QUALITY_STAGE ? ` and ${F.qualityStage} = '${QUALITY_STAGE}'` : "";
   const q = `select ${cols} from Leads where (${F.estado} = '${ESTADO_CITA}'${qstage}) and (${fechaClause}) order by ${F.fechaCita} asc limit 200`;
   const j = await coql(q);
@@ -144,6 +156,11 @@ export async function getCitasCoordinadas(hoyISO: string, hastaISO?: string): Pr
       consultor: srName ? { nombre: srName, activo: true } : undefined,
       qualityStage: String(r[F.qualityStage] ?? ""),
       qualityOwner: qo,
+      salesAssist: String(r[F.salesAssist] ?? ""),
+      assignName: String(r[F.assignName] ?? ""),
+      assignId: String(r[F.assignId] ?? ""),
+      leadType: Array.isArray(r[F.leadType]) ? (r[F.leadType] as string[]).join(", ") : String(r[F.leadType] ?? ""),
+      booths: String(r[F.booths] ?? ""),
     };
   });
 }

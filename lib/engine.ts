@@ -167,3 +167,56 @@ export function proximoGerenteCanal(db: DB, codigo: string, hoy = new Date()): C
   const r = rankCanal(db, codigo, hoy).filter((c) => c.elegible);
   return r.length ? r[0] : null;
 }
+
+// ── PROMOTORES ──
+// Si el Sales Rep / Sales Assist es un promotor (no consultor real), la cita
+// igual se reparte al siguiente consultor de la zona + warning.
+function norm(s: string): string {
+  return (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+export function esPromotor(db: DB, nombre?: string | null): boolean {
+  if (!nombre) return false;
+  // Zoho guarda el nombre completo (ej. "Ivette Jimenez Pagan") y la lista usa el
+  // nombre corto ("Ivette Jiménez"). Match por tokens: TODOS los nombres del
+  // promotor deben estar en el nombre de Zoho (≥2 tokens para evitar falsos positivos).
+  const tokens = new Set(norm(nombre).split(" ").filter(Boolean));
+  return (db.promotores ?? []).some((p) => {
+    const pt = norm(p).split(" ").filter(Boolean);
+    return pt.length >= 2 && pt.every((t) => tokens.has(t));
+  });
+}
+
+// ── Rotación PP Hatillo (por LÍNEA DE PRODUCTO) ──
+// carga = historico (Excel) + asignaciones de sesión del producto; excluye Black List.
+export function rankProducto(db: DB, codigoProducto: string, hoy = new Date()): Candidato[] {
+  const prod = db.ppHatillo?.productos.find((p) => p.codigo === codigoProducto);
+  if (!prod) return [];
+  const candidatos: Candidato[] = prod.gerentes.map((pg) => {
+    const g = db.gerentes.find((x) => x.nombre === pg.nombre) || {
+      id: -1, nombre: pg.nombre, blacklist: false, tier2: false, zonas: {},
+    };
+    const nuevas = (db.ppHatilloAsignaciones ?? []).filter(
+      (a) => a.producto === codigoProducto && a.gerente === pg.nombre
+    ).length;
+    const carga = pg.historico + nuevas;
+    let elegible = true;
+    let motivo: string | undefined;
+    if (g.blacklist || blacklistActiva(db, pg.nombre, hoy)) {
+      elegible = false;
+      motivo = "Black List";
+    }
+    return { gerente: g, cargaEfectiva: carga, score: carga, rank: 0, elegible, motivo };
+  });
+  const elegibles = candidatos
+    .filter((c) => c.elegible)
+    .sort((a, b) =>
+      a.score !== b.score ? a.score - b.score : a.gerente.nombre.localeCompare(b.gerente.nombre)
+    );
+  elegibles.forEach((c, i) => (c.rank = i + 1));
+  return [...elegibles, ...candidatos.filter((c) => !c.elegible)];
+}
+
+export function proximoConsultorProducto(db: DB, codigoProducto: string, hoy = new Date()): Candidato | null {
+  const r = rankProducto(db, codigoProducto, hoy).filter((c) => c.elegible);
+  return r.length ? r[0] : null;
+}

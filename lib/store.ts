@@ -19,6 +19,7 @@ function fromSeed(): DB {
     hoy: seed.hoy ?? [],
     canales: seed.canales ?? [],
     canalAsignaciones: [],
+    ppHatilloAsignaciones: [],
   };
 }
 

@@ -354,7 +354,7 @@
       "zonas": {
         "SJ1": {
           "ajuste": 10,
-          "historico": 57
+          "historico": 58
         },
         "SJ2": {
           "ajuste": 0,
@@ -362,7 +362,7 @@
         },
         "PON": {
           "ajuste": 19,
-          "historico": 12
+          "historico": 13
         }
       }
     },
@@ -381,15 +381,15 @@
       "zonas": {
         "SJ1": {
           "ajuste": 4,
-          "historico": 61
+          "historico": 0
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 37
+          "historico": 0
         },
         "HAT": {
           "ajuste": 27,
-          "historico": 6
+          "historico": 0
         }
       }
     },
@@ -401,7 +401,7 @@
       "zonas": {
         "SJ1": {
           "ajuste": 3,
-          "historico": 64
+          "historico": 65
         },
         "SJ2": {
           "ajuste": 0,
@@ -409,7 +409,7 @@
         },
         "PON": {
           "ajuste": 27,
-          "historico": 4
+          "historico": 5
         }
       }
     },
@@ -421,7 +421,7 @@
       "zonas": {
         "SJ1": {
           "ajuste": 16,
-          "historico": 51
+          "historico": 52
         },
         "SJ2": {
           "ajuste": 0,
@@ -429,11 +429,11 @@
         },
         "HAT": {
           "ajuste": 20,
-          "historico": 13
+          "historico": 14
         },
         "PON": {
           "ajuste": 19,
-          "historico": 12
+          "historico": 13
         },
         "COR": {
           "ajuste": 8,
@@ -449,7 +449,7 @@
       "zonas": {
         "SJ1": {
           "ajuste": 4,
-          "historico": 62
+          "historico": 63
         },
         "SJ2": {
           "ajuste": 2,
@@ -465,7 +465,7 @@
       "zonas": {
         "SJ1": {
           "ajuste": 0,
-          "historico": 67
+          "historico": 68
         },
         "SJ2": {
           "ajuste": 0,
@@ -485,7 +485,7 @@
       "zonas": {
         "SJ1": {
           "ajuste": 0,
-          "historico": 67
+          "historico": 68
         },
         "HAT": {
           "ajuste": 27,
@@ -493,7 +493,7 @@
         },
         "PON": {
           "ajuste": 0,
-          "historico": 31
+          "historico": 32
         },
         "COR": {
           "ajuste": 7,
@@ -509,7 +509,7 @@
       "zonas": {
         "SJ1": {
           "ajuste": 37,
-          "historico": 30
+          "historico": 31
         },
         "HAT": {
           "ajuste": 20,
@@ -517,7 +517,7 @@
         },
         "PON": {
           "ajuste": 20,
-          "historico": 11
+          "historico": 12
         },
         "MAYA": {
           "ajuste": 21,
@@ -537,11 +537,11 @@
         },
         "PON": {
           "ajuste": 0,
-          "historico": 31
+          "historico": 32
         },
         "MAYA": {
           "ajuste": 0,
-          "historico": 36
+          "historico": 38
         }
       }
     },
@@ -549,15 +549,15 @@
       "id": 11,
       "nombre": "Edwin Colon",
       "blacklist": true,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "SJ1": {
           "ajuste": 0,
-          "historico": 46
+          "historico": 0
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 35
+          "historico": 0
         }
       }
     },
@@ -565,11 +565,11 @@
       "id": 12,
       "nombre": "Elliot Rodriguez Gonzalez",
       "blacklist": false,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "SJ1": {
           "ajuste": 4,
-          "historico": 61
+          "historico": 62
         },
         "SJ2": {
           "ajuste": 0,
@@ -613,7 +613,7 @@
         },
         "PON": {
           "ajuste": 26,
-          "historico": 5
+          "historico": 6
         },
         "COR": {
           "ajuste": 7,
@@ -637,7 +637,7 @@
         },
         "PON": {
           "ajuste": 3,
-          "historico": 28
+          "historico": 29
         }
       }
     },
@@ -697,11 +697,11 @@
       "zonas": {
         "SJ1": {
           "ajuste": 2,
-          "historico": 62
+          "historico": 0
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 36
+          "historico": 0
         }
       }
     },
@@ -709,11 +709,11 @@
       "id": 19,
       "nombre": "Israel Pons Guzman",
       "blacklist": true,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "PON": {
           "ajuste": 3,
-          "historico": 24
+          "historico": 0
         }
       }
     },
@@ -725,7 +725,7 @@
       "zonas": {
         "PON": {
           "ajuste": 3,
-          "historico": 25
+          "historico": 0
         }
       }
     },
@@ -745,7 +745,7 @@
         },
         "MAYA": {
           "ajuste": 27,
-          "historico": 10
+          "historico": 11
         },
         "COR": {
           "ajuste": 7,
@@ -757,7 +757,7 @@
       "id": 22,
       "nombre": "Joel E Muniz Aybar",
       "blacklist": false,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "PON": {
           "ajuste": 0,
@@ -765,7 +765,7 @@
         },
         "MAYA": {
           "ajuste": 0,
-          "historico": 35
+          "historico": 36
         }
       }
     },
@@ -793,7 +793,7 @@
       "id": 24,
       "nombre": "Jose Luis Nogueras",
       "blacklist": false,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "HAT": {
           "ajuste": 4,
@@ -829,7 +829,7 @@
       "id": 26,
       "nombre": "Joshua Lopez",
       "blacklist": false,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "HAT": {
           "ajuste": 3,
@@ -889,11 +889,11 @@
       "id": 29,
       "nombre": "Luis Torres Velazquez",
       "blacklist": false,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "SJ2": {
           "ajuste": 30,
-          "historico": 5
+          "historico": 6
         },
         "PON": {
           "ajuste": 0,
@@ -913,19 +913,19 @@
       "id": 30,
       "nombre": "Lynda Darlene Green Cruz",
       "blacklist": true,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "PON": {
           "ajuste": 2,
-          "historico": 27
+          "historico": 0
         },
         "MAYA": {
           "ajuste": 2,
-          "historico": 32
+          "historico": 0
         },
         "COR": {
           "ajuste": 5,
-          "historico": 10
+          "historico": 0
         }
       }
     },
@@ -933,15 +933,15 @@
       "id": 31,
       "nombre": "Marie Lee Jaime Fernandez",
       "blacklist": true,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "SJ1": {
           "ajuste": 0,
-          "historico": 62
+          "historico": 0
         },
         "PON": {
           "ajuste": 0,
-          "historico": 29
+          "historico": 0
         }
       }
     },
@@ -1015,7 +1015,7 @@
         },
         "HAT": {
           "ajuste": 0,
-          "historico": 32
+          "historico": 33
         },
         "PON": {
           "ajuste": 25,
@@ -1083,7 +1083,7 @@
         },
         "HAT": {
           "ajuste": 6,
-          "historico": 26
+          "historico": 27
         }
       }
     },
@@ -1095,15 +1095,15 @@
       "zonas": {
         "SJ2": {
           "ajuste": 31,
-          "historico": 6
+          "historico": 0
         },
         "HAT": {
           "ajuste": 27,
-          "historico": 5
+          "historico": 0
         },
         "PON": {
           "ajuste": 26,
-          "historico": 4
+          "historico": 0
         }
       }
     },
@@ -1111,11 +1111,11 @@
       "id": 41,
       "nombre": "Raul Deya",
       "blacklist": false,
-      "tier2": true,
+      "tier2": false,
       "zonas": {
         "HAT": {
           "ajuste": 2,
-          "historico": 28
+          "historico": 29
         },
         "PON": {
           "ajuste": 26,
@@ -1143,15 +1143,15 @@
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 37
+          "historico": 38
         },
         "HAT": {
           "ajuste": 17,
-          "historico": 15
+          "historico": 16
         },
         "COR": {
           "ajuste": 7,
-          "historico": 9
+          "historico": 10
         }
       }
     },
@@ -1167,7 +1167,7 @@
         },
         "SJ2": {
           "ajuste": 2,
-          "historico": 35
+          "historico": 36
         },
         "COR": {
           "ajuste": 5,
@@ -1187,7 +1187,7 @@
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 37
+          "historico": 38
         },
         "PON": {
           "ajuste": 25,
@@ -1210,7 +1210,7 @@
       "zonas": {
         "SJ1": {
           "ajuste": 3,
-          "historico": 63
+          "historico": 62
         },
         "PON": {
           "ajuste": 3,
@@ -1222,7 +1222,7 @@
         },
         "COR": {
           "ajuste": 14,
-          "historico": 2
+          "historico": 3
         }
       }
     },
@@ -1238,7 +1238,7 @@
         },
         "HAT": {
           "ajuste": 0,
-          "historico": 32
+          "historico": 33
         },
         "COR": {
           "ajuste": 8,
@@ -1261,11 +1261,11 @@
       "zonas": {
         "SJ1": {
           "ajuste": 0,
-          "historico": 66
+          "historico": 67
         },
         "SJ2": {
           "ajuste": 0,
-          "historico": 37
+          "historico": 38
         },
         "COR": {
           "ajuste": 7,
@@ -1345,43 +1345,43 @@
         "nombre": "Adriana Paola Rodriguez Lopez",
         "inicio": "2024-12-19",
         "fin": "2025-01-19",
-        "detalle": "se asigna a la por inasistencia a las orientaciones ",
-        "previos": "si sin registro "
+        "detalle": "se asigna a la por inasistencia a las orientaciones",
+        "previos": "si sin registro"
       },
       {
         "nombre": "alex pares",
         "inicio": "2025-04-03",
         "fin": "2025-04-04",
-        "detalle": "consultor no se presento a las orientaciones ",
-        "previos": "si sin registro "
+        "detalle": "consultor no se presento a las orientaciones",
+        "previos": "si sin registro"
       },
       {
         "nombre": "Brayan Sanchez Ortiz",
         "inicio": "2025-01-10",
         "fin": "2025-02-10",
-        "detalle": "se asigna a la BL por inasistencia a las orientaciones ",
-        "previos": "si sin registro "
+        "detalle": "se asigna a la BL por inasistencia a las orientaciones",
+        "previos": "si sin registro"
       },
       {
         "nombre": "Jaime Sepulveda",
         "inicio": "2024-08-27",
         "fin": "2024-10-22",
         "detalle": "consultor no se presento a la cita que se le agendo el dia 26/08/2024",
-        "previos": "si sin registro "
+        "previos": "si sin registro"
       },
       {
         "nombre": "Karina N Bobe",
         "inicio": "2025-01-20",
         "fin": "2025-02-19",
-        "detalle": "No se aparecio a una cita y le quedo mal al cliente. Reasigno a las 8 AM. Estaba dormida cuando llamo al cliente. ",
-        "previos": "si sin registro "
+        "detalle": "No se aparecio a una cita y le quedo mal al cliente. Reasigno a las 8 AM. Estaba dormida cuando llamo al cliente.",
+        "previos": "si sin registro"
       },
       {
         "nombre": "Kenneth La Quay",
         "inicio": "2024-12-16",
         "fin": "2025-01-17",
-        "detalle": "Cumplio con el plazo en la BL, se realizar re incorpora al distribuidor ",
-        "previos": "si sin registro "
+        "detalle": "Cumplio con el plazo en la BL, se realizar re incorpora al distribuidor",
+        "previos": "si sin registro"
       },
       {
         "nombre": "Lynda Darlene Green Cruz",
@@ -1394,15 +1394,15 @@
         "nombre": "Marie Lee Jaime Fernandez",
         "inicio": "2024-12-23",
         "fin": "2025-01-23",
-        "detalle": "Se valida y es eeroneo el ingreso en la BL ",
-        "previos": "si sin registro "
+        "detalle": "Se valida y es eeroneo el ingreso en la BL",
+        "previos": "si sin registro"
       },
       {
         "nombre": "Marleen Ramos Marrero",
         "inicio": "2025-05-14",
         "fin": "2025-06-14",
         "detalle": "se coloca en la Black provisionalmente en blacklist en lo que Jesus y Alverio investigan todo",
-        "previos": "sin registro "
+        "previos": "sin registro"
       },
       {
         "nombre": "Alex Pares",
@@ -1415,7 +1415,7 @@
         "nombre": "David E Fonseca Rios",
         "inicio": "2025-10-28",
         "fin": "1900-01-30",
-        "detalle": "Pausado de leads hasta que nos responda y reporte que podemos hacer con las citas de IG que tenemos. ",
+        "detalle": "Pausado de leads hasta que nos responda y reporte que podemos hacer con las citas de IG que tenemos.",
         "previos": ""
       },
       {
@@ -1539,9 +1539,111 @@
       }
     ]
   },
-  "meta": {
-    "total_gerentes": 50,
-    "total_municipios": 78
+  "promotores": [
+    "Isaac Cruz",
+    "Ivette Jiménez",
+    "Lisette Nieves",
+    "Pedro González",
+    "Samantha Ruiz",
+    "Edgar O Rodríguez",
+    "Pablo Méndez",
+    "Marisol Espinosa"
+  ],
+  "ppHatillo": {
+    "productos": [
+      {
+        "codigo": "SOLAR_ROOFING",
+        "nombre": "Solar y Roofing",
+        "gerentes": [
+          {
+            "nombre": "Natalia Mercado",
+            "historico": 1
+          },
+          {
+            "nombre": "Yiviana Cruz",
+            "historico": 1
+          },
+          {
+            "nombre": "Merari Velazquez Aldarondo",
+            "historico": 2
+          },
+          {
+            "nombre": "Jaime Sepulveda",
+            "historico": 1
+          },
+          {
+            "nombre": "Jose A Rivera Mojica",
+            "historico": 1
+          },
+          {
+            "nombre": "Joselyne Soto Gonzalez",
+            "historico": 0
+          },
+          {
+            "nombre": "Marleen Ramos Marrero",
+            "historico": 1
+          },
+          {
+            "nombre": "Norbert Cruz Cabrera",
+            "historico": 0
+          },
+          {
+            "nombre": "Giovanni Roberto Rivera Orengo",
+            "historico": 0
+          },
+          {
+            "nombre": "Roberto Carlos Rivera Orengo",
+            "historico": 0
+          }
+        ]
+      },
+      {
+        "codigo": "WATER_ANKER",
+        "nombre": "Water y Anker",
+        "gerentes": [
+          {
+            "nombre": "Roberto Carlos Rivera Orengo",
+            "historico": 0
+          },
+          {
+            "nombre": "Giovanni Roberto Rivera Orengo",
+            "historico": 0
+          },
+          {
+            "nombre": "Norbert Cruz Cabrera",
+            "historico": 2
+          },
+          {
+            "nombre": "Marleen Ramos Marrero",
+            "historico": 2
+          },
+          {
+            "nombre": "Joselyne Soto Gonzalez",
+            "historico": 2
+          },
+          {
+            "nombre": "Jose A Rivera Mojica",
+            "historico": 2
+          },
+          {
+            "nombre": "Jaime Sepulveda",
+            "historico": 1
+          },
+          {
+            "nombre": "Merari Velazquez Aldarondo",
+            "historico": 1
+          },
+          {
+            "nombre": "Yiviana Cruz",
+            "historico": 2
+          },
+          {
+            "nombre": "Natalia Mercado",
+            "historico": 1
+          }
+        ]
+      }
+    ]
   },
   "hoy": [
     {
@@ -2076,232 +2178,14 @@
       "origen": "seed"
     }
   ],
+  "canales": [],
   "cumplimientoRango": {
     "inicio": "2026-05-18",
     "fin": "2026-06-17"
   },
-  "canales": [
-    {
-      "codigo": "MED",
-      "nombre": "Media Tour",
-      "color": "#14b8a6",
-      "gerentes": [
-        {
-          "nombre": "Alejandro Ramos",
-          "historico": 8
-        },
-        {
-          "nombre": "Brayan Sanchez Ortiz",
-          "historico": 0
-        },
-        {
-          "nombre": "Briand Steven Ramos Diaz",
-          "historico": 10
-        },
-        {
-          "nombre": "Carlos Emmanuel Alejandro Mercado",
-          "historico": 8
-        },
-        {
-          "nombre": "Christian Samir Rivera Santiago",
-          "historico": 8
-        },
-        {
-          "nombre": "Giovanni Roberto Rivera Orengo",
-          "historico": 7
-        },
-        {
-          "nombre": "Jorge Enrique Serrano Gonzalez",
-          "historico": 3
-        },
-        {
-          "nombre": "Miguel Antonio Mercado Bruno",
-          "historico": 7
-        },
-        {
-          "nombre": "Roberto Carlos Rivera Orengo",
-          "historico": 7
-        },
-        {
-          "nombre": "Silverio Osorio Bustamante",
-          "historico": 8
-        },
-        {
-          "nombre": "Wilson Morales Ruiz",
-          "historico": 8
-        },
-        {
-          "nombre": "Xavier Omar Musa Matos",
-          "historico": 7
-        },
-        {
-          "nombre": "Zoribeth Burgos",
-          "historico": 7
-        }
-      ]
-    },
-    {
-      "codigo": "BOOTH",
-      "nombre": "Booth Hatillo",
-      "color": "#f59e0b",
-      "gerentes": [
-        {
-          "nombre": "Jaime Sepulveda",
-          "historico": 21
-        },
-        {
-          "nombre": "Joselyne Soto Gonzalez",
-          "historico": 21
-        },
-        {
-          "nombre": "Marleen Ramos Marrero",
-          "historico": 21
-        },
-        {
-          "nombre": "Merari Velazquez Aldarondo",
-          "historico": 21
-        },
-        {
-          "nombre": "Natalia Mercado",
-          "historico": 21
-        },
-        {
-          "nombre": "Norbert Cruz Cabrera",
-          "historico": 21
-        },
-        {
-          "nombre": "Yiviana Cruz",
-          "historico": 20
-        },
-        {
-          "nombre": "Jose A Rivera Mojica",
-          "historico": 21
-        }
-      ]
-    },
-    {
-      "codigo": "IG_SJ2",
-      "nombre": "Instagram - San Juan 2",
-      "color": "#ec4899",
-      "gerentes": [
-        {
-          "nombre": "Adriana Paola Rodriguez Lopez",
-          "historico": 4
-        },
-        {
-          "nombre": "Carlos E Ortiz De Hostos",
-          "historico": 4
-        },
-        {
-          "nombre": "Christian Samir Rivera Santiago",
-          "historico": 4
-        },
-        {
-          "nombre": "David E Fonseca Rios",
-          "historico": 4
-        },
-        {
-          "nombre": "Ernesto Aguayo Mendoza",
-          "historico": 4
-        },
-        {
-          "nombre": "Jorge Enrique Serrano Gonzalez",
-          "historico": 4
-        },
-        {
-          "nombre": "Marie Lee Jaime Fernandez",
-          "historico": 0
-        },
-        {
-          "nombre": "Odette Perez Morales",
-          "historico": 4
-        },
-        {
-          "nombre": "Roberto Carlos Rivera Orengo",
-          "historico": 3
-        },
-        {
-          "nombre": "Silverio Osorio Bustamante",
-          "historico": 4
-        },
-        {
-          "nombre": "Xavier Omar Musa Matos",
-          "historico": 3
-        },
-        {
-          "nombre": "Zoribeth Burgos",
-          "historico": 3
-        }
-      ]
-    },
-    {
-      "codigo": "IG_PON",
-      "nombre": "Instagram - Ponce",
-      "color": "#8b5cf6",
-      "gerentes": [
-        {
-          "nombre": "Adriana Paola Rodriguez Lopez",
-          "historico": 4
-        },
-        {
-          "nombre": "Carlos E Ortiz De Hostos",
-          "historico": 4
-        },
-        {
-          "nombre": "Cinthia Rivera Pagan",
-          "historico": 4
-        },
-        {
-          "nombre": "David E Fonseca Rios",
-          "historico": 2
-        },
-        {
-          "nombre": "Raul Deya",
-          "historico": 3
-        }
-      ]
-    },
-    {
-      "codigo": "IG_MAYA",
-      "nombre": "Instagram - Mayaguez",
-      "color": "#06b6d4",
-      "gerentes": [
-        {
-          "nombre": "Cinthia Rivera Pagan",
-          "historico": 17
-        },
-        {
-          "nombre": "David E Fonseca Rios",
-          "historico": 11
-        },
-        {
-          "nombre": "Joel E Muniz Aybar",
-          "historico": 13
-        },
-        {
-          "nombre": "Raul Deya",
-          "historico": 15
-        }
-      ]
-    },
-    {
-      "codigo": "IG_COR",
-      "nombre": "Instagram - Cordillera",
-      "color": "#ef4444",
-      "gerentes": [
-        {
-          "nombre": "Carlos E Ortiz De Hostos",
-          "historico": 4
-        },
-        {
-          "nombre": "David E Fonseca Rios",
-          "historico": 3
-        },
-        {
-          "nombre": "Raul Deya",
-          "historico": 3
-        }
-      ]
-    }
-  ]
+  "meta": {
+    "fuente": "Distribucion de Leads Miguel.xlsx",
+    "importado": "2026-06-24",
+    "nota": "Fase 1 reimport (fix Tier2: carga=Offers-T2); PP Hatillo por producto; sin Media/Booth/IG"
+  }
 }

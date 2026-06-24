@@ -31,7 +31,7 @@ export async function GET() {
       const citas = await getCitasCoordinadas(hoy);
       const leads = citas.map((c) => ({
         ...c,
-        decision: decidir(db, { ref: c.ref, fechaCita: c.fechaCita, ciudad: c.ciudad, teamAssistance: c.teamAssistance, leadSource: c.leadSource, consultor: c.consultor }),
+        decision: decidir(db, { ref: c.ref, fechaCita: c.fechaCita, ciudad: c.ciudad, teamAssistance: c.teamAssistance, leadSource: c.leadSource, consultor: c.consultor, salesAssist: c.salesAssist }),
       }));
       return NextResponse.json({ fuente: "zoho", escribe, rango: { desde: hoy, filtro: `Lead Status = ${ESTADO_CITA} · Fecha ≥ hoy` }, leads });
     } catch (e) {

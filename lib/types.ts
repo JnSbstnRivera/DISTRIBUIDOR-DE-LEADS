@@ -80,6 +80,25 @@ export interface CanalAsignacion {
   origen: "auto" | "manual";
 }
 
+// PP Hatillo (plan piloto) — reemplaza Booth/Media. Rota por LÍNEA DE PRODUCTO,
+// no por zona: cada producto tiene su propia lista de consultores con su carga.
+export interface PPHatilloProducto {
+  codigo: string; // SOLAR_ROOFING | WATER_ANKER
+  nombre: string;
+  gerentes: { nombre: string; historico: number }[];
+}
+export interface PPHatillo {
+  productos: PPHatilloProducto[];
+}
+export interface PPHatilloAsignacion {
+  id: string;
+  fecha: string;
+  producto: string; // codigo del producto
+  gerente: string;
+  leadRef: string | null;
+  origen: "auto" | "manual";
+}
+
 export interface DB {
   zonas: Zona[];
   municipios: Municipio[];
@@ -89,6 +108,9 @@ export interface DB {
   hoy: HoyAsignacion[];
   canales: Canal[];
   canalAsignaciones: CanalAsignacion[];
+  promotores?: string[]; // si Sales Rep/Assist es uno de estos → tratar sin consultor + warning
+  ppHatillo?: PPHatillo; // listas por producto (plan piloto Hatillo)
+  ppHatilloAsignaciones?: PPHatilloAsignacion[];
   cumplimientoRango?: { inicio: string; fin: string };
 }
 

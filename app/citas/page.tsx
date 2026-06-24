@@ -22,6 +22,18 @@ function fmtFecha(iso?: string) {
 type Rep = { id: string; name: string };
 const dash = (v?: string) => (v && v.trim() ? v : "-");
 
+// Badge de ruta: a qué distribuidor va la cita según la lógica.
+function rutaBadge(l: any): { txt: string; bg: string; fg: string } {
+  const v = l?.decision?.via;
+  if (v === "error") return { txt: "Sin zona", bg: "#fdecea", fg: "#c0392b" };
+  if (v === "pp_hatillo") return { txt: "PP Hatillo", bg: "#fde9d6", fg: "#b9770e" };
+  if (v === "distribuidor")
+    return l?.decision?.esHoy
+      ? { txt: "Hoy", bg: "rgba(15,157,88,0.12)", fg: "#0f9d58" }
+      : { txt: "Digitales", bg: "#e6f1fb", fg: "#185fa5" };
+  return { txt: "Consultor", bg: "var(--color-subtle)", fg: "var(--color-muted)" }; // consultor/deal/gerente
+}
+
 export default function Citas() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -117,7 +129,7 @@ export default function Citas() {
     g.rows.push(l);
   }
 
-  const COLS = ["Cita Date/Time", "Lead #", "Lead Name", "Lead Source", "Dirección", "City", "Lead Status", "Sales Rep", "Post-Cita Status", "Lead Owner", "Team Assistance - Viejo", "Quality Stage", "¿Cita se dió?", "Distribuidor"];
+  const COLS = ["Cita Date/Time", "Lead #", "Lead Name", "Lead Source", "Dirección", "City", "Lead Status", "Sales Rep", "Post-Cita Status", "Lead Owner", "Team Assistance - Viejo", "Quality Stage", "¿Cita se dió?", "Ruta", "Distribuidor"];
 
   return (
     <div className="space-y-4">
@@ -259,7 +271,18 @@ function GroupRows({ g, colspan, real, editRow, pick, saving, setEditRow, setPic
               {l.qualityStage ? <span className="whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: "#ece7f6", color: "#6b4fb0" }}>{l.qualityStage}</span> : "-"}
             </td>
             <td className={`${wrap} max-w-[150px]`}>{dash(l.citaSeDio)}</td>
+            <td className={td}>
+              {(() => { const b = rutaBadge(l); return (
+                <span className="whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: b.bg, color: b.fg }}>{b.txt}</span>
+              ); })()}
+              {l.decision?.warning && (
+                <div className="mt-1 flex items-center gap-1 text-[10px] font-bold" style={{ color: "#b9770e" }} title={l.decision.warning}>🚩 promotor</div>
+              )}
+            </td>
             <td className={`${td} whitespace-nowrap`}>
+              {l.assignName && !editing && !confirming && (
+                <div className="mb-1 text-[10px] font-bold" style={{ color: "#0f9d58" }} title="Ya tiene consultor asignado (Assign Consultant Appointment)">✓ {l.assignName}</div>
+              )}
               {editing ? (
                 <div className="flex items-center gap-1">
                   <input list="reps-list" value={pick} onChange={(e) => setPick(e.target.value)} placeholder="Consultor…" className="w-36 rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-[11px] outline-none focus:border-wh-orange" />

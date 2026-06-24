@@ -1,26 +1,35 @@
 import { NextResponse } from "next/server";
 import { readDB, writeDB } from "@/lib/store";
-import { rankCanal, proximoGerenteCanal } from "@/lib/engine";
-import type { CanalAsignacion } from "@/lib/types";
+import { rankProducto, proximoConsultorProducto } from "@/lib/engine";
+import type { PPHatilloAsignacion } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+
+// PP HATILLO (plan piloto) — reemplaza Canales/Booth/Media.
+// Rota por LÍNEA DE PRODUCTO (Solar y Roofing / Water y Anker).
+// La UI de /canales se reusa: cada "canal" = un producto.
+const COLOR: Record<string, string> = {
+  SOLAR_ROOFING: "#e07d00", // naranja Windmar (solar/roofing)
+  WATER_ANKER: "#1D6FB8", // azul (agua/anker)
+};
 
 export async function GET() {
   const db = readDB();
   const hoy = new Date();
-  const ranking: Record<string, ReturnType<typeof rankCanal>> = {};
-  for (const c of db.canales) ranking[c.codigo] = rankCanal(db, c.codigo, hoy);
-  const canales = db.canales.map((c) => ({
-    codigo: c.codigo,
-    nombre: c.nombre,
-    color: c.color,
-    participantes: c.gerentes.length,
-    asignadasSesion: db.canalAsignaciones.filter((a) => a.canal === c.codigo).length,
+  const productos = db.ppHatillo?.productos ?? [];
+  const ranking: Record<string, ReturnType<typeof rankProducto>> = {};
+  for (const p of productos) ranking[p.codigo] = rankProducto(db, p.codigo, hoy);
+  const canales = productos.map((p) => ({
+    codigo: p.codigo,
+    nombre: p.nombre,
+    color: COLOR[p.codigo] ?? "#e07d00",
+    participantes: p.gerentes.length,
+    asignadasSesion: (db.ppHatilloAsignaciones ?? []).filter((a) => a.producto === p.codigo).length,
   }));
   return NextResponse.json({
     canales,
     ranking,
-    asignaciones: db.canalAsignaciones.slice(0, 50),
+    asignaciones: (db.ppHatilloAsignaciones ?? []).slice(0, 50),
   });
 }
 
@@ -28,27 +37,29 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const db = readDB();
   const codigo: string | null = body.canal ?? null;
-  if (!codigo || !db.canales.find((c) => c.codigo === codigo))
-    return NextResponse.json({ error: "Canal inválido." }, { status: 400 });
+  const productos = db.ppHatillo?.productos ?? [];
+  if (!codigo || !productos.find((p) => p.codigo === codigo))
+    return NextResponse.json({ error: "Producto inválido." }, { status: 400 });
 
   let gerente: string | null = body.gerente ?? null;
   let origen: "auto" | "manual" = body.gerente ? "manual" : "auto";
   if (!gerente) {
-    const next = proximoGerenteCanal(db, codigo);
-    if (!next) return NextResponse.json({ error: "No hay gerentes elegibles." }, { status: 409 });
+    const next = proximoConsultorProducto(db, codigo);
+    if (!next) return NextResponse.json({ error: "No hay consultores elegibles." }, { status: 409 });
     gerente = next.gerente.nombre;
     origen = "auto";
   }
 
-  const a: CanalAsignacion = {
+  const a: PPHatilloAsignacion = {
     id: `${Date.now()}-${Math.round(Math.random() * 1e6)}`,
     fecha: new Date().toISOString(),
-    canal: codigo,
+    producto: codigo,
     gerente,
     leadRef: body.leadRef ?? null,
     origen,
   };
-  db.canalAsignaciones.unshift(a);
+  if (!db.ppHatilloAsignaciones) db.ppHatilloAsignaciones = [];
+  db.ppHatilloAsignaciones.unshift(a);
   writeDB(db);
-  return NextResponse.json({ ok: true, asignacion: a, ranking: rankCanal(db, codigo) });
+  return NextResponse.json({ ok: true, asignacion: a, ranking: rankProducto(db, codigo) });
 }

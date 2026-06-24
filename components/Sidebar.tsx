@@ -8,11 +8,8 @@ import {
   Send,
   CalendarClock,
   CalendarCheck,
-  Radio,
-  BadgeCheck,
+  Boxes,
   Map,
-  Users,
-  Ban,
   History,
   Menu,
   X,
@@ -23,27 +20,19 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const GROUPS = [
   {
-    label: "Operación",
+    label: "Distribución",
     items: [
-      { href: "/", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/citas", label: "Citas (Zoho)", icon: CalendarCheck },
-      { href: "/asignar", label: "Asignar Lead", icon: Send },
+      { href: "/citas", label: "Citas (Analista)", icon: CalendarCheck },
+      { href: "/asignar", label: "Leads Digitales", icon: Send },
       { href: "/hoy", label: "Distribución Hoy", icon: CalendarClock },
-      { href: "/canales", label: "Canales", icon: Radio },
+      { href: "/canales", label: "PP Hatillo", icon: Boxes },
     ],
   },
   {
-    label: "Análisis",
+    label: "Referencia",
     items: [
-      { href: "/cumplimiento", label: "Cumplimiento", icon: BadgeCheck },
       { href: "/mapa", label: "Mapa de Zonas", icon: Map },
-    ],
-  },
-  {
-    label: "Gestión",
-    items: [
-      { href: "/gerentes", label: "Gerentes", icon: Users },
-      { href: "/blacklist", label: "Black List", icon: Ban },
+      { href: "/consulta", label: "Consulta", icon: LayoutDashboard },
     ],
   },
   {
@@ -93,7 +82,7 @@ function NavList({ path, onNavigate }: { path: string; onNavigate?: () => void }
 
 function Brand() {
   return (
-    <Link href="/" className="flex items-center gap-3 px-4 py-4">
+    <Link href="/citas" className="flex items-center gap-3 px-4 py-4">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="https://i.postimg.cc/6T5J2v2G/windmar-logo.png"
