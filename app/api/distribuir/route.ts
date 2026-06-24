@@ -4,6 +4,7 @@ import { decidir } from "@/lib/decision";
 import { fechaHoy } from "@/lib/engine";
 import {
   zohoConfigured,
+  escrituraHabilitada,
   getSalesTeam,
   updateLead,
   addNote,
@@ -72,43 +73,56 @@ export async function POST(req: Request) {
   const gerente = decision.gerente;
   const zona = decision.zona as ZonaCodigo;
 
-  // 2) + 3) Escritura en Zoho (si hay credenciales).
-  let zohoEscrito: "sales_rep" | "nota" | "no" = "no";
+  // 2) + 3) Escritura en Zoho. El interruptor escrituraHabilitada() está
+  // APAGADO por defecto → modo demo: leemos Zoho en vivo y resolvemos a quién
+  // SE ASIGNARÍA, pero no tocamos el CRM hasta que Cata apruebe.
+  const escribe = escrituraHabilitada();
+  let zohoEscrito: "sales_rep" | "nota" | "no" | "demo" = "no";
   let consultorEscrito: string | null = null;
   let url: string | undefined;
 
   if (zohoConfigured() && leadId) {
-    try {
-      const reps = await getSalesTeam();
-      const match = reps.find((r) => norm(r.name) === norm(gerente));
-      const notaBase = `Distribución automática (rotación del Excel · zona ${zona}).\nGerente que sigue por carga: ${gerente}.`;
+    if (!escribe) {
+      // Modo demo: NO se escribe en Zoho. Intentamos resolver el consultor solo
+      // para el preview del Historial; si la lectura falla, no es fatal.
+      try {
+        const reps = await getSalesTeam();
+        consultorEscrito = reps.find((r) => norm(r.name) === norm(gerente))?.name ?? null;
+      } catch { /* preview opcional */ }
+      zohoEscrito = "demo";
+    } else {
+      try {
+        const reps = await getSalesTeam();
+        const match = reps.find((r) => norm(r.name) === norm(gerente));
+        consultorEscrito = match?.name ?? null;
+        const notaBase = `Distribución automática (rotación del Excel · zona ${zona}).\nGerente que sigue por carga: ${gerente}.`;
 
-      if (match) {
-        const res = await updateLead(String(leadId), { salesRepId: match.id });
-        const rec = res?.data?.[0];
-        if (rec && rec.code !== "SUCCESS") {
-          return NextResponse.json(
-            { ok: false, error: rec.message || "Zoho rechazó la actualización", detalle: rec },
-            { status: 400 }
+        if (match) {
+          const res = await updateLead(String(leadId), { salesRepId: match.id });
+          const rec = res?.data?.[0];
+          if (rec && rec.code !== "SUCCESS") {
+            return NextResponse.json(
+              { ok: false, error: rec.message || "Zoho rechazó la actualización", detalle: rec },
+              { status: 400 }
+            );
+          }
+          await addNote(String(leadId), `${notaBase}\n\n— Consultor asignado: ${match.name}.\n(BOT DISTRIBUIDOR)`);
+          zohoEscrito = "sales_rep";
+        } else {
+          // El gerente del Excel no existe como consultor en Sales_Team → dejamos nota y no tocamos el campo.
+          await addNote(
+            String(leadId),
+            `${notaBase}\n\n⚠️ No se encontró "${gerente}" en Sales_Team — asignar manualmente.\n(BOT DISTRIBUIDOR)`
           );
+          zohoEscrito = "nota";
         }
-        await addNote(String(leadId), `${notaBase}\n\n— Consultor asignado: ${match.name}.\n(BOT DISTRIBUIDOR)`);
-        zohoEscrito = "sales_rep";
-        consultorEscrito = match.name;
-      } else {
-        // El gerente del Excel no existe como consultor en Sales_Team → dejamos nota y no tocamos el campo.
-        await addNote(
-          String(leadId),
-          `${notaBase}\n\n⚠️ No se encontró "${gerente}" en Sales_Team — asignar manualmente.\n(BOT DISTRIBUIDOR)`
+        url = leadUrl(String(leadId));
+      } catch (e) {
+        return NextResponse.json(
+          { ok: false, error: String((e as Error).message || e) },
+          { status: 500 }
         );
-        zohoEscrito = "nota";
       }
-      url = leadUrl(String(leadId));
-    } catch (e) {
-      return NextResponse.json(
-        { ok: false, error: String((e as Error).message || e) },
-        { status: 500 }
-      );
     }
   }
 
@@ -148,6 +162,7 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     ok: true,
+    modo: escribe ? "live" : "demo",
     gerente,
     zona,
     esHoy: decision.esHoy,

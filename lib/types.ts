@@ -46,7 +46,7 @@ export interface Asignacion {
   via?: string; // cascada de decisión (distribuidor | consultor | …)
   consultor?: string | null; // nombre escrito como Sales_Rep en Zoho (si hubo match)
   leadId?: string | null; // id real del lead en Zoho
-  zoho?: "sales_rep" | "nota" | "no"; // qué se escribió de vuelta en Zoho
+  zoho?: "sales_rep" | "nota" | "no" | "demo"; // qué se escribió de vuelta en Zoho ("demo" = decidido pero no escrito)
 }
 
 export type EstadoHoy = "pendiente" | "contestado" | "no_contestado";

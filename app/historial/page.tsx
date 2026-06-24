@@ -9,6 +9,8 @@ const zohoBadge = (z?: string) =>
     ? { txt: "Asignado", bg: "rgba(15,157,88,0.12)", fg: "#0f9d58" }
     : z === "nota"
     ? { txt: "Solo nota", bg: "rgba(245,166,35,0.14)", fg: "#b9770e" }
+    : z === "demo"
+    ? { txt: "Demo", bg: "rgba(109,110,113,0.14)", fg: "#6d6e71" }
     : { txt: "—", bg: "var(--color-subtle)", fg: "var(--color-muted)" };
 
 export default function Historial() {

@@ -37,6 +37,14 @@ export function zohoConfigured(): boolean {
   return Boolean(process.env.ZOHO_CLIENT_ID && process.env.ZOHO_CLIENT_SECRET && process.env.ZOHO_REFRESH_TOKEN);
 }
 
+// Interruptor de escritura del Distribuidor. APAGADO por defecto (modo demo:
+// lee Zoho en vivo pero NO escribe). Se prende en Vercel/.env con
+// DISTRIBUIDOR_ESCRIBE=1 (o "true") cuando Cata aprueba la lógica.
+export function escrituraHabilitada(): boolean {
+  const v = (process.env.DISTRIBUIDOR_ESCRIBE || "").trim().toLowerCase();
+  return v === "1" || v === "true" || v === "on";
+}
+
 // ── Token de servicio (cuenta única, cache en instancia caliente) ──
 let svcToken: string | null = null;
 let svcExp = 0;

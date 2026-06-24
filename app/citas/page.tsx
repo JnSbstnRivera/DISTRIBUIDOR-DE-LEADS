@@ -90,8 +90,9 @@ export default function Citas() {
         const dest = j.consultor || j.gerente;
         const how = j.zoho === "sales_rep" ? "asignado en Zoho ✓"
           : j.zoho === "nota" ? "nota dejada (revisar manual)"
-          : "registrado (demo)";
-        setMsg(`Distribuido a ${dest} · ${how}`);
+          : j.zoho === "demo" ? "DEMO · NO se escribió en Zoho"
+          : "registrado";
+        setMsg(`${j.modo === "demo" ? "Se asignaría" : "Distribuido"} a ${dest} · ${how}`);
         setDistRow(null); load();
       } else setMsg(j.error || "No se pudo distribuir.");
     } catch (e) { setMsg(String((e as Error).message)); }
@@ -100,6 +101,7 @@ export default function Citas() {
 
   if (!data) return <div className="text-[var(--color-muted)]">Cargando…</div>;
 
+  const escribe = data.escribe === true; // false = modo demo (no escribe en Zoho)
   const allLeads: any[] = data.leads || [];
   const owners = Array.from(new Set(allLeads.map((l) => l.qualityOwner || "").filter(Boolean))).sort() as string[];
   const leads = allLeads.filter((l) =>
@@ -125,6 +127,25 @@ export default function Citas() {
           Citas Coordinadas
         </SectionTitle>
       </div>
+
+      {/* Banner del interruptor de escritura (demo vs real) */}
+      {real && (
+        <div
+          className="flex items-start gap-2 rounded-lg border px-3 py-2 text-[12px]"
+          style={
+            escribe
+              ? { borderColor: "rgba(15,157,88,0.35)", background: "rgba(15,157,88,0.08)", color: "#0f7a46" }
+              : { borderColor: "rgba(245,166,35,0.45)", background: "rgba(245,166,35,0.1)", color: "#9a6a04" }
+          }
+        >
+          <span className="font-bold">{escribe ? "✍️ Escritura ACTIVA" : "🔒 Modo DEMO"}</span>
+          <span>
+            {escribe
+              ? "Confirmar “Distribuir” cambia el Sales_Rep del lead en Zoho real."
+              : "“Distribuir” muestra a quién le tocaría según la lógica y lo registra en el Historial, pero NO escribe en Zoho. Para activar la escritura real: poner DISTRIBUIDOR_ESCRIBE=1 en Vercel."}
+          </span>
+        </div>
+      )}
 
       {/* barra estilo reporte */}
       <div className="flex flex-wrap items-center gap-3">

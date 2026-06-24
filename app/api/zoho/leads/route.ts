@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { readDB } from "@/lib/store";
 import { decidir, type LeadZoho } from "@/lib/decision";
 import { fechaHoy } from "@/lib/engine";
-import { zohoConfigured, getCitasCoordinadas, ESTADO_CITA } from "@/lib/zoho";
+import { zohoConfigured, escrituraHabilitada, getCitasCoordinadas, ESTADO_CITA } from "@/lib/zoho";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +23,7 @@ function mockLeads(): LeadZoho[] {
 export async function GET() {
   const db = readDB();
   const hoy = fechaHoy();
+  const escribe = escrituraHabilitada(); // false = modo demo (no escribe en Zoho)
 
   // REAL si hay credenciales; si falla o no hay, cae a MOCK (software vivo).
   if (zohoConfigured()) {
@@ -32,12 +33,12 @@ export async function GET() {
         ...c,
         decision: decidir(db, { ref: c.ref, fechaCita: c.fechaCita, ciudad: c.ciudad, teamAssistance: c.teamAssistance, leadSource: c.leadSource, consultor: c.consultor }),
       }));
-      return NextResponse.json({ fuente: "zoho", rango: { desde: hoy, filtro: `Lead Status = ${ESTADO_CITA} · Fecha ≥ hoy` }, leads });
+      return NextResponse.json({ fuente: "zoho", escribe, rango: { desde: hoy, filtro: `Lead Status = ${ESTADO_CITA} · Fecha ≥ hoy` }, leads });
     } catch (e) {
-      return NextResponse.json({ fuente: "mock", error: String((e as Error).message || e), rango: { desde: hoy, filtro: `Lead Status = ${ESTADO_CITA} · Fecha ≥ hoy` }, leads: mockLeads().map((l) => ({ ...l, decision: decidir(db, l) })) });
+      return NextResponse.json({ fuente: "mock", escribe, error: String((e as Error).message || e), rango: { desde: hoy, filtro: `Lead Status = ${ESTADO_CITA} · Fecha ≥ hoy` }, leads: mockLeads().map((l) => ({ ...l, decision: decidir(db, l) })) });
     }
   }
 
   const leads = mockLeads().map((l) => ({ ...l, decision: decidir(db, l) }));
-  return NextResponse.json({ fuente: "mock", rango: { desde: hoy, filtro: `Lead Status = ${ESTADO_CITA} · Fecha ≥ hoy` }, leads });
+  return NextResponse.json({ fuente: "mock", escribe, rango: { desde: hoy, filtro: `Lead Status = ${ESTADO_CITA} · Fecha ≥ hoy` }, leads });
 }
