@@ -44,6 +44,7 @@ export default function Citas() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [ownerFilter, setOwnerFilter] = useState("todos");
+  const [quick, setQuick] = useState<"todas" | "distribuir" | "hoy" | "promotor" | "asignado">("todas");
   const [distRow, setDistRow] = useState<string | null>(null); // fila en confirmación de "Distribuir"
   const [distSaving, setDistSaving] = useState(false);
 
@@ -116,9 +117,28 @@ export default function Citas() {
   const escribe = data.escribe === true; // false = modo demo (no escribe en Zoho)
   const allLeads: any[] = data.leads || [];
   const owners = Array.from(new Set(allLeads.map((l) => l.qualityOwner || "").filter(Boolean))).sort() as string[];
-  const leads = allLeads.filter((l) =>
+
+  // Predicados de los filtros rápidos
+  const esPorDistribuir = (l: any) => l.decision?.via === "distribuidor" || l.decision?.via === "pp_hatillo";
+  const esHoy = (l: any) => !!l.decision?.esHoy;
+  const esPromotor = (l: any) => !!l.decision?.warning;
+  const esAsignado = (l: any) => !!l.assignName;
+  const quickPred: Record<string, (l: any) => boolean> = {
+    todas: () => true, distribuir: esPorDistribuir, hoy: esHoy, promotor: esPromotor, asignado: esAsignado,
+  };
+
+  // Filtro por analista (Quality Owner) + filtro rápido
+  const byOwner = allLeads.filter((l) =>
     ownerFilter === "todos" ? true : ownerFilter === "__sin__" ? !l.qualityOwner : l.qualityOwner === ownerFilter
   );
+  const leads = byOwner.filter(quickPred[quick]);
+  const QUICK = [
+    { k: "todas", label: "Todas", n: byOwner.length },
+    { k: "distribuir", label: "Por distribuir", n: byOwner.filter(esPorDistribuir).length },
+    { k: "hoy", label: "Hoy", n: byOwner.filter(esHoy).length },
+    { k: "promotor", label: "Promotor", n: byOwner.filter(esPromotor).length },
+    { k: "asignado", label: "Ya asignado", n: byOwner.filter(esAsignado).length },
+  ] as const;
 
   // agrupar por fecha (como el reporte de Zoho)
   const groups: { key: string; rows: any[] }[] = [];
@@ -129,7 +149,7 @@ export default function Citas() {
     g.rows.push(l);
   }
 
-  const COLS = ["Cita Date/Time", "Lead #", "Lead Name", "Lead Source", "Dirección", "City", "Lead Status", "Sales Rep", "Post-Cita Status", "Lead Owner", "Team Assistance - Viejo", "Quality Stage", "¿Cita se dió?", "Ruta", "Distribuidor"];
+  const COLS = ["Cita", "Lead", "Ciudad", "Sales Rep (Zoho)", "Quality Stage", "Ruta", "Distribuidor"];
 
   return (
     <div className="space-y-4">
@@ -189,12 +209,31 @@ export default function Citas() {
         </div>
       </div>
 
+      {/* filtros rápidos */}
+      <div className="flex flex-wrap gap-2">
+        {QUICK.map((q) => {
+          const on = quick === q.k;
+          return (
+            <button
+              key={q.k}
+              onClick={() => setQuick(q.k as typeof quick)}
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition ${
+                on ? "bg-wh-orange text-white shadow-orange" : "border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+              }`}
+            >
+              {q.label}
+              <span className={`rounded-full px-1.5 text-[10px] ${on ? "bg-black/15" : "bg-[var(--color-subtle)]"}`}>{q.n}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {msg && <p className="text-xs font-semibold text-wh-blue">{msg}</p>}
       <datalist id="reps-list">{reps.map((r) => <option key={r.id} value={r.name} />)}</datalist>
 
-      {/* tabla estilo reporte Zoho */}
+      {/* tabla compacta (sin scroll horizontal) */}
       <div className="exec-card overflow-x-auto p-0">
-        <table className="w-max min-w-full border-collapse text-[12px]">
+        <table className="w-full border-collapse text-[12px]">
           <thead>
             <tr className="border-b border-[var(--color-line)] bg-[var(--color-subtle)] text-left text-[10px] font-bold uppercase tracking-wide text-[var(--color-muted)]">
               {COLS.map((c) => (
@@ -255,22 +294,15 @@ function GroupRows({ g, colspan, real, editRow, pick, saving, setEditRow, setPic
         return (
           <tr key={l.ref} className="border-b border-[var(--color-line)] hover:bg-[var(--color-subtle)]">
             <td className={`${td} whitespace-nowrap`}>{f.date}<div className="text-[var(--color-muted)]">{f.time}</div></td>
-            <td className={`${td} font-mono text-[11px]`}>{l.ref}</td>
-            <td className={`${wrap} max-w-[150px]`}>
+            <td className={`${wrap} max-w-[180px]`}>
               {l.id ? <a href={zohoLeadUrl(l.id)} target="_blank" rel="noreferrer" className="font-semibold text-wh-blue hover:underline">{dash(l.nombre)}</a> : dash(l.nombre)}
+              <div className="font-mono text-[10px] text-[var(--color-muted)]">{l.ref}{l.leadSource ? ` · ${l.leadSource}` : ""}</div>
             </td>
-            <td className={td}>{dash(l.leadSource)}</td>
-            <td className={`${wrap} max-w-[170px]`}>{dash(l.direccion)}</td>
             <td className={td}>{dash(l.ciudad)}</td>
-            <td className={`${td} whitespace-nowrap`}>{dash(l.estadoZoho || "Cita Coordinada")}</td>
-            <td className={td}><span className="font-semibold text-wh-blue">{dash(l.salesRepName)}</span></td>
-            <td className={td}>{dash(l.postCita)}</td>
-            <td className={td}>{dash(l.ownerName)}</td>
-            <td className={td}>{dash(l.teamViejo)}</td>
+            <td className={td}>{dash(l.salesRepName)}</td>
             <td className={td}>
               {l.qualityStage ? <span className="whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: "#ece7f6", color: "#6b4fb0" }}>{l.qualityStage}</span> : "-"}
             </td>
-            <td className={`${wrap} max-w-[150px]`}>{dash(l.citaSeDio)}</td>
             <td className={td}>
               {(() => { const b = rutaBadge(l); return (
                 <span className="whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: b.bg, color: b.fg }}>{b.txt}</span>
