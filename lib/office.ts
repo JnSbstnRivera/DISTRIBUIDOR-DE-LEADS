@@ -101,7 +101,7 @@ export type OfficeLayout = {
   logos?: LogoItem[];
 };
 
-export const LAYOUT_REV = 4;
+export const LAYOUT_REV = 5; // sube para descartar layouts viejos guardados (fuerza perfil/de lado)
 
 export const MIN_COLS = 20;
 export const MAX_COLS = 80;
