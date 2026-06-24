@@ -26,6 +26,7 @@ const dash = (v?: string) => (v && v.trim() ? v : "-");
 function rutaBadge(l: any): { txt: string; bg: string; fg: string } {
   const v = l?.decision?.via;
   if (v === "error") return { txt: "Sin zona", bg: "#fdecea", fg: "#c0392b" };
+  if (v === "espera") return { txt: "En espera", bg: "#fdecea", fg: "#c0392b" };
   if (v === "pp_hatillo") return { txt: "PP Hatillo", bg: "#fde9d6", fg: "#b9770e" };
   if (v === "distribuidor")
     return l?.decision?.esHoy
@@ -44,7 +45,9 @@ export default function Citas() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [ownerFilter, setOwnerFilter] = useState("todos");
-  const [quick, setQuick] = useState<"todas" | "distribuir" | "hoy" | "promotor" | "asignado">("todas");
+  const [quick, setQuick] = useState<"todas" | "distribuir" | "hoy" | "promotor" | "asignado" | "espera">("todas");
+  const [teamFilter, setTeamFilter] = useState("todos");
+  const [sourceFilter, setSourceFilter] = useState("todos");
   const [distRow, setDistRow] = useState<string | null>(null); // fila en confirmación de "Distribuir"
   const [distSaving, setDistSaving] = useState(false);
 
@@ -121,16 +124,24 @@ export default function Citas() {
   // Predicados de los filtros rápidos
   const esPorDistribuir = (l: any) => l.decision?.via === "distribuidor" || l.decision?.via === "pp_hatillo";
   const esHoy = (l: any) => !!l.decision?.esHoy;
-  const esPromotor = (l: any) => !!l.decision?.warning;
+  const esPromotor = (l: any) => l.decision?.via === "pp_hatillo";
   const esAsignado = (l: any) => !!l.assignName;
+  const esEspera = (l: any) => l.decision?.via === "espera";
   const quickPred: Record<string, (l: any) => boolean> = {
-    todas: () => true, distribuir: esPorDistribuir, hoy: esHoy, promotor: esPromotor, asignado: esAsignado,
+    todas: () => true, distribuir: esPorDistribuir, hoy: esHoy, promotor: esPromotor, asignado: esAsignado, espera: esEspera,
   };
 
-  // Filtro por analista (Quality Owner) + filtro rápido
-  const byOwner = allLeads.filter((l) =>
-    ownerFilter === "todos" ? true : ownerFilter === "__sin__" ? !l.qualityOwner : l.qualityOwner === ownerFilter
-  );
+  // Opciones de Team Assistance y Lead Source (para los selectores)
+  const teams = Array.from(new Set(allLeads.map((l) => (l.teamAssistance || "").trim()).filter(Boolean))).sort() as string[];
+  const sources = Array.from(new Set(allLeads.map((l) => (l.leadSource || "").trim()).filter(Boolean))).sort() as string[];
+
+  // Filtros: analista (Quality Owner) + Team Assistance + Lead Source + filtro rápido
+  const byOwner = allLeads.filter((l) => {
+    const okOwner = ownerFilter === "todos" ? true : ownerFilter === "__sin__" ? !l.qualityOwner : l.qualityOwner === ownerFilter;
+    const okTeam = teamFilter === "todos" ? true : (l.teamAssistance || "").includes(teamFilter);
+    const okSource = sourceFilter === "todos" ? true : l.leadSource === sourceFilter;
+    return okOwner && okTeam && okSource;
+  });
   const leads = byOwner.filter(quickPred[quick]);
   const QUICK = [
     { k: "todas", label: "Todas", n: byOwner.length },
@@ -138,6 +149,7 @@ export default function Citas() {
     { k: "hoy", label: "Hoy", n: byOwner.filter(esHoy).length },
     { k: "promotor", label: "Promotor", n: byOwner.filter(esPromotor).length },
     { k: "asignado", label: "Ya asignado", n: byOwner.filter(esAsignado).length },
+    { k: "espera", label: "En espera", n: byOwner.filter(esEspera).length },
   ] as const;
 
   // agrupar por fecha (como el reporte de Zoho)
@@ -194,6 +206,14 @@ export default function Citas() {
           {owners.map((o) => (
             <option key={o} value={o}>{o} ({allLeads.filter((l) => l.qualityOwner === o).length})</option>
           ))}
+        </select>
+        <select value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)} className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-xs font-semibold text-[var(--color-ink)] outline-none focus:border-wh-orange">
+          <option value="todos">Team: todos</option>
+          {teams.map((t) => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-xs font-semibold text-[var(--color-ink)] outline-none focus:border-wh-orange">
+          <option value="todos">Fuente: todas</option>
+          {sources.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
         <span className="rounded-full bg-[var(--color-subtle)] px-2.5 py-0.5 text-[11px] font-bold" style={{ color: real ? "#0f9d58" : "#6d6e71" }}>
           {real ? "Zoho en vivo" : "DEMO"}

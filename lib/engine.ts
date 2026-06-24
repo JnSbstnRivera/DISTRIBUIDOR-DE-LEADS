@@ -178,6 +178,33 @@ export function proximoGerenteCanal(db: DB, codigo: string, hoy = new Date()): C
 function norm(s: string): string {
   return (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
 }
+// Mapea el Lead_Type (productos) a la lista de PP Hatillo.
+// Solar y Roofing: placas, tesla powerwall, roofing, calentador solar.
+// Water y Anker: anker, cisterna, suavizador, agua.
+export function productoHatillo(leadType?: string | null): string {
+  const t = norm(leadType || "");
+  const solar = /placa|tesla|roofing|calentador|solar/.test(t);
+  if (solar) return "SOLAR_ROOFING";
+  const water = /anker|cisterna|suavizador|agua|water/.test(t);
+  if (water) return "WATER_ANKER";
+  return "SOLAR_ROOFING"; // por defecto
+}
+
+// Horario de visita válido (PR). Fuera de esto la cita queda "en espera".
+export const HORA_MIN = Number(process.env.CITA_HORA_MIN || 7); // 7am
+export const HORA_MAX = Number(process.env.CITA_HORA_MAX || 20); // 8pm
+/** Devuelve la hora (0-23) de un datetime ISO de Zoho, o null si no parsea. */
+export function horaDeCita(fechaHora?: string): number | null {
+  const m = /T(\d{2}):/.exec(fechaHora || "");
+  return m ? Number(m[1]) : null;
+}
+/** ¿La cita cae fuera del horario de visita (incompatible)? */
+export function horarioIncompatible(fechaHora?: string): boolean {
+  const h = horaDeCita(fechaHora);
+  if (h === null) return false; // sin hora → no bloquear
+  return h < HORA_MIN || h >= HORA_MAX;
+}
+
 export function esPromotor(db: DB, nombre?: string | null): boolean {
   if (!nombre) return false;
   // Zoho guarda el nombre completo (ej. "Ivette Jimenez Pagan") y la lista usa el
