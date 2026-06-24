@@ -39,7 +39,7 @@ export default function Cumplimiento() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex items-center gap-2">
           <BadgeCheck className="h-5 w-5 text-wh-orange" />
-          <SectionTitle sub="Contestado vs No Contestado por zona y gerente (citas del mismo día). Base para penalizaciones / Black List.">
+          <SectionTitle sub="Citas del mismo día que el gerente ATENDIÓ vs NO atendió, por zona y gerente. Base para penalizaciones / Black List.">
             Dashboard de Cumplimiento
           </SectionTitle>
         </div>
@@ -80,11 +80,11 @@ export default function Cumplimiento() {
           </div>
         </div>
         <div className="exec-card p-4">
-          <div className="exec-label">Contestadas</div>
+          <div className="exec-label">Atendidas</div>
           <div className="kpi-number mt-1 text-3xl font-black text-[#0f9d58]"><AnimatedCounter value={totales.contestado} /></div>
         </div>
         <div className="exec-card p-4">
-          <div className="exec-label">No contestadas</div>
+          <div className="exec-label">No atendidas</div>
           <div className="kpi-number mt-1 text-3xl font-black text-[#dc2626]"><AnimatedCounter value={totales.no_contestado} /></div>
         </div>
         <div className="exec-card p-4">
@@ -134,7 +134,7 @@ export default function Cumplimiento() {
         ))}
       </div>
       <p className="flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
-        <AlertTriangle className="h-3 w-3 shrink-0 text-red-500" /> = gerente con 2+ citas no contestadas
+        <AlertTriangle className="h-3 w-3 shrink-0 text-red-500" /> = gerente con 2+ citas no atendidas
         en el rango (candidato a Black List según la regla de penalización).
       </p>
     </div>
