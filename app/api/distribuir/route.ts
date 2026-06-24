@@ -9,6 +9,7 @@ import {
   updateLead,
   addNote,
   leadUrl,
+  QUALITY_STAGE_ASIGNADA,
 } from "@/lib/zoho";
 import type { Asignacion, HoyAsignacion, ZonaCodigo } from "@/lib/types";
 
@@ -94,28 +95,25 @@ export async function POST(req: Request) {
       try {
         const reps = await getSalesTeam();
         const match = reps.find((r) => norm(r.name) === norm(gerente));
-        consultorEscrito = match?.name ?? null;
-        const notaBase = `Distribución automática (rotación del Excel · zona ${zona}).\nGerente que sigue por carga: ${gerente}.`;
+        consultorEscrito = match?.name ?? gerente; // Assign_Cons_Appt_Name es text → siempre el nombre
+        const notaBase = `Distribución automática (rotación del Excel · zona ${zona}).\nConsultor asignado: ${consultorEscrito}.`;
 
-        if (match) {
-          const res = await updateLead(String(leadId), { salesRepId: match.id });
-          const rec = res?.data?.[0];
-          if (rec && rec.code !== "SUCCESS") {
-            return NextResponse.json(
-              { ok: false, error: rec.message || "Zoho rechazó la actualización", detalle: rec },
-              { status: 400 }
-            );
-          }
-          await addNote(String(leadId), `${notaBase}\n\n— Consultor asignado: ${match.name}.\n(BOT DISTRIBUIDOR)`);
-          zohoEscrito = "sales_rep";
-        } else {
-          // El gerente del Excel no existe como consultor en Sales_Team → dejamos nota y no tocamos el campo.
-          await addNote(
-            String(leadId),
-            `${notaBase}\n\n⚠️ No se encontró "${gerente}" en Sales_Team — asignar manualmente.\n(BOT DISTRIBUIDOR)`
+        // Escribe en los campos dedicados (text) + avanza el flujo de Calidad.
+        const res = await updateLead(String(leadId), {
+          assignName: consultorEscrito,
+          assignId: match?.id ?? "",
+          qualityStage: QUALITY_STAGE_ASIGNADA, // "Cita Confirmada"
+        });
+        const rec = res?.data?.[0];
+        if (rec && rec.code !== "SUCCESS") {
+          return NextResponse.json(
+            { ok: false, error: rec.message || "Zoho rechazó la actualización", detalle: rec },
+            { status: 400 }
           );
-          zohoEscrito = "nota";
         }
+        const aviso = match ? "" : `\n⚠️ "${gerente}" no se encontró en Sales_Team (sin Id, solo nombre).`;
+        await addNote(String(leadId), `${notaBase}\nQuality Stage → ${QUALITY_STAGE_ASIGNADA}.${aviso}\n(BOT DISTRIBUIDOR)`);
+        zohoEscrito = "sales_rep"; // marca "Asignado" en el Historial
         url = leadUrl(String(leadId));
       } catch (e) {
         return NextResponse.json(

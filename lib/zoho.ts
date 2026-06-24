@@ -196,13 +196,33 @@ export async function getUsers(): Promise<ZUser[]> {
   return rows.map((u) => ({ id: String(u.id), name: String(u.full_name ?? ""), active: u.status === "active" }));
 }
 
-// ── Escritura: cambiar consultor (Sales_Rep) y/o dueño (Owner) ──
-export async function updateLead(id: string, fields: { salesRepId?: string; ownerId?: string; salesRepPhone?: string; salesRepEmail?: string }) {
+// Quality_Stage al que avanza la cita tras asignar (confirmado por Cata 2026-06-24).
+export const QUALITY_STAGE_ASIGNADA = process.env.ZOHO_QUALITY_STAGE_ASIGNADA || "Cita Confirmada";
+
+// ── Escritura: asignación del distribuidor + avance de Quality_Stage ──
+// El distribuidor escribe en Assign_Cons_Appt_Name/Id (campos dedicados, text) y
+// avanza Quality_Stage → "Cita Confirmada". (Sales_Rep/Owner siguen disponibles
+// para el flujo manual de "Reasignar".)
+export async function updateLead(
+  id: string,
+  fields: {
+    salesRepId?: string;
+    ownerId?: string;
+    salesRepPhone?: string;
+    salesRepEmail?: string;
+    assignName?: string; // Assign_Cons_Appt_Name (consultor que asigna el distribuidor)
+    assignId?: string; // Assign_Cons_Appt_Id
+    qualityStage?: string; // avance del flujo de Calidad
+  }
+) {
   const data: Record<string, unknown> = {};
   if (fields.salesRepId) data[F.salesRep] = { id: fields.salesRepId };
   if (fields.ownerId) data[F.owner] = { id: fields.ownerId };
   if (fields.salesRepPhone) data["Sales_Rep_Phone"] = fields.salesRepPhone;
   if (fields.salesRepEmail) data["Sales_Rep_Email"] = fields.salesRepEmail;
+  if (fields.assignName !== undefined) data[F.assignName] = fields.assignName;
+  if (fields.assignId !== undefined) data[F.assignId] = fields.assignId;
+  if (fields.qualityStage) data[F.qualityStage] = fields.qualityStage;
   return zoho(`/Leads/${id}`, { method: "PUT", body: { data: [data] } });
 }
 
