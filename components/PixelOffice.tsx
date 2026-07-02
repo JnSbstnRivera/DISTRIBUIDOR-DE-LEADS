@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { FURN_CATALOG, SPR, TINTS, type OfficeLayout, type Room, type Furn, type LogoItem } from "@/lib/office";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  FURN_CATALOG, SPR, TINTS, WALL_SPR, WALL_PIECE_W, WALL_PIECE_H, WALL_GRID_COLS,
+  wallGrid, wallMask, type OfficeLayout, type Room, type Furn, type LogoItem,
+} from "@/lib/office";
 
 /* ── Paleta Windmar ── */
 const C = { orange: "#F89B24", navy: "#21274E", wall: "#1a2240" };
@@ -36,7 +39,7 @@ export const SHEET_META: Record<string, SheetMeta> = {
   char_4: { ...CHAR, base: "/agents/pixel/" }, char_5: { ...CHAR, base: "/agents/pixel/" },
 };
 
-const SIT_OFFSET = 0.16; // baja un poco al sentarse
+const SIT_RAISE = 0.04; // al sentarse, sube muy poco al agente para dejarlo pegado al monitor
 // Escala NATIVA como el repo Pixel Agents: personaje = 1 tile de ancho, muebles a su footprint exacto.
 const AGENT_SCALE = 1.0;
 const FURN_SCALE = 1.0;
@@ -59,8 +62,9 @@ export function SpriteImg({
 
   const typeFrames = m.type ?? [m.idle];
   const col = working ? typeFrames[frame % typeFrames.length] : walking ? m.walk[frame % m.walk.length] : m.idle;
-  // sentado (trabajando o quieto) baja al asiento; quieto usa el frame idle
-  const sitOffset = working || seated ? dispH * SIT_OFFSET : 0;
+  // sentado (trabajando o quieto): sube al agente para que torso+bracitos asomen sobre la mesa.
+  // El movimiento de "trabajando" son los frames type1/type2 (los brazos), ya no un salto.
+  const sitOffset = working || seated ? -dispH * SIT_RAISE : 0;
 
   return (
     <div className="relative flex flex-col items-center" style={{ transform: flip ? "scaleX(-1)" : undefined }}>
@@ -123,6 +127,14 @@ export default function PixelOffice({
   const drag = useRef<DragState>(null);
   const { cols, rows } = layout;
   const tile = wPx / cols;
+
+  const walls = useMemo(() => {
+    const g = wallGrid(layout);
+    const out: { col: number; row: number; mask: number }[] = [];
+    for (let r = 0; r < g.length; r++)
+      for (let c = 0; c < (g[0]?.length ?? 0); c++) if (g[r][c]) out.push({ col: c, row: r, mask: wallMask(g, c, r) });
+    return out;
+  }, [layout]);
 
   useEffect(() => {
     const el = boxRef.current;
@@ -215,17 +227,6 @@ export default function PixelOffice({
           >
             {/* piso (solo este lleva el tinte, para no teñir la etiqueta) */}
             <div className="absolute inset-0" style={{ backgroundImage: `url(${SPR}${room.tile}.png)`, backgroundSize: `${tile}px ${tile}px`, imageRendering: "pixelated", filter: room.tint ? TINTS[room.tint] : undefined }} />
-            {/* pared trasera 3D (cap superior claro + cara navy + sombra base) — donde cuelgan cuadros y estantes */}
-            <div
-              className="pointer-events-none absolute left-0 right-0 top-0"
-              style={{
-                height: Math.round(tile * 0.95),
-                background: `linear-gradient(180deg, #3c4a86 0%, #3c4a86 30%, #262e57 31%, #1c2247 100%)`,
-                borderBottom: `${Math.max(2, tile * 0.12)}px solid #11152b`,
-                boxShadow: "inset 0 2px 0 rgba(255,255,255,.08)",
-                zIndex: 3,
-              }}
-            />
             <span className="pointer-events-none absolute left-1 top-1 rounded-sm px-1.5 py-0.5 text-[9px] font-bold" style={{ background: C.navy, color: C.orange, border: `1px solid ${C.orange}`, zIndex: 50 }}>
               {room.label}
             </span>
@@ -233,6 +234,27 @@ export default function PixelOffice({
               <div onPointerDown={(e) => startRoomDrag(e, room, "resize")} title="Redimensionar" className="absolute" style={{ right: -7, bottom: -7, width: 14, height: 14, background: C.orange, border: "2px solid #fff", borderRadius: 3, cursor: "nwse-resize", zIndex: 60 }} />
             )}
           </div>
+        );
+      })}
+
+      {/* Paredes reales (autotile) — anillo exterior de la unión de cuartos, hoja 64×128 (4×4 piezas 16×32) */}
+      {walls.map(({ col, row, mask }) => {
+        const wCol = mask % WALL_GRID_COLS, wRow = Math.floor(mask / WALL_GRID_COLS);
+        const pieceAspect = WALL_PIECE_H / WALL_PIECE_W; // 2 → la pieza sube 1 tile sobre su fila (cara 3D)
+        const h = tile * pieceAspect;
+        return (
+          <div
+            key={`wall_${col}_${row}`}
+            className="pointer-events-none absolute"
+            style={{
+              left: col * tile, top: (row + 1) * tile - h, width: tile, height: h,
+              zIndex: zFromRow(row + 1),
+              backgroundImage: `url(${WALL_SPR})`,
+              backgroundSize: `${tile * WALL_GRID_COLS}px ${h * WALL_GRID_COLS}px`,
+              backgroundPosition: `-${wCol * tile}px -${wRow * h}px`,
+              imageRendering: "pixelated",
+            }}
+          />
         );
       })}
 

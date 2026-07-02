@@ -5,6 +5,14 @@
 export const SPR = "/agents/pixel/office/"; // sprites de mobiliario
 export const FLOOR_TILES = ["floor_0", "floor_1", "floor_2", "floor_3", "floor_4", "floor_6", "floor_7", "floor_8"];
 
+// Pared autotile — hoja 64×128 = grid 4×4 de piezas 16×32 (repo pixel-agents-main).
+// Bitmask por pieza (índice 0-15): N=1, E=2, S=4, W=8 según qué vecinos son TAMBIÉN pared.
+// Cada pieza sube 1 tile por encima de su fila (cara 3D), igual que el motor canvas del repo.
+export const WALL_SPR = `${SPR}wall_0.png`;
+export const WALL_PIECE_W = 16;
+export const WALL_PIECE_H = 32;
+export const WALL_GRID_COLS = 4;
+
 // Tintes CSS para colorear los pisos grises (madera/azul/neutro) sin motor de color.
 export const TINTS: Record<string, string> = {
   ninguno: "",
@@ -101,7 +109,7 @@ export type OfficeLayout = {
   logos?: LogoItem[];
 };
 
-export const LAYOUT_REV = 5; // sube para descartar layouts viejos guardados (fuerza perfil/de lado)
+export const LAYOUT_REV = 6; // sube para descartar layouts viejos guardados (v6 = agentes de frente + paredes autotile)
 
 export const MIN_COLS = 20;
 export const MAX_COLS = 80;
@@ -123,19 +131,20 @@ export const DEFAULT_LAYOUT: OfficeLayout = {
     { id: "d_bs1", type: "BOOKSHELF", col: 13, row: 1 },
     { id: "d_bs2", type: "BOOKSHELF", col: 15, row: 1 },
     { id: "d_hang", type: "HANGING_PLANT", col: 12, row: 1 },
-    // 4 escritorios — el agente se sienta de PERFIL hacia su monitor (PC de lado / de espaldas)
-    { id: "d_dk1", type: "DESK_FRONT", col: 2, row: 4, face: "right" },
-    { id: "d_dk2", type: "DESK_FRONT", col: 9, row: 4, face: "left" },
-    { id: "d_dk3", type: "DESK_FRONT", col: 2, row: 9, face: "right" },
-    { id: "d_dk4", type: "DESK_FRONT", col: 9, row: 9, face: "left" },
-    { id: "d_pc1", type: "PC_SIDE", col: 4, row: 4, mirrored: true }, // agente mira derecha → pantalla hacia él (izq)
-    { id: "d_pc2", type: "PC_SIDE", col: 9, row: 4 },                 // agente mira izquierda → pantalla hacia él (der)
-    { id: "d_pc3", type: "PC_BACK", col: 4, row: 9 },                 // monitor de espaldas (variedad)
-    { id: "d_pc4", type: "PC_SIDE", col: 9, row: 9 },
-    { id: "ch_1", type: "CUSHIONED_CHAIR_BACK", col: 3, row: 4 },
-    { id: "ch_2", type: "CUSHIONED_CHAIR_BACK", col: 10, row: 4 },
-    { id: "ch_3", type: "CUSHIONED_CHAIR_BACK", col: 3, row: 9 },
-    { id: "ch_4", type: "CUSHIONED_CHAIR_BACK", col: 10, row: 9 },
+    // 4 escritorios — el agente se sienta DE FRENTE (mirando abajo) y teclea de frente;
+    // el monitor PC_BACK va centrado delante de él (pantalla hacia el agente, espalda hacia nosotros).
+    { id: "d_dk1", type: "DESK_FRONT", col: 2, row: 4, face: "down" },
+    { id: "d_dk2", type: "DESK_FRONT", col: 9, row: 4, face: "down" },
+    { id: "d_dk3", type: "DESK_FRONT", col: 2, row: 9, face: "down" },
+    { id: "d_dk4", type: "DESK_FRONT", col: 9, row: 9, face: "down" },
+    { id: "d_pc1", type: "PC_BACK", col: 3, row: 4 },  // centrado sobre el escritorio (seat col = f.col+1)
+    { id: "d_pc2", type: "PC_BACK", col: 10, row: 4 },
+    { id: "d_pc3", type: "PC_BACK", col: 3, row: 9 },
+    { id: "d_pc4", type: "PC_BACK", col: 10, row: 9 },
+    { id: "ch_1", type: "CUSHIONED_CHAIR_FRONT", col: 3, row: 4 },
+    { id: "ch_2", type: "CUSHIONED_CHAIR_FRONT", col: 10, row: 4 },
+    { id: "ch_3", type: "CUSHIONED_CHAIR_FRONT", col: 3, row: 9 },
+    { id: "ch_4", type: "CUSHIONED_CHAIR_FRONT", col: 10, row: 9 },
     { id: "d_lp1", type: "LARGE_PLANT", col: 14, row: 6 },
     { id: "d_pl1", type: "PLANT", col: 1, row: 11 },
     // lounge agrupado
@@ -151,9 +160,9 @@ export const DEFAULT_LAYOUT: OfficeLayout = {
     // Manager
     { id: "d_pnt", type: "LARGE_PAINTING", col: 18, row: 7 },
     { id: "d_bs3", type: "BOOKSHELF", col: 22, row: 7 },
-    { id: "d_dk5", type: "DESK_FRONT", col: 19, row: 10, face: "right" },
-    { id: "d_pc5", type: "PC_SIDE", col: 21, row: 10, mirrored: true }, // mira derecha → pantalla hacia él
-    { id: "ch_5", type: "CUSHIONED_CHAIR_BACK", col: 20, row: 10 },
+    { id: "d_dk5", type: "DESK_FRONT", col: 19, row: 10, face: "down" },
+    { id: "d_pc5", type: "PC_BACK", col: 20, row: 10 }, // centrado, pantalla hacia el gerente
+    { id: "ch_5", type: "CUSHIONED_CHAIR_FRONT", col: 20, row: 10 },
     { id: "d_lp2", type: "LARGE_PLANT", col: 24, row: 10 },
   ],
   logos: [
@@ -213,6 +222,36 @@ export function walkableGrid(layout: OfficeLayout): Grid {
   for (let r = 0; r < layout.rows; r++)
     for (let c = 0; c < layout.cols; c++) g[r][c] = floor[r][c] && !blocked[r][c];
   return g;
+}
+
+// Anillo de paredes: cualquier celda SIN piso que sea vecina (4-dir) de una celda CON piso.
+// Como las fronteras entre cuartos contiguos son piso-piso (no generan pared), esto dibuja
+// solo el borde exterior real de la unión de cuartos — sin necesidad de puertas explícitas.
+export function wallGrid(layout: OfficeLayout): Grid {
+  const floor = floorGrid(layout);
+  const g = makeGrid(layout.rows, layout.cols, false);
+  for (let r = 0; r < layout.rows; r++) {
+    for (let c = 0; c < layout.cols; c++) {
+      if (floor[r][c]) continue;
+      const n = r > 0 && floor[r - 1][c];
+      const e = c < layout.cols - 1 && floor[r][c + 1];
+      const s = r < layout.rows - 1 && floor[r + 1][c];
+      const w = c > 0 && floor[r][c - 1];
+      if (n || e || s || w) g[r][c] = true;
+    }
+  }
+  return g;
+}
+
+// Bitmask N=1,E=2,S=4,W=8 de vecinos que TAMBIÉN son pared → elige la pieza autotile correcta.
+export function wallMask(walls: Grid, col: number, row: number): number {
+  const rows = walls.length, cols = rows ? walls[0].length : 0;
+  let m = 0;
+  if (row > 0 && walls[row - 1][col]) m |= 1;
+  if (col < cols - 1 && walls[row][col + 1]) m |= 2;
+  if (row < rows - 1 && walls[row + 1][col]) m |= 4;
+  if (col > 0 && walls[row][col - 1]) m |= 8;
+  return m;
 }
 
 /* ── Asientos: derivados de los muebles isDesk ──

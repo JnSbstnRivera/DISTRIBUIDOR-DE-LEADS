@@ -1,7 +1,9 @@
 # 🪟 HANDOFF — Distribuidor de Leads · Windmar Home
 
 > Traspaso para **continuar en un chat nuevo**. Léelo completo: estado, arquitectura, lógica, dónde vive la data, pendientes y roadmap.
-> _Última actualización: 2026-06-24._
+> _Última actualización: 2026-07-01._
+>
+> **⚠️ REGLA: NO hacer `git push` sueltos.** El Vercel es de la empresa y cada push = build = costo. Trabajar LOCAL, verificar, y desplegar SOLO cuando el usuario lo pida (agrupando cambios).
 
 ---
 
@@ -16,7 +18,43 @@
    ```
    http://localhost:3010 (Next lee `.env.local` al **arrancar** → reiniciar tras cambiar env).
 5. **Fuentes:** Excel/Word de Miguel en `C:\Claude Code\DISTRIBUIDOR DE LEADS MIGUEL\` (`Distribucion de Leads.xlsx`, `Criterios de Asignación de Leads.docx`). Repo de assets pixel: `pixel-agents-main/` (MIT).
-6. **✅ Decisión Fase B resuelta (2026-06-24):** el usuario eligió **flujo de confirmación** (no A/B/C directo): el botón muestra a quién le toca por la lógica y, al confirmar, asigna automático escribiendo **`Sales_Rep`** (mapeando gerente→Sales_Team por nombre) + nota. Ya implementado (ver §7).
+6. **Campo de escritura CONFIRMADO:** el distribuidor escribe **`Assign_Cons_Appt_Name` + `Assign_Cons_Appt_Id`** (campos dedicados, text) y avanza **`Quality_Stage` → "Cita Confirmada"** + nota (BOT DISTRIBUIDOR). NO Sales_Rep. Todo gateado tras el flag **`DISTRIBUIDOR_ESCRIBE`** (APAGADO = modo demo, no escribe). Ver §0.5 y §7.
+
+---
+
+## 0.5) 🟢 ESTADO AL 2026-07-01 (lo más reciente — LEER)
+
+Trabajé la semana con Cata/Miguel. **Fases 1-5 del plan de la reunión: HECHAS** (reimport Excel, motor, Zoho lectura, front reducido, verificación). Todo desplegado en prod **en MODO DEMO** (lee Zoho en vivo, NO escribe).
+
+**Lo que quedó funcionando (prod):**
+- **Citas (`/citas`)** — vista analista COMPACTA (7 columnas, sin scroll horizontal): Cita · Lead · Ciudad · Sales Rep · Quality Stage · **Ruta** · Distribuidor. **Filtros rápidos** (Todas / Por distribuir / Hoy / Promotor / En espera / Ya asignado) + filtros Team Assistance + Lead Source + analista. Excluye citas owned por **Juan Camilo Salas Montoya** (creación masiva = ruido: 71→~25). Badge de **Ruta** (Hoy/Digitales/PP Hatillo/Consultor/En espera).
+- **Motor** (`lib/engine.ts` + `lib/decision.ts`): cascada = **horario incompatible→"espera"** (fuera 7am-8pm, ej. citas 12am) · Deal→dueño · **PROMOTOR→PP Hatillo** (por producto vía Lead_Type; PP Hatillo es SOLO para promotores) · consultor activo→se mantiene · sin consultor→DISTRIBUIDOR por zona (Hoy si es hoy, Leads Digitales si mañana+). Rank por menor carga (OffersT2), Tier2 POR ZONA excluido del "siguiente" (se intercala aparte). **Verificado 5/6 zonas vs Excel** (MAYA difiere por scheduling Tier2 "cada 2 vueltas" — gap aceptado para piloto).
+- **Escritura preparada** (tras flag, OFF): al confirmar Distribuir → `Assign_Cons_Appt_Name`(=consultor) + `Assign_Cons_Appt_Id` + `Quality_Stage="Cita Confirmada"` + nota. `/api/distribuir`.
+- **Front reducido** a: Citas(Analista) · Leads Digitales(`/asignar`) · Distribución Hoy(`/hoy`) · **PP Hatillo**(`/canales` reconvertido, rota por producto Solar-Roofing/Water-Anker) · Mapa · **Consulta**(Dashboard+Gerentes+BlackList) · Historial. Se quitaron del menú: Cumplimiento, Dashboard suelto.
+- **Historial**: columnas Consultor/Zoho + export CSV.
+
+**Pixel Agents — ✅ TERMINADO Y APROBADO (2026-07-01):** porté el motor canvas HD del repo a `lib/pixel/` (funciona, con editor propio `PixelEditPanel`), PERO **el usuario prefirió la versión DOM** (se ve como le gusta y carga rápido; la HD decodifica ~57 PNG en el navegador = lenta). Estado final:
+  - **Restaurada la versión DOM** con `git checkout 1ae3fa8 -- app/pixel-agents/page.tsx` (`components/PixelOffice.tsx` + `lib/office.ts`).
+  - **Mejoras visuales reutilizando assets del repo pixel-agents-main (sin migrar a canvas):**
+    - **Paredes autotile reales**: `wall_0.png` (64×128 = grid 4×4 de piezas 16×32) que estaba copiado del repo sin usarse. `lib/office.ts` → `wallGrid()` (anillo exterior de la unión de cuartos, sin puertas explícitas) + `wallMask()` (bitmask N=1/E=2/S=4/W=8). `PixelOffice.tsx` pinta la capa con `background-position` (misma técnica que los personajes). Se quitó el degradado CSS falso de "pared trasera".
+    - **Agentes de frente tecleando**: escritorios con `face: "down"` (miran al frente), monitor `PC_BACK` centrado justo delante (pantalla hacia el agente). La animación de tecleo (frames type1/type2, dirección down) mueve **ambos brazos de frente**. Sillas `CUSHIONED_CHAIR_FRONT`.
+    - **`SIT_RAISE = 0.04`** en `PixelOffice.tsx`: sube apenas al agente en la silla para que el torso/bracitos asomen sobre la mesa sin despegarse del monitor. (Se probó un "bob"/rebote y NO gustó — parecía que saltaban; se quitó. El único movimiento es el de los bracitos.)
+    - `LAYOUT_REV = 6` (descarta layouts viejos guardados en localStorage).
+  - Verificado local: `npx tsc --noEmit` limpio, carga en vivo (Zoho 21 citas, 2 a distribuir), sin errores de consola.
+  - **⚠️ TODO SIN COMMITEAR NI PUSHEAR** (regla NO push suelto — agrupar y subir cuando el usuario lo pida).
+  - **Motor HD parqueado** (`lib/pixel/`, `components/PixelOfficeHD.tsx`, `PixelEditPanel.tsx`) sin uso; no borrar. Si se retoma: pre-decodificar PNG→JSON en build para que cargue rápido.
+  - Pixel Agents sigue siendo **easter-egg** (robot en esquina del sidebar).
+
+**📌 ESTUDIO DEL EXCEL (versión Jul 1) — el enfoque es FIEL:** re-estudiado hoja por hoja + docx de Criterios. **Confirmado:** motor real = `Offers = COUNTIFS(columna-zona, gerente) + Ajuste` (excluye BlackList, solo si `Opt In`) — fórmula `AT7` de Leads Digitales + estructura de `Dashboard - Leads`; 6 zonas; Tier 2 POR ZONA; Digitales(futuras)/HOY(same-day); PP Hatillo por producto; reglas del docx (deal→consultor recurrente, 20 min o pierde turno, blacklist, comunicación **Teams+correo+evento de calendario**). **PP HATILLO = el canal "Booths - Hatillo"** (la hoja se titula así; el Dashboard tiene el canal `BOOTH - HAT`) = leads del booth físico de Hatillo rotados por línea de producto → el disparador Zoho va por el campo `Booths` (valor de Hatillo), falta el exacto de Andrés. **⚠️ "IG" DESCARTADO:** el Dashboard tiene columnas `IG - SJ2/PON/MAYA/CORD` + `MED`, pero Cata confirmó que "IG" NO es Instagram, no supo su origen, y se descartó → NO entra al distribuidor, NO volver a preguntar. Alcance firme = 4 hojas (Zonas-Pueblos, Leads Digitales, HOY, PP Hatillo).
+
+**🔑 PENDIENTES PARA CERRAR (orden sugerido):**
+1. ~~Restaurar/mejorar Pixel Agents DOM~~ ✅ hecho y aprobado; falta commitear/pushear cuando el usuario lo pida.
+2. **Prender escritura del Distribuidor:** confirmar con **Andrés** el **disparador de PP Hatillo** (qué valor del campo `Booths` marca un lead del booth de Hatillo). `Quality_Stage→Cita Confirmada` YA confirmado por Cata. Luego `DISTRIBUIDOR_ESCRIBE=1` en Vercel. ⚠️ Al prender, escribe en Zoho PRODUCCIÓN — probar con 1 cita primero.
+3. **Correo/calendario (requisito Cata + docx):** al asignar, enviar invitación para que la cita quede en el CALENDARIO del consultor Y del asesor. Vía **N8N** (u Outlook/.ics). Definir canal + correos.
+4. **Regla consultor inactivo** (hoy se asume activo) + rama Deal→owner (query aparte a Deals; el docx la exige como "lead recurrente").
+5. (Opcional) validar motor vs Excel al 100% (regla Tier2 "cada 2 vueltas" exacta de Andrés; hoy 5/6 zonas, MAYA falla).
+
+**API names Zoho confirmados:** `Gerente_Asignado`(=Sales Assist, text), `Assign_Cons_Appt_Name`/`Assign_Cons_Appt_Id`(text, donde escribe el bot), `Quality_Stage`(picklist: On Hold Quality→**Cita Confirmada**), `Lead_Type`(productos), `Booths`, `Sales_Rep`(lookup Sales_Team), `Presenter_Appointment`(fecha), `Quality_Owner`(analista). Promotores (van a PP Hatillo, match por tokens): Isaac Cruz, Ivette Jiménez, Lisette Nieves, Pedro González, Samantha Ruiz, Edgar O Rodríguez, Pablo Méndez, Marisol Espinosa.
 
 ---
 
@@ -100,13 +138,14 @@ public/agents/pixel/  char_0..5 (personajes) · office/ (muebles+pisos) · windm
 ---
 
 ## 6) Pixel Agents — `lib/office.ts` + `components/PixelOffice.tsx` + `app/pixel-agents/page.tsx`
-- **Modelo de grid de tiles** (DOM, no canvas). `DEFAULT_LAYOUT` actual = **28×15**, 3 áreas (Workspace, Reunión, Gerencia). `LAYOUT_REV=4` (al subirlo, recarga el layout viejo del navegador).
+- **Modelo de grid de tiles** (DOM, no canvas). `DEFAULT_LAYOUT` actual = **28×15**, 3 áreas (Workspace, Reunión, Gerencia). `LAYOUT_REV=6` (al subirlo, recarga el layout viejo del navegador).
 - **Escala NATIVA** (como el repo): `AGENT_SCALE=1.0`, `FURN_SCALE=1.0`, electrónica 0.8.
-- **Comportamiento:** inactivo = **sentado** en su escritorio; con trabajo real (Zoho) = **tecleando**. Se sientan **de perfil** mirando su monitor (`face` por escritorio en el layout). Monitores **PC_SIDE / PC_BACK** espejados para apuntar al agente. **Deambulan solo dentro de su cuarto** (`homeBox`) → **no cruzan muros**. z-sort: el escritorio tapa las piernas.
+- **Paredes autotile (2026-07-01):** `wallGrid()` calcula el anillo exterior de la unión de cuartos (celda sin piso vecina de piso), `wallMask()` da el bitmask (N=1/E=2/S=4/W=8) para elegir la pieza del sprite `wall_0.png` (grid 4×4 de 16×32). Se pinta con `background-position`, cada pieza sube 1 tile (cara 3D). Reemplazó el degradado CSS falso.
+- **Comportamiento:** inactivo = **sentado** en su escritorio; con trabajo real (Zoho) = **tecleando de frente**. Se sientan **de frente** (`face:"down"` en cada escritorio) con el monitor **`PC_BACK` centrado justo delante** (pantalla hacia el agente). `SIT_RAISE=0.04` los sube apenas para que torso/bracitos asomen sobre la mesa. La animación de tecleo (frames type1/type2, dir down) mueve ambos brazos de frente = señal de "trabajando" (NO hay bob/rebote — se probó y no gustó). **Deambulan solo dentro de su cuarto** (`homeBox`) → **no cruzan muros**. z-sort: el escritorio/monitor tapan las piernas.
 - **Estado en vivo:** la página consulta `/api/zoho/leads` (45s); agentes reaccionan (Zoho Sync lee, Distribuidor trabaja si hay citas sin consultor) con burbuja de estado real (`busyRef`).
 - **Editor:** botón **Editar / Dejar de editar** (por defecto solo se ven). 5 pestañas: Agentes, Muebles, Áreas, Tamaño, Logo. Click-para-editar, arrastrar/redimensionar, **botón Guardar cambios**. Persiste en `localStorage`.
 - **Acceso = easter egg:** robot discreto en la esquina inferior izquierda del sidebar (ya NO está en el menú).
-- **Pendiente estético:** paredes con autotile real (`walls.png`), pisos HSL, pathfinding diagonal — requieren portar el motor canvas del repo.
+- **Motor HD parqueado:** `lib/pixel/` + `components/PixelOfficeHD.tsx` + `PixelEditPanel.tsx` (canvas, más fiel pero lento por decodificar PNG en el navegador). Sin uso; no borrar. Si se retoma: pre-decodificar PNG→JSON en build.
 
 ---
 

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
+import AppShell from "@/components/AppShell";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import AnimatedBackground from "@/components/AnimatedBackground";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,11 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" suppressHydrationWarning className={`${inter.variable} ${jetbrains.variable}`}>
       <body>
         <ThemeProvider>
-          <AnimatedBackground />
-          <Sidebar />
-          <div className="lg:pl-64">
-            <main className="mx-auto max-w-7xl px-4 pb-20 pt-6">{children}</main>
-          </div>
+          <AppShell>{children}</AppShell>
         </ThemeProvider>
       </body>
     </html>
